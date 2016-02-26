@@ -4,4 +4,17 @@
  * @author Liang <liang@maichong.it>
  */
 
-'use strict';
+export const PREFIX = window.PREFIX || '.';
+
+export const LOAD = 'LOAD';
+export const LOAD_COMPLETE = 'LOAD_COMPLETE';
+
+export const REFRESH_INFO = 'REFRESH_INFO';
+export const REFRESH_INFO_COMPLETE = 'REFRESH_INFO_COMPLETE';
+export const REFRESH_INFO_ERROR = 'REFRESH_INFO_ERROR';
+
+export const LOGIN = 'LOGIN';
+export const LOGIN_COMPLETE = 'LOGIN_COMPLETE';
+export const LOGIN_ERROR = 'LOGIN_ERROR';
+
+

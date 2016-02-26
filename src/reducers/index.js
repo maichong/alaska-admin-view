@@ -5,7 +5,37 @@
  */
 
 import * as _ from 'lodash';
+import {
+  REFRESH_INFO_COMPLETE,
+  LOGIN_ERROR
+} from '../constants';
 
-export default (state = {}, action)=> {
+export function login(state = {}, action) {
+  if (action.type == REFRESH_INFO_COMPLETE) {
+    console.log(action.payload);
+    if (!action.payload.logined) {
+      state = _.assign({}, state, {
+        show: true
+      });
+    }
+  }
+
+  if (action.type == LOGIN_ERROR) {
+    state = _.assign({}, state, {
+      errorMsg: action.payload.message
+    });
+  }
   return state;
-};
+}
+
+export function logined(state = false, action) {
+  return state;
+}
+
+export function access(state = false, action) {
+  return state;
+}
+
+export default function (state = {}, action) {
+  return state;
+}
