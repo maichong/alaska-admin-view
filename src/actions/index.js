@@ -32,6 +32,6 @@ export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/info');
 
 export const login = createAsyncAction(LOGIN, async (arg, dispatch)=> {
   console.log(arg);
-  let res = await api.post(PREFIX + '/login', arg);
+  let res = await api.post(PREFIX + '/api/login/login', arg);
   console.log(res);
 });

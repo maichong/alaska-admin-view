@@ -16,7 +16,19 @@ async function api(url, options) {
     credentials: 'same-origin'
   }, options));
   if (res.status >= 400) {
-    let error = new Error('Network error!');
+    let json;
+    try {
+      json = await res.json();
+    } catch (e) {
+      let error = new Error('Network error!');
+      error.status = res.status;
+      error.statusText = res.statusText;
+      throw error;
+    }
+    let error = new Error(json.error);
+    if (json.code) {
+      error.code = json.code;
+    }
     error.status = res.status;
     error.statusText = res.statusText;
     throw error;
@@ -29,22 +41,30 @@ async function api(url, options) {
 }
 
 api.post = async function (url, data, options) {
-  let body;
-  if (_.size(data)) {
-    body = new FormData();
-    _.each(data, (value, key)=> {
-      if (_.isArray(value)) {
-        for (let i in value) {
-          body.append(key, value[i]);
-        }
-      } else {
-        body.append(key, value);
-      }
-    });
-  }
+  let body = JSON.stringify(data || {});
   return api(url, _.assign({
     method: 'POST',
-    body: body
+    body: body,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }, options));
+};
+
+api.upload = async function (url, data, options) {
+  let body = new FormData();
+  _.each(data, (value, key)=> {
+    if (_.isArray(value)) {
+      for (let i in value) {
+        body.append(key, value[i]);
+      }
+    } else {
+      body.append(key, value);
+    }
+  });
+  return api(url, _.assign({
+    method: 'POST',
+    body
   }, options));
 };
 
