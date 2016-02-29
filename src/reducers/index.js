@@ -13,7 +13,7 @@ import {
 export function login(state = {}, action) {
   if (action.type == REFRESH_INFO_COMPLETE) {
     console.log(action.payload);
-    if (!action.payload.logined) {
+    if (!action.payload.signed) {
       state = _.assign({}, state, {
         show: true
       });
@@ -28,7 +28,7 @@ export function login(state = {}, action) {
   return state;
 }
 
-export function logined(state = false, action) {
+export function signed(state = false, action) {
   return state;
 }
 

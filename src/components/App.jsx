@@ -53,7 +53,7 @@ class App extends React.Component {
 
   componentDidMount() {
     let props = this.props;
-    if (!props.access && !props.logined && !props.login.show) {
+    if (!props.access && !props.signed && !props.login.show) {
       props.actions.refreshInfo();
     }
   }
@@ -73,7 +73,7 @@ class App extends React.Component {
         <Route component={RaisedButton} path="/login"/>
       </Router>;
     } else {
-      if (props.logined) {
+      if (props.signed) {
         //已登录,但无权限
         return <div>无权限</div>;
       }
@@ -87,6 +87,6 @@ class App extends React.Component {
   }
 }
 
-export default connect(({ login, access, logined }) => ({ login, access, logined }), dispatch => ({
+export default connect(({ login, access, signed }) => ({ login, access, signed }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(App);
