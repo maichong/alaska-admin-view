@@ -29,10 +29,18 @@ export function login(state = {}, action) {
 }
 
 export function signed(state = false, action) {
+  //for test
+  if (action.type == LOGIN_ERROR) {
+    return true;
+  }
   return state;
 }
 
 export function access(state = false, action) {
+  //for test
+  if (action.type == LOGIN_ERROR) {
+    return true;
+  }
   return state;
 }
 

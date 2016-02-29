@@ -13,7 +13,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 
-import Login from './login';
+import Login from './Login';
+import Locked from './Locked';
+import Manage from './Manage';
 
 class App extends React.Component {
 
@@ -69,13 +71,14 @@ class App extends React.Component {
   render() {
     let props = this.props;
     if (props.access) {
-      return <Router history={hashHistory}>
-        <Route component={RaisedButton} path="/login"/>
-      </Router>;
+      return <Manage>
+        <Router history={hashHistory}>
+        </Router>
+      </Manage>;
     } else {
       if (props.signed) {
         //已登录,但无权限
-        return <div>无权限</div>;
+        return <Locked/>;
       }
 
       //未登录

@@ -8,7 +8,12 @@ import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
 
-export default class Dashboard extends React.Component {
+
+import Header from './Header';
+import Sidebar from './Sidebar';
+import Content from './Content';
+
+export default class Manage extends React.Component {
 
   static propTypes = {
     children: React.PropTypes.node
@@ -70,7 +75,11 @@ export default class Dashboard extends React.Component {
       root: {}
     };
     return (
-      <div style={styles.root}>Dashboard Component</div>
+      <div style={styles.root}>
+        <Header/>
+        <Sidebar/>
+        <Content/>
+      </div>
     );
   }
 }
