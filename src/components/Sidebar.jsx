@@ -7,6 +7,11 @@
 import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
+import Paper from 'material-ui/lib/paper';
+import Menu from "./Menu"
+import Copyright from "./Copyright"
+import wrap from '../utils/wrap';
+
 
 export default class Sidebar extends React.Component {
 
@@ -35,14 +40,12 @@ export default class Sidebar extends React.Component {
       views: context.views
     };
   }
-
   getChildContext() {
     return {
       muiTheme: this.state.muiTheme,
       views: this.context.views,
     };
   }
-
   componentWillMount() {
   }
 
@@ -62,15 +65,24 @@ export default class Sidebar extends React.Component {
 
   componentWillUnmount() {
   }
-
   render() {
     let props = this.props;
     let state = this.state;
+    let views = this.state.views;
     let styles = {
-      root: {}
+      root: { 
+        width: 240,
+        height:"100%",
+        position:"fixed",
+        padding: 0
+      }
     };
-    return (
-      <div style={styles.root}>Sidebar Component</div>
+    let el= (
+     <Paper zDepth={2} style={styles.root}>
+       <Menu />
+       <Copyright value="Powered By Alaska"/>
+      </Paper>
     );
+    return wrap(views.wrappers.sidebar,el);
   }
 }
