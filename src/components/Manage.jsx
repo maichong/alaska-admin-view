@@ -78,7 +78,7 @@ export default class Manage extends React.Component {
       <div style={styles.root}>
         <Header/>
         <Sidebar/>
-        <Content/>
+        <Content>{props.children}</Content>
       </div>
     );
   }

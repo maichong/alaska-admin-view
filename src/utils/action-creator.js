@@ -23,11 +23,11 @@ export const createAsyncAction = (type, asyncFn) => (arg) => (dispatch) => {
   };
 };
 
-export const createApiAction = (type, url) => (options = {}) => (dispatch) => {
+export const createApiAction = (type, url) => (data = {}, options = {}) => (dispatch) => {
   dispatch({ type: type + '_START', meta: options });
   return {
     type,
-    payload: api(url, options).then(
+    payload: api.post(url, data, options).then(
       res => {
         dispatch({ type: type + '_COMPLETE', payload: res, meta: options });
       },
