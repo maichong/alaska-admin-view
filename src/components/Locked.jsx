@@ -7,7 +7,7 @@
 import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
-
+import wrap from "../utils/wrap"
 export default class Locked extends React.Component {
 
   static propTypes = {
@@ -66,11 +66,29 @@ export default class Locked extends React.Component {
   render() {
     let props = this.props;
     let state = this.state;
+    let views = this.state.views;
     let styles = {
-      root: {}
+      root: {
+        position:"fixed",
+        height:450,
+        width:"100%",
+        marginTop:0,
+        marginLeft:0
+      },
+      textStyle:{
+        "text-align":"center"
+      }
     };
-    return (
-      <div style={styles.root}>Locked Component</div>
+    let el = (
+
+    <div style={styles.root}>
+      {wrap(views.wrappers.lockedImg,<img width="100%" height="100%" src="/assets/lockedImage.jpg"/>)}
+      <div style={styles.textStyle}>
+        {wrap(views.wrappers.lockedTitle,<h1>{props.title}</h1>)}
+        {wrap(views.wrappers.lockedContent,<p>{props.content}</p>)}
+      </div>
+    </div>
     );
+    return wrap(views.wrappers.lockedTitle,el);
   }
 }

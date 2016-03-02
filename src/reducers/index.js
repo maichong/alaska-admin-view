@@ -7,6 +7,7 @@
 import * as _ from 'lodash';
 import {
   REFRESH_INFO_COMPLETE,
+  LOGIN_COMPLETE,
   LOGIN_ERROR
 } from '../constants';
 
@@ -29,18 +30,13 @@ export function login(state = {}, action) {
 }
 
 export function signed(state = false, action) {
-  //for test
-  if (action.type == LOGIN_ERROR) {
+  if (action.type === LOGIN_COMPLETE) {
     return true;
   }
   return state;
 }
 
 export function access(state = false, action) {
-  //for test
-  if (action.type == LOGIN_ERROR) {
-    return true;
-  }
   return state;
 }
 

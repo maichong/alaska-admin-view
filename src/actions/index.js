@@ -26,7 +26,7 @@ import {
 //  }
 //});
 
-export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/info');
+export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/api/login/info');
 
 //export const login = createApiAction(LOGIN, PREFIX + '/login');
 
