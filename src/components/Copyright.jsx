@@ -5,9 +5,10 @@
  */
 
 import React from 'react';
+import wrap from '../utils/wrap';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
-
+import Paper from 'material-ui/lib/paper';
 export default class Copyright extends React.Component {
 
   static propTypes = {
@@ -66,11 +67,24 @@ export default class Copyright extends React.Component {
   render() {
     let props = this.props;
     let state = this.state;
+    let views = this.state.views;
     let styles = {
-      root: {}
+      root: {
+        textAlign: 'center',
+        width:"100%",
+        height:30,
+        position:"absolute",
+        bottom:20
+      },
+      p:{
+        marginTop:5
+      }
     };
-    return (
-      <div style={styles.root}>Copyright Component</div>
+    let el= (
+     <Paper zDepth={1} style={styles.root}>
+       { wrap(views.wrappers.copyrightText,<p style={styles.p}>{props.value}</p>)}
+     </Paper>
     );
+    return wrap(views.wrappers.copyright,el);
   }
 }

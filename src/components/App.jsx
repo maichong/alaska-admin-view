@@ -70,6 +70,7 @@ class App extends React.Component {
 
   render() {
     let props = this.props;
+    //return <Locked title="权限不足" content="您没有权限访问当前页面，请联系管理员索要权限!"/>;
     if (props.access) {
       return <Manage>
         <Router history={hashHistory}>
