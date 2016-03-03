@@ -28,10 +28,4 @@ import {
 
 export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/api/login/info');
 
-//export const login = createApiAction(LOGIN, PREFIX + '/login');
-
-export const login = createAsyncAction(LOGIN, async (arg, dispatch)=> {
-  console.log(arg);
-  let res = await api.post(PREFIX + '/api/login/login', arg);
-  console.log(res);
-});
+export const login = createApiAction(LOGIN, PREFIX + '/api/login/login');

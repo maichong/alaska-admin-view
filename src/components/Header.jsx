@@ -8,6 +8,8 @@ import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
 
+import wrap from '../utils/wrap';
+
 import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconButton from 'material-ui/lib/icon-button';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
@@ -23,6 +25,7 @@ import MenuItem from 'material-ui/lib/menus/menu-item';
 import Divider from 'material-ui/lib/divider';
 import FlatButton from 'material-ui/lib/flat-button';
 import MoreVertIcon from 'material-ui/lib/svg-icons/navigation/more-vert';
+import Paper from 'material-ui/lib/paper';
 
 export default class Header extends React.Component {
 
@@ -95,19 +98,36 @@ export default class Header extends React.Component {
   render() {
     let props = this.props;
     let state = this.state;
+    let views = state.views;
+    let height = 56;
     let styles = {
-      root: {},
+      root: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        height: height
+      },
+      toolbar: {
+        background: '#fff',
+        height: height
+      },
+      title: {
+        paddingLeft: 20,
+        color: '#000'
+      },
       list: {
-        "float": "right",
-        "listStyle": "none",
+        float: 'right',
+        listStyle: 'none',
       }
     };
-    return (
-      <div style={styles.root}>
-        <Toolbar >
+    let el = (
+      <Paper id="header" zDepth={2} style={styles.root}>
+        <Toolbar style={styles.toolbar}>
 
           <ToolbarGroup firstChild={true} float="left">
-            <ToolbarTitle text="Alaska Manager"/>
+            <ToolbarTitle style={styles.title} text="Alaska Manager"/>
           </ToolbarGroup>
 
           <ToolbarGroup float="right">
@@ -191,7 +211,9 @@ export default class Header extends React.Component {
 
         </Toolbar>
 
-      </div>
+      </Paper>
     );
+
+    return wrap(views.wrappers.header, el);
   }
 }

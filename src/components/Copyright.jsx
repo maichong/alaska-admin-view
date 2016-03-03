@@ -70,21 +70,21 @@ export default class Copyright extends React.Component {
     let views = this.state.views;
     let styles = {
       root: {
+        background: '#222',
         textAlign: 'center',
-        width:"100%",
-        height:30,
-        position:"absolute",
-        bottom:20
+        width: '100%',
+        height: 20,
+        lineHeight: '20px',
+        padding: '20px 0',
+        position: 'absolute',
+        bottom: 0,
+        color: '#999',
+        fontSize: 12
       },
-      p:{
-        marginTop:5
+      p: {
+        marginTop: 5
       }
     };
-    let el= (
-     <Paper zDepth={1} style={styles.root}>
-       { wrap(views.wrappers.copyrightText,<p style={styles.p}>{props.value}</p>)}
-     </Paper>
-    );
-    return wrap(views.wrappers.copyright,el);
+    return wrap(views.wrappers.copyright, <div style={styles.root}>Powered By Alaska</div>);
   }
 }

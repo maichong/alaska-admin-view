@@ -30,13 +30,23 @@ export function login(state = {}, action) {
 }
 
 export function signed(state = false, action) {
-  if (action.type === LOGIN_COMPLETE) {
-    return true;
+  if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
+    return action.payload.signed;
   }
   return state;
 }
 
 export function access(state = false, action) {
+  if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
+    return !!action.payload.access;
+  }
+  return state;
+}
+
+export function settings(state = {}, action) {
+  if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
+    return _.assign({}, action.payload.settings);
+  }
   return state;
 }
 

@@ -7,6 +7,7 @@
 import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
+import wrap from '../utils/wrap';
 
 export default class Content extends React.Component {
 
@@ -67,10 +68,19 @@ export default class Content extends React.Component {
     let props = this.props;
     let state = this.state;
     let styles = {
-      root: {}
+      root: {
+        marginLeft: 240
+      },
+      inner: {
+        height: 1000
+      }
     };
-    return (
-      <div style={styles.root}>Content Component</div>
+    return wrap(state.views.wrappers.content,
+      <div id="content" style={styles.root}>
+        {
+          wrap(state.views.wrappers.contentInner, <div id="contentInner" style={styles.inner}>{props.children}</div>)
+        }
+      </div>
     );
   }
 }

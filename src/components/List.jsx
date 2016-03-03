@@ -1,23 +1,17 @@
 /**
  * @copyright Maichong Software Ltd. 2016 http://maichong.it
- * @date 2016-02-29
+ * @date 2016-03-03
  * @author Liang <liang@maichong.it>
  */
 
 import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import wrap from '../utils/wrap';
 
-import { Link } from 'react-router';
-
-export default class Menu extends React.Component {
+export default class List extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    menu: React.PropTypes.array,
+    children: React.PropTypes.node
   };
 
   static contextTypes = {
@@ -69,34 +63,14 @@ export default class Menu extends React.Component {
   componentWillUnmount() {
   }
 
-
-  _itemOnTouchTapHandle(menuObject) {
-    console.log(menuObject.id, menuObject.label);
-  }
-
-  _createMenuItem(item, level = 0) {
-    let views = this.state.views;
-    let nestedItems = _.map(item.subs, sub => this._createMenuItem(sub, level + 1));
-    let el = <ListItem style={{color:'#aaa'}} key={item.id} nestedItems={nestedItems} primaryText={item.label}/>;
-    let wrappers = _.get(views.wrappers, 'menu-' + item.id.replace(/\./g, '-'));
-    if (wrappers) {
-      el = wrap(wrappers, el);
-    }
-    el = wrap(views.wrappers.menuItem, el);
-    return item.link ? (<Link key={item.id} to={item.link}>{el}</Link>) : el;
-  }
-
   render() {
     let props = this.props;
     let state = this.state;
-    let views = this.state.views;
     let styles = {
-      root: {
-        background: '#333'
-      }
+      root: {}
     };
-    return wrap(views.wrappers.menu, <List id="menu" style={styles.root}>
-      { _.map(props.menu, item => this._createMenuItem(item))}
-    </List>);
+    return (
+      <div style={styles.root}>List Component</div>
+    );
   }
 }

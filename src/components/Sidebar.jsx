@@ -8,15 +8,16 @@ import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
 import Paper from 'material-ui/lib/paper';
-import Menu from "./Menu"
-import Copyright from "./Copyright"
+import Menu from './Menu';
+import Copyright from './Copyright';
 import wrap from '../utils/wrap';
 
 
 export default class Sidebar extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node
+    children: React.PropTypes.node,
+    menu: React.PropTypes.array,
   };
 
   static contextTypes = {
@@ -40,12 +41,14 @@ export default class Sidebar extends React.Component {
       views: context.views
     };
   }
+
   getChildContext() {
     return {
       muiTheme: this.state.muiTheme,
       views: this.context.views,
     };
   }
+
   componentWillMount() {
   }
 
@@ -65,24 +68,37 @@ export default class Sidebar extends React.Component {
 
   componentWillUnmount() {
   }
+
   render() {
     let props = this.props;
     let state = this.state;
     let views = this.state.views;
     let styles = {
-      root: { 
+      root: {
         width: 240,
-        height:"100%",
-        position:"fixed",
-        padding: 0
+        top: 56,
+        left: 0,
+        bottom: 0,
+        position: 'fixed',
+        background: '#333'
+      },
+      inner: {
+        position: 'relative',
+        height: '100%',
       }
     };
-    let el= (
-     <Paper zDepth={2} style={styles.root}>
-       <Menu />
-       <Copyright value="Powered By Alaska"/>
+    let el = (
+      <Paper id="sidebar" zDepth={1} style={styles.root}>
+        {
+          wrap(views.wrappers.sidebarInner,
+            <div id="sidebarInner" style={styles.inner}>
+              <Menu menu={props.menu}/>
+              <Copyright />
+            </div>
+          )
+        }
       </Paper>
     );
-    return wrap(views.wrappers.sidebar,el);
+    return wrap(views.wrappers.sidebar, el);
   }
 }

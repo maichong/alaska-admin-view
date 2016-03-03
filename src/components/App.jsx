@@ -12,10 +12,13 @@ import { Router, Redirect, IndexRoute, Route, Link, hashHistory } from 'react-ro
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
+import wrap from '../utils/wrap';
 
 import Login from './Login';
 import Locked from './Locked';
 import Manage from './Manage';
+import Editor from './Editor';
+import List from './List';
 
 class App extends React.Component {
 
@@ -42,7 +45,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
+      views: props.views,
     };
   }
 
@@ -70,27 +73,44 @@ class App extends React.Component {
 
   render() {
     let props = this.props;
-    //return <Locked title="权限不足" content="您没有权限访问当前页面，请联系管理员索要权限!"/>;
-    if (props.access) {
-      return <Manage>
-        <Router history={hashHistory}>
-        </Router>
-      </Manage>;
-    } else {
-      if (props.signed) {
-        //已登录,但无权限
-        return <Locked/>;
-      }
+    let state = this.state;
+    let views = state.views;
+    console.log(state);
+    let el;
 
-      //未登录
-      if (props.login.show) {
-        return <Login />;
-      }
-      return <div className="boot-loading">Loading...</div>;
+    //有权限
+    if (props.access) {
+      el = wrap(views.wrappers.router,
+        <Router history={hashHistory}>
+          {
+            wrap(views.wrappers.routes,
+              <Route component={Manage} path="/">
+                <Route component={List} path="list/:service/:model"></Route>
+                <Route component={Editor} path="editor/:service/:model"></Route>
+                {state.routes}
+              </Route>
+            )
+          }
+        </Router>
+      );
     }
+
+    //已登录,但无权限
+    else if (props.signed) {
+      el = <Locked/>;
+    }
+
+    //未登录
+    else if (props.login.show) {
+      el = <Login />;
+    } else {
+      el = <div className="boot-loading">Loading...</div>;
+    }
+
+    return wrap(views.wrappers.app, el);
   }
 }
 
-export default connect(({ login, access, signed }) => ({ login, access, signed }), dispatch => ({
+export default connect(({ login, access, signed, settings }) => ({ login, access, signed, settings }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(App);

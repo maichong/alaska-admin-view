@@ -14,7 +14,6 @@ import * as actions from '../actions';
 import * as _ from 'lodash';
 
 import wrap from '../utils/wrap';
-import plugin from '../utils/plugin';
 import Paper from 'material-ui/lib/paper';
 import TextField from 'material-ui/lib/text-field';
 import RaisedButton from 'material-ui/lib/raised-button';
