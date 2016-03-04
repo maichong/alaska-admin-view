@@ -5,6 +5,7 @@
  * @author Liang <liang@maichong.it>
  */
 
+import {stringify} from 'qs';
 import api from '../utils/api';
 import { createAction, createApiAction, createAsyncAction } from '../utils/action-creator';
 import {
@@ -12,7 +13,9 @@ import {
   REFRESH_INFO,
   REFRESH_INFO_COMPLETE,
   REFRESH_INFO_ERROR,
-  LOGIN
+  LOGIN,
+  LIST,
+  CREATE
 } from '../constants';
 
 
@@ -29,3 +32,12 @@ import {
 export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/api/login/info');
 
 export const login = createApiAction(LOGIN, PREFIX + '/api/login/login');
+
+export const list = createAsyncAction(LIST, async (args, dispatch)=> {
+  return await api.post(PREFIX + '/api/list?' + stringify(args));
+});
+
+//
+//export const create = (args, data) => (dispatch) => {
+//  dispatch({ type: CREATE + '_START', meta: args });
+//};

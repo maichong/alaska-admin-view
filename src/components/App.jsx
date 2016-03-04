@@ -35,6 +35,7 @@ class App extends React.Component {
   static childContextTypes = {
     muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
+    settings: React.PropTypes.object,
   };
 
   static mixins = [
@@ -45,7 +46,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: props.views,
+      views: props.views
     };
   }
 
@@ -53,6 +54,7 @@ class App extends React.Component {
     return {
       muiTheme: this.state.muiTheme,
       views: this.props.views,
+      settings: this.props.settings,
     };
   }
 
@@ -75,7 +77,6 @@ class App extends React.Component {
     let props = this.props;
     let state = this.state;
     let views = state.views;
-    console.log(state);
     let el;
 
     //有权限

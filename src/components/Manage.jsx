@@ -18,18 +18,19 @@ import Content from './Content';
 export default class Manage extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    settings: React.PropTypes.object,
+    children: React.PropTypes.node
   };
 
   static contextTypes = {
     muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
+    settings: React.PropTypes.object,
   };
 
   static childContextTypes = {
     muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
+    settings: React.PropTypes.object,
   };
 
   static mixins = [
@@ -40,7 +41,8 @@ export default class Manage extends React.Component {
     super(props);
     this.state = {
       muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views
+      views: context.views,
+      settings: context.settings,
     };
   }
 
@@ -48,6 +50,7 @@ export default class Manage extends React.Component {
     return {
       muiTheme: this.state.muiTheme,
       views: this.context.views,
+      settings: this.context.settings,
     };
   }
 

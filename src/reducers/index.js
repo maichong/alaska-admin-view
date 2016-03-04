@@ -8,7 +8,8 @@ import * as _ from 'lodash';
 import {
   REFRESH_INFO_COMPLETE,
   LOGIN_COMPLETE,
-  LOGIN_ERROR
+  LOGIN_ERROR,
+  LIST_COMPLETE
 } from '../constants';
 
 export function login(state = {}, action) {
@@ -46,6 +47,13 @@ export function access(state = false, action) {
 export function settings(state = {}, action) {
   if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
     return _.assign({}, action.payload.settings);
+  }
+  return state;
+}
+
+export function list(state = {}, action) {
+  if (action.type === LIST_COMPLETE) {
+    return _.assign({}, action.meta, action.payload);
   }
   return state;
 }
