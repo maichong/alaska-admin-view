@@ -7,7 +7,9 @@
 import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
+import RaisedButton from 'material-ui/lib/raised-button';
 
+import { Link } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
@@ -73,7 +75,6 @@ class List extends React.Component {
     if (nextProps.list) {
       let list = nextProps.list;
       if (list.service == this.props.params.service && list.model == this.props.params.model) {
-        console.log(list);
         newState.data = list.results;
       }
     }
@@ -87,21 +88,57 @@ class List extends React.Component {
 
   render() {
     let props = this.props;
-    let state = this.state;
-    let title = state.title;
-    let muiTheme = state.muiTheme;
+    let {
+      title,
+      service,
+      model,
+      data,
+      muiTheme,
+      views,
+      settings
+      } = this.state;
+    if (!model) {
+      return <div className="loading">Loading...</div>;
+    }
     let styles = {
       root: {},
-      title: {
-        fontSize: 32,
-        color: muiTheme.baseTheme.palette.primary1Color,
+      titleBar: {
+        position: 'relative',
+        height: 36,
         marginBottom: 20
+      },
+      title: {
+        overflow: 'hidden',
+        fontSize: 36,
+        height: 36,
+        color: muiTheme.baseTheme.palette.primary1Color
+      },
+      titleNote: {
+        color: '#999'
+      },
+      titleBtns: {
+        position: 'absolute',
+        right: 0,
+        top: 0
       }
     };
-    return wrap(state.views.wrappers.list,
+    let titleBtns = [];
+    if (!model.nocreate && model.abilities.create) {
+      //判断create权限,显示新建按钮
+      titleBtns.push(<RaisedButton key="create" linkButton={true} href={'#/edit/'+service.id+'/'+model.name+'/_new'}
+                                   label="新建" secondary={true}/>);
+    }
+
+    return wrap(views.wrappers.list,
       <div style={styles.root}>
-        <div style={styles.title}>{title}</div>
-        <DataTable model={state.model} data={state.data}/>
+        <div style={styles.titleBar}>
+          <div style={styles.title}>{title} <span style={styles.titleNote}>{props.list.total}条记录</span></div>
+          <div style={styles.titleBtns}>
+            {titleBtns}
+          </div>
+        </div>
+
+        <DataTable model={model} data={data}/>
       </div>
     );
   }

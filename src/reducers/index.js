@@ -56,6 +56,13 @@ export function settings(state = {}, action) {
           if (model && model.fields) {
             model.service = service;
             model.key = service.id + '-' + model.name;
+            let ability = `admin.${service.id}.${model.name}.`.toLowerCase();
+            model.abilities = {
+              read: settings.abilities[ability + 'read'],
+              create: settings.abilities[ability + 'create'],
+              update: settings.abilities[ability + 'update'],
+              remove: settings.abilities[ability + 'remove'],
+            };
           }
         }
       }

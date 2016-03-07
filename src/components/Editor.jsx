@@ -8,6 +8,9 @@ import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
 import Paper from 'material-ui/lib/paper';
+import RaisedButton from 'material-ui/lib/raised-button';
+import Dialog from 'material-ui/lib/dialog';
+import FlatButton from 'material-ui/lib/flat-button';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -42,6 +45,11 @@ class Editor extends React.Component {
   constructor(props, context) {
     super(props);
 
+    this._save = this._save.bind(this);
+    this._remove = this._remove.bind(this);
+    this._handleClose = this._handleClose.bind(this);
+    this._handleRemove = this._handleRemove.bind(this);
+
     this.state = {
       muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
       views: context.views,
@@ -49,6 +57,7 @@ class Editor extends React.Component {
       serviceId: props.params.service,
       modelName: props.params.model,
       id: props.params.id,
+      removeDialogOpen: false
     };
 
     let service = context.settings.services[this.state.serviceId];
@@ -115,26 +124,54 @@ class Editor extends React.Component {
     if (!state.model) {
       return;
     }
+    let id = state.id;
+    if (id === '_new') {
+      this.setState({ data: {} });
+      return;
+    }
     let key = state.model.key;
-    if (this.props.details[key] && this.props.details[key][state.id]) {
+    if (this.props.details[key] && this.props.details[key][id]) {
       this.setState({
-        data: this.props.details[key][state.id]
+        data: this.props.details[key][id]
       });
     } else {
       props.actions.details({
         service: state.serviceId,
         model: state.modelName,
-        id: state.id
+        id
       });
     }
   }
 
-  _handleChange(key, event) {
+  _handleChange(key, value) {
     this.setState({
       data: _.assign({}, this.state.data, {
-        [key]: event.target.value
+        [key]: value
       })
     });
+  }
+
+  _handleClose() {
+    console.log('_handleClose');
+    this.setState({ removeDialogOpen: false });
+  }
+
+  _handleRemove() {
+    this.setState({ removeDialogOpen: false });
+    //TODO remove
+  }
+
+  _save() {
+    let {
+      data,
+      model
+      } = this.state;
+    console.log(data);
+  }
+
+  _remove() {
+    console.log('remove', this.state.id);
+    this.setState({ removeDialogOpen: true });
   }
 
   render() {
@@ -144,7 +181,8 @@ class Editor extends React.Component {
       model,
       data,
       muiTheme,
-      views
+      views,
+      settings
       } = this.state;
     console.log('model', model);
     console.log('data', data);
@@ -179,13 +217,18 @@ class Editor extends React.Component {
         fontSize: 16,
         padding: 5,
         color: muiTheme.baseTheme.palette.primary1Color
+      },
+      button: {
+        marginRight: 10
       }
     };
     let title = (model.label || model.name) + ' > ';
-    if (model.title) {
+    if (id == '_new') {
+      title += '新建';
+    } else if (model.title) {
       title += data[model.title];
     } else {
-      title += data._id;
+      title += id;
     }
     let groups = {
       _: {
@@ -239,13 +282,60 @@ class Editor extends React.Component {
         <div key={groupKey}>{groupNameElement}<Paper zDepth={1} style={styles.group}>{group.fields}</Paper></div>
       );
     }
+
+    let btnElements = [];
+    let removeDialogElement = null;
+    if ((id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update)) {
+      btnElements.push(<RaisedButton
+        onMouseDown={this._save}
+        key="save"
+        secondary={true}
+        label="保存"
+        style={styles.button}
+      />);
+    }
+    if (!model.noremove && id !== '_new' && model.abilities.remove) {
+      btnElements.push(<RaisedButton
+        onMouseDown={this._remove}
+        key="remove"
+        primary={true}
+        label="删除"
+        style={styles.button}
+      />);
+      //确认删除
+      const actions = [
+        <FlatButton
+          label="取消"
+          secondary={true}
+          onTouchTap={this._handleClose}
+        />,
+        <FlatButton
+          label="删除"
+          primary={true}
+          keyboardFocused={true}
+          onTouchTap={this._handleRemove}
+        />,
+      ];
+      removeDialogElement = (<Dialog
+        title="删除记录"
+        actions={actions}
+        modal={false}
+        open={this.state.removeDialogOpen}
+      >
+        确定要删除吗? 删除后不可还原!
+      </Dialog>);
+    }
     return (
       <div style={styles.root}>
         <div style={styles.titleBar}>
           <div style={styles.title}>{title}</div>
-          <div style={styles.titleId}>ID : {id}</div>
+          {
+            id === '_new' ? null : <div style={styles.titleId}>ID : {id}</div>
+          }
         </div>
         {groupElements}
+        {btnElements}
+        {removeDialogElement}
       </div>
     );
   }
