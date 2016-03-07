@@ -76,7 +76,6 @@ export default class Content extends React.Component {
         marginLeft: 240
       },
       inner: {
-        height: 1000,
         padding: 20
       }
     };

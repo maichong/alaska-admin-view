@@ -15,6 +15,9 @@ import TableHeader from 'material-ui/lib/table/table-header';
 import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
 import TableRow from 'material-ui/lib/table/table-row';
 import TableRowColumn from 'material-ui/lib/table/table-row-column';
+import FontIcon from 'material-ui/lib/font-icon';
+import IconButton from 'material-ui/lib/icon-button';
+import { Link } from 'react-router';
 import wrap from '../utils/wrap';
 
 export default class DataTable extends React.Component {
@@ -108,23 +111,30 @@ export default class DataTable extends React.Component {
     let {
       views,
       columns,
-      data
+      data,
+      muiTheme
       } = this.state;
     let model = props.model;
+    let service = model.service;
     let styles = {
       root: {}
     };
     if (!model || !columns) {
       return <div className="loading">Loading...</div>;
     }
+    let primary1Color = muiTheme.baseTheme.palette.primary1Color;
+    let accent1Color = muiTheme.baseTheme.palette.accent1Color;
 
     let headerRowElement = <TableRow>
       {
-        columns.map(col => {console.log(columns,col);return <TableHeaderColumn
-          key={col.key}
-          tooltip={col.field.tooltip}
-        >{col.field.label}</TableHeaderColumn>})
+        columns.map(col => {
+          return <TableHeaderColumn
+            key={col.key}
+            tooltip={col.field.tooltip}
+          >{col.field.label}</TableHeaderColumn>
+        })
       }
+      <TableHeaderColumn></TableHeaderColumn>
     </TableRow>;
 
     let bodyElement = <TableBody>
@@ -145,11 +155,19 @@ export default class DataTable extends React.Component {
             })}
           </TableRowColumn>);
         })}
+        <TableRowColumn>
+          <Link to={'/edit/'+service.id+'/'+model.name+'/'+record._id}>
+            <FontIcon className="material-icons" color="#666" hoverColor={primary1Color}>create</FontIcon>
+          </Link>
+          <IconButton>
+            <FontIcon className="material-icons" color="#666" hoverColor={accent1Color}>clear</FontIcon>
+          </IconButton>
+        </TableRowColumn>
       </TableRow>))}
     </TableBody>;
 
     let tabelElement = wrap(views.wrappers.dataTable,
-      <Table>
+      <Table multiSelectable={true}>
         {wrap(views.wrappers.dataTableHeader,
           <TableHeader>
             {wrap(views.wrappers.dataTableHeaderRow, headerRowElement)}
@@ -170,6 +188,6 @@ export default class DataTable extends React.Component {
   }
 
   render() {
-    return this.state.el||<div></div>;
+    return this.state.el || <div></div>;
   }
 }

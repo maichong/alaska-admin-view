@@ -9,7 +9,8 @@ import {
   REFRESH_INFO_COMPLETE,
   LOGIN_COMPLETE,
   LOGIN_ERROR,
-  LIST_COMPLETE
+  LIST_COMPLETE,
+  DETAILS_COMPLETE
 } from '../constants';
 
 export function login(state = {}, action) {
@@ -45,8 +46,21 @@ export function access(state = false, action) {
 }
 
 export function settings(state = {}, action) {
-  if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
-    return _.assign({}, action.payload.settings);
+  if ((action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) && action.payload.access) {
+    let settings = action.payload.settings;
+    for (let i in settings.services) {
+      let service = settings.services[i];
+      if (service && service.models) {
+        for (let j in service.models) {
+          let model = service.models[j];
+          if (model && model.fields) {
+            model.service = service;
+            model.key = service.id + '-' + model.name;
+          }
+        }
+      }
+    }
+    return _.assign({}, settings);
   }
   return state;
 }
@@ -54,6 +68,37 @@ export function settings(state = {}, action) {
 export function list(state = {}, action) {
   if (action.type === LIST_COMPLETE) {
     return _.assign({}, action.meta, action.payload);
+  }
+  return state;
+}
+
+function detailsFromList(state = {}, action) {
+  let results = action.payload.results;
+  let tmp = {};
+  for (let i in results) {
+    let record = results[i];
+    tmp[record._id] = record;
+  }
+  return _.assign({}, state, tmp);
+}
+
+export function details(state = {}, action) {
+  if (action.type === LIST_COMPLETE) {
+    let meta = action.meta;
+    let key = meta.service + '-' + meta.model;
+    return _.assign({}, state, {
+      [key]: detailsFromList(state[key], action)
+    });
+  }
+  if (action.type == DETAILS_COMPLETE && action.payload._id) {
+    let meta = action.meta;
+    let key = meta.service + '-' + meta.model;
+    let data = action.payload;
+    return _.assign({}, state, {
+      [key]: _.assign({}, state[key], {
+        [data._id]: data
+      })
+    });
   }
   return state;
 }

@@ -15,7 +15,7 @@ import {
   REFRESH_INFO_ERROR,
   LOGIN,
   LIST,
-  CREATE
+  DETAILS
 } from '../constants';
 
 
@@ -35,6 +35,10 @@ export const login = createApiAction(LOGIN, PREFIX + '/api/login/login');
 
 export const list = createAsyncAction(LIST, async (args, dispatch)=> {
   return await api.post(PREFIX + '/api/list?' + stringify(args));
+});
+
+export const details = createAsyncAction(DETAILS, async (args, dispatch)=> {
+  return await api.post(PREFIX + '/api/details?' + stringify(args));
 });
 
 //

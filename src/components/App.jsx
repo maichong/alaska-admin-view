@@ -87,7 +87,7 @@ class App extends React.Component {
             wrap(views.wrappers.routes,
               <Route component={Manage} path="/">
                 <Route component={List} path="list/:service/:model"></Route>
-                <Route component={Editor} path="editor/:service/:model"></Route>
+                <Route component={Editor} path="edit/:service/:model/:id"></Route>
                 {state.routes}
               </Route>
             )
