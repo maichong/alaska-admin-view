@@ -36,6 +36,7 @@ class Editor extends React.Component {
     muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    details: React.PropTypes.object,
   };
 
   static mixins = [
@@ -45,10 +46,10 @@ class Editor extends React.Component {
   constructor(props, context) {
     super(props);
 
-    this._save = this._save.bind(this);
-    this._remove = this._remove.bind(this);
-    this._handleClose = this._handleClose.bind(this);
-    this._handleRemove = this._handleRemove.bind(this);
+    this.save = this.save.bind(this);
+    this.remove = this.remove.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
 
     this.state = {
       muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
@@ -77,14 +78,12 @@ class Editor extends React.Component {
       muiTheme: this.state.muiTheme,
       views: this.context.views,
       settings: this.context.settings,
+      details: this.props.details,
     };
   }
 
-  componentWillMount() {
-  }
-
   componentDidMount() {
-    this._init();
+    this.init();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -110,14 +109,11 @@ class Editor extends React.Component {
       }
     }
     this.setState(newState, () => {
-      this._init();
+      this.init();
     });
   }
 
-  componentWillUnmount() {
-  }
-
-  _init() {
+  init() {
     console.log('init', this);
     let props = this.props;
     let state = this.state;
@@ -143,7 +139,7 @@ class Editor extends React.Component {
     }
   }
 
-  _handleChange(key, value) {
+  handleChange(key, value) {
     this.setState({
       data: _.assign({}, this.state.data, {
         [key]: value
@@ -151,17 +147,17 @@ class Editor extends React.Component {
     });
   }
 
-  _handleClose() {
-    console.log('_handleClose');
+  handleClose() {
+    console.log('handleClose');
     this.setState({ removeDialogOpen: false });
   }
 
-  _handleRemove() {
+  handleRemove() {
     this.setState({ removeDialogOpen: false });
     //TODO remove
   }
 
-  _save() {
+  save() {
     let {
       data,
       model
@@ -169,7 +165,7 @@ class Editor extends React.Component {
     console.log(data);
   }
 
-  _remove() {
+  remove() {
     console.log('remove', this.state.id);
     this.setState({ removeDialogOpen: true });
   }
@@ -252,19 +248,34 @@ class Editor extends React.Component {
         continue;
       }
       let cfg = model.fields[key];
+      if (cfg.hidden) {
+        continue;
+      }
+      if (cfg.depends) {
+        if (typeof cfg.depends === 'string') {
+          if (!data[key]) {
+            continue;
+          }
+        } else if (_.find(cfg.depends, (value, k) => data[k] === value) === undefined) {
+          continue;
+        }
+      }
       let ViewClass = views[cfg.view];
       if (!ViewClass) {
         console.warn('Missing : ' + cfg.view);
         ViewClass = views.TextFieldView;
       }
-      let view = React.createElement(ViewClass, {
+
+      let fieldProps = {
         key,
         value: data[key],
         model,
         data,
         field: cfg,
-        onChange: this._handleChange.bind(this, key)
-      });
+        onChange: this.handleChange.bind(this, key)
+      };
+
+      let view = React.createElement(ViewClass, fieldProps);
       let group = groups._;
       if (cfg.group && groups[cfg.group]) {
         group = groups[cfg.group];
@@ -287,7 +298,7 @@ class Editor extends React.Component {
     let removeDialogElement = null;
     if ((id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update)) {
       btnElements.push(<RaisedButton
-        onMouseDown={this._save}
+        onMouseDown={this.save}
         key="save"
         secondary={true}
         label="保存"
@@ -296,7 +307,7 @@ class Editor extends React.Component {
     }
     if (!model.noremove && id !== '_new' && model.abilities.remove) {
       btnElements.push(<RaisedButton
-        onMouseDown={this._remove}
+        onMouseDown={this.remove}
         key="remove"
         primary={true}
         label="删除"
@@ -307,13 +318,13 @@ class Editor extends React.Component {
         <FlatButton
           label="取消"
           secondary={true}
-          onTouchTap={this._handleClose}
+          onTouchTap={this.handleClose}
         />,
         <FlatButton
           label="删除"
           primary={true}
           keyboardFocused={true}
-          onTouchTap={this._handleRemove}
+          onTouchTap={this.handleRemove}
         />,
       ];
       removeDialogElement = (<Dialog

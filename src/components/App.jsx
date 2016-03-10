@@ -44,10 +44,23 @@ class App extends React.Component {
 
   constructor(props, context) {
     super(props);
+    let muiTheme = props.muiTheme || context.muiTheme || getMuiTheme();
     this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
+      muiTheme: muiTheme,
       views: props.views
     };
+    if (!muiTheme.fieldNote) {
+      muiTheme.fieldNote = {
+        fontSize: 12,
+        color: '#999'
+      };
+      muiTheme.fieldNoteInline = {
+        display: 'inline-block',
+        paddingLeft: 10,
+        fontSize: 12,
+        color: '#999'
+      };
+    }
   }
 
   getChildContext() {
