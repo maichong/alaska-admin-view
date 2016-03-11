@@ -16,4 +16,5 @@ exports.App = require('./components/App').default;
 exports.store = require('./store').default;
 exports.wrap = require('./utils/wrap').default;
 exports.api = require('./utils/api').default;
+exports.shallowEqual = require('./utils/shallow-equal').default;
 exports.actions = require('./actions');

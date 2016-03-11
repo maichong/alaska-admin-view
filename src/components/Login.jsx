@@ -47,7 +47,7 @@ export default class Login extends React.Component {
       password: ''
     };
 
-    this._handleLogin = this._handleLogin.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
 
   getChildContext() {
@@ -119,7 +119,7 @@ export default class Login extends React.Component {
               type="password"
               errorText={state.passError}
               ref="pass"
-              onEnterKeyDown={this._handleLogin}
+              onEnterKeyDown={this.handleLogin}
             />
           </div>)}
 
@@ -128,7 +128,7 @@ export default class Login extends React.Component {
             fullWidth={true}
             secondary={true}
             style={styles.button}
-            onTouchTap={this._handleLogin}
+            onTouchTap={this.handleLogin}
           />)}
           { err }
         </form>)}
@@ -138,7 +138,7 @@ export default class Login extends React.Component {
     return wrap(views.wrappers.login, el);
   }
 
-  _handleLogin() {
+  handleLogin() {
     let username = this.refs.name.getValue();
     let password = this.refs.pass.getValue();
     let errorMsg = '';

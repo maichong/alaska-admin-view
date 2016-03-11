@@ -21,14 +21,6 @@ export const LIST = 'LIST';
 export const LIST_COMPLETE = 'LIST_COMPLETE';
 export const LIST_ERROR = 'LIST_ERROR';
 
-export const CREATE = 'CREATE';
-export const CREATE_COMPLETE = 'CREATE_COMPLETE';
-export const CREATE_ERROR = 'CREATE_ERROR';
-
-export const UPDATE = 'UPDATE';
-export const UPDATE_COMPLETE = 'UPDATE_COMPLETE';
-export const UPDATE_ERROR = 'UPDATE_ERROR';
-
 export const DETAILS = 'DETAILS';
 export const DETAILS_COMPLETE = 'DETAILS_COMPLETE';
 export const DETAILS_ERROR = 'DETAILS_ERROR';
@@ -36,6 +28,10 @@ export const DETAILS_ERROR = 'DETAILS_ERROR';
 export const SEARCH = 'SEARCH';
 export const SEARCH_COMPLETE = 'SEARCH_COMPLETE';
 export const SEARCH_ERROR = 'SEARCH_ERROR';
+
+export const SAVE = 'SAVE';
+export const SAVE_COMPLETE = 'SAVE_COMPLETE';
+export const SAVE_ERROR = 'SAVE_ERROR';
 
 export const REMOVE = 'REMOVE';
 export const REMOVE_COMPLETE = 'REMOVE_COMPLETE';

@@ -6,17 +6,17 @@
  */
 
 import {stringify} from 'qs';
+import * as _ from 'lodash';
 import api from '../utils/api';
 import { createAction, createApiAction, createAsyncAction } from '../utils/action-creator';
 import {
   PREFIX,
   REFRESH_INFO,
-  REFRESH_INFO_COMPLETE,
-  REFRESH_INFO_ERROR,
   LOGIN,
   LIST,
   DETAILS,
-  SEARCH
+  SEARCH,
+  SAVE
 } from '../constants';
 
 
@@ -46,7 +46,6 @@ export const search = createAsyncAction(SEARCH, async (args, dispatch)=> {
   return await api.post(PREFIX + '/api/search?' + stringify(args));
 });
 
-//
-//export const create = (args, data) => (dispatch) => {
-//  dispatch({ type: CREATE + '_START', meta: args });
-//};
+export const save = createAsyncAction(SAVE, async (args, dispatch)=> {
+  return await api.post(PREFIX + '/api/save?' + stringify(_.omit(args, 'data')), args.data);
+});

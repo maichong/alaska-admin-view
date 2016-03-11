@@ -36,7 +36,6 @@ class Editor extends React.Component {
     muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
-    details: React.PropTypes.object,
   };
 
   static mixins = [
@@ -46,10 +45,11 @@ class Editor extends React.Component {
   constructor(props, context) {
     super(props);
 
-    this.save = this.save.bind(this);
+    this.handleSave = this.handleSave.bind(this);
     this.remove = this.remove.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this._r = Math.random();
 
     this.state = {
       muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
@@ -58,7 +58,8 @@ class Editor extends React.Component {
       serviceId: props.params.service,
       modelName: props.params.model,
       id: props.params.id,
-      removeDialogOpen: false
+      removeDialogOpen: false,
+      errors: {}
     };
 
     let service = context.settings.services[this.state.serviceId];
@@ -77,8 +78,7 @@ class Editor extends React.Component {
     return {
       muiTheme: this.state.muiTheme,
       views: this.context.views,
-      settings: this.context.settings,
-      details: this.props.details,
+      settings: this.context.settings
     };
   }
 
@@ -106,6 +106,14 @@ class Editor extends React.Component {
         if (model) {
           newState.model = model;
         }
+      }
+    }
+    if (nextProps.saved && nextProps.saved._r == this._r) {
+      console.log('保存成功');
+      //TODO 提示信息
+      if (this.state.id == '_new') {
+        let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.saved.res._id;
+        this.props.history.replaceState(null, url);
       }
     }
     this.setState(newState, () => {
@@ -157,12 +165,38 @@ class Editor extends React.Component {
     //TODO remove
   }
 
-  save() {
+  handleSave() {
     let {
       data,
       model
       } = this.state;
-    console.log(data);
+    let fields = model.fields;
+    let errors = {};
+    let hasError = false;
+    for (let key in fields) {
+      let field = fields[key];
+      if (field.required && !data[key]) {
+        if (field.required === true
+          || (typeof field.required === 'string' && data[field.required])
+          || (typeof field.required === 'object' && _.every(field.required, (value, k) => data[k] === value))
+        ) {
+          errors[key] = 'required';
+          hasError = true;
+        }
+      }
+    }
+    this.setState({ errors });
+    if (hasError) {
+      return;
+    }
+    this._r = Math.random();
+
+    this.props.actions.save({
+      service: model.service.id,
+      model: model.name,
+      _r: this._r,
+      data
+    });
   }
 
   remove() {
@@ -178,7 +212,8 @@ class Editor extends React.Component {
       data,
       muiTheme,
       views,
-      settings
+      settings,
+      errors
       } = this.state;
     console.log('model', model);
     console.log('data', data);
@@ -290,6 +325,7 @@ class Editor extends React.Component {
         data,
         field: cfg,
         disabled,
+        errorText: errors[key],
         onChange: this.handleChange.bind(this, key)
       };
 
@@ -316,7 +352,7 @@ class Editor extends React.Component {
     let removeDialogElement = null;
     if ((id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update && !model.noedit)) {
       btnElements.push(<RaisedButton
-        onMouseDown={this.save}
+        onMouseDown={this.handleSave}
         key="save"
         secondary={true}
         label="保存"
@@ -370,6 +406,6 @@ class Editor extends React.Component {
   }
 }
 
-export default connect(({ details }) => ({ details }), dispatch => ({
+export default connect(({ details, saved }) => ({ details, saved }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(Editor);

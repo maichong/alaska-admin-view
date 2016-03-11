@@ -11,7 +11,8 @@ import {
   LOGIN_ERROR,
   LIST_COMPLETE,
   DETAILS_COMPLETE,
-  SEARCH_COMPLETE
+  SEARCH_COMPLETE,
+  SAVE_COMPLETE
 } from '../constants';
 
 export function login(state = {}, action) {
@@ -98,7 +99,7 @@ export function details(state = {}, action) {
       [key]: detailsFromList(state[key], action)
     });
   }
-  if (action.type == DETAILS_COMPLETE && action.payload._id) {
+  if ((action.type == DETAILS_COMPLETE || action.type == SAVE_COMPLETE) && action.payload._id) {
     let meta = action.meta;
     let key = meta.service + '-' + meta.model;
     let data = action.payload;
@@ -112,13 +113,32 @@ export function details(state = {}, action) {
 }
 
 export function search(state = {}, action) {
+  let meta = action.meta;
+  if (!meta || !meta.service) {
+    return state;
+  }
+  let key = meta.service + '-' + meta.model;
   if (action.type == SEARCH_COMPLETE) {
-    let meta = action.meta;
-    let key = meta.service + '-' + meta.model;
     return _.assign({}, state, {
       [key]: _.assign({}, state[key], {
         [meta.keyword]: action.payload.results
       })
+    });
+  }
+  if (action.type == SAVE_COMPLETE && state[key]) {
+    //保存后清空搜索缓存
+    return _.assign({}, state, {
+      [key]: {}
+    });
+  }
+  return state;
+}
+
+export function saved(state = {}, action) {
+  if (action.type == SAVE_COMPLETE) {
+    //保存后清空搜索缓存
+    return _.assign({}, action.meta, {
+      res: action.payload
     });
   }
   return state;
