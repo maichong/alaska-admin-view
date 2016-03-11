@@ -256,7 +256,8 @@ class Editor extends React.Component {
           if (!data[key]) {
             continue;
           }
-        } else if (_.find(cfg.depends, (value, k) => data[k] === value) === undefined) {
+        } else if (!_.every(cfg.depends, (value, k) => data[k] === value)) {
+          //没有全部匹配
           continue;
         }
       }
@@ -266,12 +267,29 @@ class Editor extends React.Component {
         ViewClass = views.TextFieldView;
       }
 
+      let disabled = false;
+      if (model.noedit) {
+        disabled = true;
+      } else if (cfg.disabled) {
+        if (cfg.disabled === true) {
+          disabled = true;
+        } else if (typeof cfg.disabled === 'string') {
+          if (data[cfg.disabled]) {
+            disabled = true;
+          }
+        } else if (_.every(cfg.disabled, (value, k) => data[k] === value)) {
+          //全部匹配
+          disabled = true;
+        }
+      }
+
       let fieldProps = {
         key,
         value: data[key],
         model,
         data,
         field: cfg,
+        disabled,
         onChange: this.handleChange.bind(this, key)
       };
 
@@ -296,7 +314,7 @@ class Editor extends React.Component {
 
     let btnElements = [];
     let removeDialogElement = null;
-    if ((id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update)) {
+    if ((id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update && !model.noedit)) {
       btnElements.push(<RaisedButton
         onMouseDown={this.save}
         key="save"

@@ -33,6 +33,10 @@ export const DETAILS = 'DETAILS';
 export const DETAILS_COMPLETE = 'DETAILS_COMPLETE';
 export const DETAILS_ERROR = 'DETAILS_ERROR';
 
+export const SEARCH = 'SEARCH';
+export const SEARCH_COMPLETE = 'SEARCH_COMPLETE';
+export const SEARCH_ERROR = 'SEARCH_ERROR';
+
 export const REMOVE = 'REMOVE';
 export const REMOVE_COMPLETE = 'REMOVE_COMPLETE';
 export const REMOVE_ERROR = 'REMOVE_ERROR';

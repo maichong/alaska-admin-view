@@ -10,7 +10,8 @@ import {
   LOGIN_COMPLETE,
   LOGIN_ERROR,
   LIST_COMPLETE,
-  DETAILS_COMPLETE
+  DETAILS_COMPLETE,
+  SEARCH_COMPLETE
 } from '../constants';
 
 export function login(state = {}, action) {
@@ -104,6 +105,19 @@ export function details(state = {}, action) {
     return _.assign({}, state, {
       [key]: _.assign({}, state[key], {
         [data._id]: data
+      })
+    });
+  }
+  return state;
+}
+
+export function search(state = {}, action) {
+  if (action.type == SEARCH_COMPLETE) {
+    let meta = action.meta;
+    let key = meta.service + '-' + meta.model;
+    return _.assign({}, state, {
+      [key]: _.assign({}, state[key], {
+        [meta.keyword]: action.payload.results
       })
     });
   }
