@@ -41,30 +41,28 @@ async function api(url, options) {
 }
 
 api.post = async function (url, data, options) {
-  let body = JSON.stringify(data || {});
+  if (hasFile(data)) {
+    let body = new FormData();
+    _.each(data, (value, key)=> {
+      if (_.isArray(value)) {
+        for (let i in value) {
+          body.append(key, value[i]);
+        }
+      } else {
+        body.append(key, value);
+      }
+    });
+    return api(url, _.assign({
+      method: 'POST',
+      body
+    }, options));
+  }
   return api(url, _.assign({
     method: 'POST',
-    body: body,
+    body: JSON.stringify(data || {}),
     headers: {
       'Content-Type': 'application/json'
     }
-  }, options));
-};
-
-api.upload = async function (url, data, options) {
-  let body = new FormData();
-  _.each(data, (value, key)=> {
-    if (_.isArray(value)) {
-      for (let i in value) {
-        body.append(key, value[i]);
-      }
-    } else {
-      body.append(key, value);
-    }
-  });
-  return api(url, _.assign({
-    method: 'POST',
-    body
   }, options));
 };
 
@@ -84,3 +82,22 @@ api.put = function (url, data, options) {
 api.get = api;
 
 export default api;
+
+function hasFile(data) {
+  if (!data) {
+    return false;
+  }
+  if (_.isObject(data) || _.isArray(data)) {
+    for (let i in data) {
+      if (data[i] instanceof File) {
+        return true;
+      }
+      if (_.isObject(data[i]) || _.isArray(data[i])) {
+        if (hasFile(data[i])) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
