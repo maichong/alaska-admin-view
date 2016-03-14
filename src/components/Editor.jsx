@@ -108,11 +108,27 @@ class Editor extends React.Component {
         }
       }
     }
-    if (nextProps.saved && nextProps.saved._r == this._r) {
-      console.log('保存成功');
-      //TODO 提示信息
-      if (this.state.id == '_new') {
-        let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.saved.res._id;
+    if (nextProps.save && nextProps.save._r == this._r) {
+      this.loading = false;
+      if (nextProps.save.error) {
+        //保存失败
+        this.props.actions.notice('保存失败:' + nextProps.save.error.message);
+      } else {
+        this.props.actions.notice('保存成功!');
+        if (this.state.id == '_new') {
+          let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.save.res._id;
+          this.props.history.replaceState(null, url);
+        }
+      }
+    }
+    if (nextProps.remove && nextProps.remove._r == this._r) {
+      this.loading = false;
+      if (nextProps.remove.error) {
+        //保存失败
+        this.props.actions.notice('删除失败:' + nextProps.remove.error.message);
+      } else {
+        this.props.actions.notice('删除成功!');
+        let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
         this.props.history.replaceState(null, url);
       }
     }
@@ -161,14 +177,22 @@ class Editor extends React.Component {
   }
 
   handleRemove() {
+    this._r = Math.random();
+    this.props.actions.remove({
+      service: this.state.serviceId,
+      model: this.state.modelName,
+      id: this.state.id,
+      _r: this._r
+    });
+    this.loading = true;
     this.setState({ removeDialogOpen: false });
-    //TODO remove
   }
 
   handleSave() {
     let {
       data,
-      model
+      model,
+      id
       } = this.state;
     let fields = model.fields;
     let errors = {};
@@ -190,12 +214,13 @@ class Editor extends React.Component {
       return;
     }
     this._r = Math.random();
+    this.loading = true;
 
     this.props.actions.save({
       service: model.service.id,
       model: model.name,
       _r: this._r,
-      data
+      data: _.assign({}, data, { id: id == '_new' ? '' : id })
     });
   }
 
@@ -215,8 +240,6 @@ class Editor extends React.Component {
       settings,
       errors
       } = this.state;
-    console.log('model', model);
-    console.log('data', data);
     if (!data) {
       return <div className="loading">Loading...</div>;
     }
@@ -279,11 +302,11 @@ class Editor extends React.Component {
       };
     }
     for (let key in model.fields) {
-      if (key == '_id') {
-        continue;
-      }
       let cfg = model.fields[key];
       if (cfg.hidden) {
+        continue;
+      }
+      if (!cfg.view) {
         continue;
       }
       if (cfg.depends) {
@@ -303,7 +326,7 @@ class Editor extends React.Component {
       }
 
       let disabled = false;
-      if (model.noedit) {
+      if (model.noedit || this.loading) {
         disabled = true;
       } else if (cfg.disabled) {
         if (cfg.disabled === true) {
@@ -356,6 +379,7 @@ class Editor extends React.Component {
         key="save"
         secondary={true}
         label="保存"
+        disabled={this.loading}
         style={styles.button}
       />);
     }
@@ -365,6 +389,7 @@ class Editor extends React.Component {
         key="remove"
         primary={true}
         label="删除"
+        disabled={this.loading}
         style={styles.button}
       />);
       //确认删除
@@ -406,6 +431,6 @@ class Editor extends React.Component {
   }
 }
 
-export default connect(({ details, saved }) => ({ details, saved }), dispatch => ({
+export default connect(({ details, save, remove }) => ({ details, save, remove }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(Editor);

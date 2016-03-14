@@ -6,6 +6,8 @@
 
 export const PREFIX = window.PREFIX || '.';
 
+export const NOTICE = 'NOTICE';
+
 export const LOAD = 'LOAD';
 export const LOAD_COMPLETE = 'LOAD_COMPLETE';
 

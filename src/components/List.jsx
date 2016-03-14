@@ -56,11 +56,8 @@ class List extends React.Component {
     };
   }
 
-  componentWillMount() {
-  }
-
   componentDidMount() {
-    this._init(this.props, this.context);
+    this.init(this.props, this.context);
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -78,11 +75,8 @@ class List extends React.Component {
       }
     }
     this.setState(newState, () => {
-      this._init(this.props, this.context);
+      this.init(this.props, this.context);
     });
-  }
-
-  componentWillUnmount() {
   }
 
   render() {
@@ -142,7 +136,7 @@ class List extends React.Component {
     );
   }
 
-  _init(props, context) {
+  init(props, context) {
     let settings = context.settings;
     let serviceId = props.params.service;
     let modelName = props.params.model;

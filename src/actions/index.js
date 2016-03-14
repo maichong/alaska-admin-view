@@ -11,12 +11,14 @@ import api from '../utils/api';
 import { createAction, createApiAction, createAsyncAction } from '../utils/action-creator';
 import {
   PREFIX,
+  NOTICE,
   REFRESH_INFO,
   LOGIN,
   LIST,
   DETAILS,
   SEARCH,
-  SAVE
+  SAVE,
+  REMOVE
 } from '../constants';
 
 
@@ -29,6 +31,13 @@ import {
 //    throw error;
 //  }
 //});
+
+export const notice = createAction(NOTICE, msg => {
+  return {
+    msg,
+    rand: Math.random()
+  };
+});
 
 export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/api/login/info');
 
@@ -48,4 +57,8 @@ export const search = createAsyncAction(SEARCH, async (args, dispatch)=> {
 
 export const save = createAsyncAction(SAVE, async (args, dispatch)=> {
   return await api.post(PREFIX + '/api/save?' + stringify(_.omit(args, 'data')), args.data);
+});
+
+export const remove = createAsyncAction(REMOVE, async (args, dispatch)=> {
+  return await api.post(PREFIX + '/api/remove?' + stringify(_.omit(args, 'id')), { id: args.id });
 });

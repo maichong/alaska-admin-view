@@ -7,6 +7,7 @@
 import React from 'react';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
+import Snackbar from 'material-ui/lib/snackbar';
 
 import { connect } from 'react-redux';
 import wrap from '../utils/wrap';
@@ -39,10 +40,12 @@ export default class Manage extends React.Component {
 
   constructor(props, context) {
     super(props);
+    this.handleRequestClose = this.handleRequestClose.bind(this);
     this.state = {
       muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
       views: context.views,
       settings: context.settings,
+      open: false
     };
   }
 
@@ -54,12 +57,6 @@ export default class Manage extends React.Component {
     };
   }
 
-  componentWillMount() {
-  }
-
-  componentDidMount() {
-  }
-
   componentWillReceiveProps(nextProps, nextContext) {
     let newState = {};
     if (nextContext.muiTheme) {
@@ -68,10 +65,15 @@ export default class Manage extends React.Component {
     if (nextContext.views) {
       newState.views = nextContext.views;
     }
+    if (nextProps.notice && nextProps.notice.rand != this.rand) {
+      newState.open = true;
+      this.rand = nextProps.notice.rand;
+    }
     this.setState(newState);
   }
 
-  componentWillUnmount() {
+  handleRequestClose() {
+    this.setState({ open: false });
   }
 
   render() {
@@ -84,6 +86,11 @@ export default class Manage extends React.Component {
         marginTop: 56
       }
     };
+    let snack = props.notice && state.open && props.notice.msg ? <Snackbar
+      open={true}
+      message={props.notice.msg}
+      onRequestClose={this.handleRequestClose}
+    /> : null;
     return wrap(views.wrappers.manage,
       <div id="manage" style={styles.root}>
         <Header/>
@@ -95,9 +102,10 @@ export default class Manage extends React.Component {
             </div>
           )
         }
+        {snack}
       </div>
     );
   }
 }
 
-export default connect(({ settings }) => ({ settings }))(Manage);
+export default connect(({ settings, notice }) => ({ settings, notice }))(Manage);

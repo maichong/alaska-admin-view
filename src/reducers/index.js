@@ -6,14 +6,25 @@
 
 import * as _ from 'lodash';
 import {
+  NOTICE,
   REFRESH_INFO_COMPLETE,
   LOGIN_COMPLETE,
   LOGIN_ERROR,
   LIST_COMPLETE,
   DETAILS_COMPLETE,
   SEARCH_COMPLETE,
-  SAVE_COMPLETE
+  SAVE_COMPLETE,
+  SAVE_ERROR,
+  REMOVE_COMPLETE,
+  REMOVE_ERROR
 } from '../constants';
+
+export function notice(state = {}, action) {
+  if (action.type == NOTICE) {
+    return action.payload;
+  }
+  return state;
+}
 
 export function login(state = {}, action) {
   if (action.type == REFRESH_INFO_COMPLETE) {
@@ -125,8 +136,8 @@ export function search(state = {}, action) {
       })
     });
   }
-  if (action.type == SAVE_COMPLETE && state[key]) {
-    //保存后清空搜索缓存
+  if ((action.type == SAVE_COMPLETE || action.type == REMOVE_COMPLETE) && state[key]) {
+    //清空搜索缓存
     return _.assign({}, state, {
       [key]: {}
     });
@@ -134,11 +145,33 @@ export function search(state = {}, action) {
   return state;
 }
 
-export function saved(state = {}, action) {
+export function save(state = {}, action) {
   if (action.type == SAVE_COMPLETE) {
     //保存后清空搜索缓存
     return _.assign({}, action.meta, {
-      res: action.payload
+      res: action.payload,
+      error: ''
+    });
+  } else if (action.type == SAVE_ERROR) {
+    return _.assign({}, action.meta, {
+      res: action.payload,
+      error: action.payload
+    });
+  }
+  return state;
+}
+
+export function remove(state = {}, action) {
+  if (action.type == REMOVE_COMPLETE) {
+    //保存后清空搜索缓存
+    return _.assign({}, action.meta, {
+      res: action.payload,
+      error: ''
+    });
+  } else if (action.type == REMOVE_ERROR) {
+    return _.assign({}, action.meta, {
+      res: action.payload,
+      error: action.payload
     });
   }
   return state;
