@@ -276,6 +276,7 @@ class Editor extends React.Component {
         marginRight: 10
       }
     };
+    let canSave = (id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update && !model.noedit);
     let title = (model.label || model.name) + ' > ';
     if (id == '_new') {
       title += '新建';
@@ -326,7 +327,7 @@ class Editor extends React.Component {
       }
 
       let disabled = false;
-      if (model.noedit || this.loading) {
+      if (model.noedit || this.loading || !canSave) {
         disabled = true;
       } else if (cfg.disabled) {
         if (cfg.disabled === true) {
@@ -373,7 +374,7 @@ class Editor extends React.Component {
 
     let btnElements = [];
     let removeDialogElement = null;
-    if ((id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update && !model.noedit)) {
+    if (canSave) {
       btnElements.push(<RaisedButton
         onMouseDown={this.handleSave}
         key="save"
