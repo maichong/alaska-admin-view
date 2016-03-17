@@ -18,3 +18,9 @@ exports.wrap = require('./utils/wrap').default;
 exports.api = require('./utils/api').default;
 exports.shallowEqual = require('./utils/shallow-equal').default;
 exports.actions = require('./actions');
+
+const constants = require('./constants');
+
+for (let key in constants) {
+  exports[key] = constants[key];
+}
