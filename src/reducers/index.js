@@ -10,6 +10,7 @@ import {
   REFRESH_INFO_COMPLETE,
   LOGIN_COMPLETE,
   LOGIN_ERROR,
+  LOGOUT_COMPLETE,
   LIST_COMPLETE,
   DETAILS_COMPLETE,
   SEARCH_COMPLETE,
@@ -27,8 +28,12 @@ export function notice(state = {}, action) {
 }
 
 export function login(state = {}, action) {
+  if (action.type == LOGOUT_COMPLETE) {
+    return _.assign({}, state, {
+      show: true
+    });
+  }
   if (action.type == REFRESH_INFO_COMPLETE) {
-    console.log(action.payload);
     if (!action.payload.signed) {
       state = _.assign({}, state, {
         show: true
@@ -48,12 +53,28 @@ export function signed(state = false, action) {
   if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
     return action.payload.signed;
   }
+  if (action.type === LOGOUT_COMPLETE) {
+    return false;
+  }
+  return state;
+}
+
+export function user(state = {}, action) {
+  if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
+    return action.payload.user || {};
+  }
+  if (action.type === LOGOUT_COMPLETE) {
+    return {};
+  }
   return state;
 }
 
 export function access(state = false, action) {
   if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
     return !!action.payload.access;
+  }
+  if (action.type === LOGOUT_COMPLETE) {
+    return false;
   }
   return state;
 }

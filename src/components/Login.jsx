@@ -83,7 +83,7 @@ export default class Login extends React.Component {
       },
       logo: {
         display: 'block',
-        width: 200,
+        width: 300,
         margin: '0 auto 20px'
       },
       form: {
@@ -106,7 +106,7 @@ export default class Login extends React.Component {
 
     let el = (
       <Paper zDepth={2} style={styles.root}>
-        { wrap(views.wrappers.loginLogo, <img src="/assets/logo.jpg" style={styles.logo}/>)}
+        { wrap(views.wrappers.loginLogo, <img src="static/logo.png" style={styles.logo}/>)}
         { wrap(views.wrappers.loginForm, <form style={styles.form}>
           { wrap(views.wrappers.loginField, <div>
             <TextField

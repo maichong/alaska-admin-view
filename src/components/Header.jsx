@@ -24,10 +24,14 @@ import Menu from 'material-ui/lib/menus/menu';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import Divider from 'material-ui/lib/divider';
 import FlatButton from 'material-ui/lib/flat-button';
-import MoreVertIcon from 'material-ui/lib/svg-icons/navigation/more-vert';
 import Paper from 'material-ui/lib/paper';
+import FontIcon from 'material-ui/lib/font-icon';
 
-export default class Header extends React.Component {
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as actions from '../actions';
+
+class Header extends React.Component {
 
   static propTypes = {
     children: React.PropTypes.node
@@ -67,12 +71,6 @@ export default class Header extends React.Component {
     };
   }
 
-  componentWillMount() {
-  }
-
-  componentDidMount() {
-  }
-
   componentWillReceiveProps(nextProps, nextContext) {
     let newState = {};
     if (nextContext.muiTheme) {
@@ -84,18 +82,30 @@ export default class Header extends React.Component {
     this.setState(newState);
   }
 
-  componentWillUnmount() {
-  }
-
   handleTouchTap = (event) => {
     this.setState({
       open: true,
       anchorEl: event.currentTarget,
     });
   };
+
   handleRequestClose = () => {
     this.setState({
-      open: false,
+      open: false
+    });
+  };
+
+  handleRefresh = ()=> {
+    this.props.actions.refreshInfo();
+    this.setState({
+      open: false
+    });
+  };
+
+  handleLogout = ()=> {
+    this.props.actions.logout();
+    this.setState({
+      open: false
     });
   };
 
@@ -117,6 +127,12 @@ export default class Header extends React.Component {
         background: '#fff',
         height: height
       },
+      logo: {
+        height: 56
+      },
+      img: {
+        height: 56
+      },
       title: {
         paddingLeft: 20,
         color: '#000'
@@ -131,27 +147,14 @@ export default class Header extends React.Component {
         <Toolbar style={styles.toolbar}>
 
           <ToolbarGroup firstChild={true} float="left">
-            <ToolbarTitle style={styles.title} text="Alaska Manager"/>
+            <div style={styles.logo}><img style={styles.img} src="static/logo.png"/></div>
           </ToolbarGroup>
 
           <ToolbarGroup float="right">
-            <IconMenu
-              iconButtonElement={
-                <IconButton touch={true}>
-                  <NavigationExpandMoreIcon />
-                </IconButton>
-              }
-            >
-              <MenuItem primaryText="Download"/>
-              <MenuItem primaryText="More Info"/>
-            </IconMenu>
-
-            <ToolbarSeparator />
-
             <FlatButton
               onTouchTap={this.handleTouchTap}
-              label="Image Avatar"
-              icon={<Avatar src="http://www.material-ui.com/images/uxceo-128.jpg" />}
+              label={props.user.username}
+              icon={<Avatar src={props.user.avatar || 'static/avatar.png'} />}
             />
             <Popover
               open={this.state.open}
@@ -161,56 +164,23 @@ export default class Header extends React.Component {
               onRequestClose={this.handleRequestClose}
               animation={PopoverAnimationFromTop}
             >
-              <div style={styles.popover}>
-                <Menu desktop={true}>
-                  <MenuItem primaryText="Refresh"/>
-                  <MenuItem primaryText="Edit"/>
-                  <MenuItem primaryText="Delete"/>
-                  <Divider />
-                  <MenuItem primaryText="Signout"/>
-                </Menu>
-              </div>
+              <Menu desktop={true}>
+                <MenuItem
+                  primaryText="Refresh"
+                  onTouchTap={this.handleRefresh}
+                  leftIcon={
+                    <FontIcon className="material-icons">refresh</FontIcon>
+                  }
+                />
+                <MenuItem
+                  primaryText="Signout"
+                  onTouchTap={this.handleLogout}
+                  leftIcon={
+                    <FontIcon className="material-icons">exit_to_app</FontIcon>
+                  }/>
+              </Menu>
             </Popover>
 
-          </ToolbarGroup>
-
-          <ToolbarGroup float="right">
-            <IconMenu
-              iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-            >
-              <MenuItem primaryText="22222222222"/>
-              <MenuItem primaryText="Send feedback"/>
-              <MenuItem primaryText="Settings"/>
-              <MenuItem primaryText="Help"/>
-              <MenuItem primaryText="Sign out"/>
-            </IconMenu>
-            <IconMenu
-              iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-            >
-              <MenuItem primaryText="3333333333"/>
-              <MenuItem primaryText="Send feedback"/>
-              <MenuItem primaryText="Settings"/>
-              <MenuItem primaryText="Help"/>
-              <MenuItem primaryText="Sign out"/>
-            </IconMenu>
-            <IconMenu
-              iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-            >
-              <MenuItem primaryText="4444444444"/>
-              <MenuItem primaryText="Send feedback"/>
-              <MenuItem primaryText="Settings"/>
-              <MenuItem primaryText="Help"/>
-              <MenuItem primaryText="Sign out"/>
-            </IconMenu>
-            <IconMenu
-              iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-            >
-              <MenuItem primaryText="5555555555"/>
-              <MenuItem primaryText="Send feedback"/>
-              <MenuItem primaryText="Settings"/>
-              <MenuItem primaryText="Help"/>
-              <MenuItem primaryText="Sign out"/>
-            </IconMenu>
           </ToolbarGroup>
 
         </Toolbar>
@@ -221,3 +191,7 @@ export default class Header extends React.Component {
     return wrap(views.wrappers.header, el);
   }
 }
+
+export default connect(({ user }) => ({ user }), dispatch => ({
+  actions: bindActionCreators(actions, dispatch)
+}))(Header);

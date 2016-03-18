@@ -19,6 +19,9 @@ export const LOGIN = 'LOGIN';
 export const LOGIN_COMPLETE = 'LOGIN_COMPLETE';
 export const LOGIN_ERROR = 'LOGIN_ERROR';
 
+export const LOGOUT = 'LOGOUT';
+export const LOGOUT_COMPLETE = 'LOGOUT_COMPLETE';
+
 export const LIST = 'LIST';
 export const LIST_COMPLETE = 'LIST_COMPLETE';
 export const LIST_ERROR = 'LIST_ERROR';

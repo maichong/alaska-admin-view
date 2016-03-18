@@ -43,12 +43,6 @@ export default class Locked extends React.Component {
     };
   }
 
-  componentWillMount() {
-  }
-
-  componentDidMount() {
-  }
-
   componentWillReceiveProps(nextProps, nextContext) {
     let newState = {};
     if (nextContext.muiTheme) {
@@ -60,9 +54,6 @@ export default class Locked extends React.Component {
     this.setState(newState);
   }
 
-  componentWillUnmount() {
-  }
-
   render() {
     let style = {
       fontSize: 32,
@@ -70,6 +61,6 @@ export default class Locked extends React.Component {
       paddingTop: 100,
       color: '#b55'
     };
-    return <h1 style={style}>无权访问</h1>;
+    return wrap(this.state.views.wrappers.locked, <h1 style={style}>无权访问</h1>);
   }
 }

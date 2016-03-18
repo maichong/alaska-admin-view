@@ -14,6 +14,7 @@ import {
   NOTICE,
   REFRESH_INFO,
   LOGIN,
+  LOGOUT,
   LIST,
   DETAILS,
   SEARCH,
@@ -40,6 +41,8 @@ export const notice = createAction(NOTICE, msg => {
 });
 
 export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/api/login/info');
+
+export const logout = createApiAction(LOGOUT, PREFIX + '/api/login/logout');
 
 export const login = createApiAction(LOGIN, PREFIX + '/api/login/login');
 
