@@ -34,12 +34,6 @@ export default class DataTable extends React.Component {
     settings: React.PropTypes.object,
   };
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-  };
-
   static mixins = [
     ContextPure
   ];
@@ -47,48 +41,25 @@ export default class DataTable extends React.Component {
   constructor(props, context) {
     super(props);
     this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
-      settings: context.settings,
       data: props.data || []
     };
   }
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-      settings: this.context.settings,
-    };
-  }
-
-  componentWillMount() {
-  }
-
   componentDidMount() {
-    this._init(this.props, this.context);
+    this.init(this.props, this.context);
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps) {
     let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
     if (nextProps.data) {
       newState.data = nextProps.data;
     }
     this.setState(newState, () => {
-      this._init(this.props, this.context);
+      this.init(this.props, this.context);
     });
   }
 
-  componentWillUnmount() {
-  }
-
-  _init(props, context) {
+  init(props, context) {
     let model = props.model || this.props.model;
     if (!model) {
       return;
@@ -106,13 +77,13 @@ export default class DataTable extends React.Component {
   }
 
   _render() {
-    console.log('DataTable.render');
+    console.log('DataTable._render');
     let props = this.props;
+    let views = this.context.views;
+    let muiTheme = this.context.muiTheme;
     let {
-      views,
       columns,
-      data,
-      muiTheme
+      data
       } = this.state;
     let model = props.model;
     let service = model.service;

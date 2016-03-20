@@ -12,8 +12,6 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import wrap from '../utils/wrap';
 import shallowEqual from '../utils/shallow-equal';
 
-import { Link } from 'react-router';
-
 export default class Menu extends React.Component {
 
   static propTypes = {
@@ -22,84 +20,52 @@ export default class Menu extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-  };
-
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
+    router: React.PropTypes.object
   };
 
   static mixins = [
     ContextPure
   ];
 
-  constructor(props, context) {
-    super(props);
-    this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
-      settings: context.settings,
-    };
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-      settings: this.context.settings,
-    };
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
-    if (nextContext.settings) {
-      newState.settings = nextContext.settings;
-    }
-    this.setState(newState);
-  }
-
-  shouldComponentUpdate(props, state) {
-    return !shallowEqual(props, this.props) || !shallowEqual(state.settings.menu, this.state.settings.menu);
-  }
-
-  _itemOnTouchTapHandle(menuObject) {
-    console.log(menuObject.id, menuObject.label);
+  shouldComponentUpdate(props) {
+    return !shallowEqual(props, this.props);
   }
 
   createMenuItem(item, level = 0) {
-    let views = this.state.views;
+    //let views = this.state.views;
     let nestedItems = _.map(item.subs, sub => this.createMenuItem(sub, level + 1));
-    let el = <ListItem style={{color:'#aaa'}} key={item.id} nestedItems={nestedItems} primaryText={item.label}/>;
+    let me = this;
+    let onTouchTap = item.link ? function () {
+      me.context.router.push(item.link);
+    } : null;
+    let el = <ListItem
+      onTouchTap={onTouchTap}
+      style={{color:'#aaa'}}
+      key={item.id}
+      nestedItems={nestedItems}
+      primaryText={item.label}
+    />;
     //let wrappers = _.get(views.wrappers, 'menu-' + item.id.replace(/\./g, '-'));
     //if (wrappers) {
     //  el = wrap(wrappers, el);
     //}
     //el = wrap(views.wrappers.menuItem, el);
-    return item.link ? (<Link key={item.id} to={item.link}>{el}</Link>) : el;
+    return el;
   }
 
   render() {
-    console.log('menu render');
+    console.log('Menu.render', this);
     let props = this.props;
-    let state = this.state;
-    let views = this.state.views;
+    let views = this.context.views;
     let styles = {
       root: {
         background: '#333'
       }
     };
-    return wrap(views.wrappers.menu, <List id="menu" style={styles.root}>
+    let el = <List id="menu" style={styles.root}>
       { _.map(props.menu, item => this.createMenuItem(item))}
-    </List>);
+    </List>;
+    return wrap(views.wrappers.menu, el);
   }
 }

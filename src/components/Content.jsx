@@ -5,7 +5,6 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import ContextPure from 'material-ui/lib/mixins/context-pure';
 import wrap from '../utils/wrap';
 
@@ -16,61 +15,17 @@ export default class Content extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-  };
-
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
   };
 
   static mixins = [
     ContextPure
   ];
 
-  constructor(props, context) {
-    super(props);
-    this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
-      settings: context.settings,
-    };
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-      settings: this.context.settings,
-    };
-  }
-
-  componentWillMount() {
-  }
-
-  componentDidMount() {
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
-    this.setState(newState);
-  }
-
-  componentWillUnmount() {
-  }
-
   render() {
+    console.log('Content.render');
     let props = this.props;
-    let state = this.state;
+    let views = this.context.views;
     let styles = {
       root: {
         marginLeft: 240
@@ -79,10 +34,10 @@ export default class Content extends React.Component {
         padding: 20
       }
     };
-    return wrap(state.views.wrappers.content,
+    return wrap(views.wrappers.content,
       <div id="content" style={styles.root}>
         {
-          wrap(state.views.wrappers.contentInner, <div id="contentInner" style={styles.inner}>{props.children}</div>)
+          wrap(views.wrappers.contentInner, <div id="contentInner" style={styles.inner}>{props.children}</div>)
         }
       </div>
     );

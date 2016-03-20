@@ -110,6 +110,7 @@ class Header extends React.Component {
   };
 
   render() {
+    console.log('Header.render', this);
     let props = this.props;
     let state = this.state;
     let views = state.views;
@@ -128,10 +129,11 @@ class Header extends React.Component {
         height: height
       },
       logo: {
-        height: 56
+        paddingTop: 8,
+        paddingLeft: 8
       },
       img: {
-        height: 56
+        height: 40
       },
       title: {
         paddingLeft: 20,

@@ -72,6 +72,7 @@ export default class Login extends React.Component {
   }
 
   render() {
+    console.log('Login.render', this);
     let props = this.props;
     let state = this.state;
     let views = this.state.views;

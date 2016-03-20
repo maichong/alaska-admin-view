@@ -23,13 +23,6 @@ export default class Manage extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-  };
-
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
   };
@@ -38,38 +31,21 @@ export default class Manage extends React.Component {
     ContextPure
   ];
 
-  constructor(props, context) {
+  constructor(props) {
     super(props);
     this.handleRequestClose = this.handleRequestClose.bind(this);
     this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
-      settings: context.settings,
       open: false
     };
   }
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-      settings: this.context.settings,
-    };
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps) {
     let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
     if (nextProps.notice && nextProps.notice.rand != this.rand) {
       newState.open = true;
       this.rand = nextProps.notice.rand;
+      this.setState(newState);
     }
-    this.setState(newState);
   }
 
   handleRequestClose() {
@@ -77,9 +53,10 @@ export default class Manage extends React.Component {
   }
 
   render() {
+    console.log('Manage.render', this);
     let props = this.props;
     let state = this.state;
-    let views = state.views;
+    let { views, settings } = this.context;
     let styles = {
       root: {},
       body: {
@@ -97,7 +74,7 @@ export default class Manage extends React.Component {
         {
           wrap(views.wrappers.body,
             <div id="body" style={styles.body}>
-              <Sidebar menu={props.settings.menu}/>
+              <Sidebar menu={settings.menu}/>
               <Content>{props.children}</Content>
             </div>
           )

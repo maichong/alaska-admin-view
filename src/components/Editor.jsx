@@ -32,18 +32,13 @@ class Editor extends React.Component {
     settings: React.PropTypes.object,
   };
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-  };
-
   static mixins = [
     ContextPure
   ];
 
   constructor(props, context) {
     super(props);
+    console.log('Editor.constructor', props, context);
 
     this.handleSave = this.handleSave.bind(this);
     this.remove = this.remove.bind(this);
@@ -52,9 +47,6 @@ class Editor extends React.Component {
     this._r = Math.random();
 
     this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
-      settings: context.settings,
       serviceId: props.params.service,
       modelName: props.params.model,
       id: props.params.id,
@@ -74,32 +66,18 @@ class Editor extends React.Component {
     this.state.model = model;
   }
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-      settings: this.context.settings
-    };
-  }
-
   componentDidMount() {
     this.init();
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
     let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
     if (nextProps.params) {
       newState.serviceId = nextProps.params.service;
       newState.modelName = nextProps.params.model;
       newState.id = nextProps.params.id;
 
-      let service = this.state.settings.services[newState.serviceId];
+      let service = this.context.settings.services[newState.serviceId];
       if (service) {
         newState.service = service;
         let model = service.models[newState.modelName];
@@ -230,16 +208,14 @@ class Editor extends React.Component {
   }
 
   render() {
-    let props = this.props;
+    console.log('Editor.render', this);
     let {
       id,
       model,
       data,
-      muiTheme,
-      views,
-      settings,
       errors
       } = this.state;
+    let { views, muiTheme} = this.context;
     if (!data) {
       return <div className="loading">Loading...</div>;
     }

@@ -28,8 +28,7 @@ class App extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
+    muiTheme: React.PropTypes.object
   };
 
   static childContextTypes = {
@@ -44,10 +43,9 @@ class App extends React.Component {
 
   constructor(props, context) {
     super(props);
-    let muiTheme = props.muiTheme || context.muiTheme || getMuiTheme();
+    let muiTheme = context.muiTheme || getMuiTheme();
     this.state = {
-      muiTheme: muiTheme,
-      views: props.views
+      muiTheme
     };
     if (!muiTheme.fieldNote) {
       muiTheme.fieldNote = {
@@ -87,9 +85,10 @@ class App extends React.Component {
   }
 
   render() {
+    console.log('App.render', this);
     let props = this.props;
     let state = this.state;
-    let views = state.views;
+    let views = props.views;
     let el;
 
     //有权限

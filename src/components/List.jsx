@@ -80,6 +80,7 @@ class List extends React.Component {
   }
 
   render() {
+    console.log('List.render', this);
     let props = this.props;
     let {
       title,

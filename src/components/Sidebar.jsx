@@ -21,62 +21,17 @@ export default class Sidebar extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-  };
-
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
   };
 
   static mixins = [
     ContextPure
   ];
 
-  constructor(props, context) {
-    super(props);
-    this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
-      settings: context.settings,
-    };
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-      settings: this.context.settings,
-    };
-  }
-
-  componentWillMount() {
-  }
-
-  componentDidMount() {
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
-    this.setState(newState);
-  }
-
-  componentWillUnmount() {
-  }
-
   render() {
+    console.log('Sidebar.render', this);
     let props = this.props;
-    let state = this.state;
-    let views = this.state.views;
+    let views = this.context.views;
     let styles = {
       root: {
         width: 240,
