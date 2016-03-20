@@ -30,6 +30,7 @@ class Editor extends React.Component {
     muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    router: React.PropTypes.object,
   };
 
   static mixins = [
@@ -40,10 +41,6 @@ class Editor extends React.Component {
     super(props);
     console.log('Editor.constructor', props, context);
 
-    this.handleSave = this.handleSave.bind(this);
-    this.remove = this.remove.bind(this);
-    this.handleClose = this.handleClose.bind(this);
-    this.handleRemove = this.handleRemove.bind(this);
     this._r = Math.random();
 
     this.state = {
@@ -95,7 +92,7 @@ class Editor extends React.Component {
         this.props.actions.notice('保存成功!');
         if (this.state.id == '_new') {
           let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.save.res._id;
-          this.props.history.replaceState(null, url);
+          this.context.router.replace(url);
         }
       }
     }
@@ -107,7 +104,7 @@ class Editor extends React.Component {
       } else {
         this.props.actions.notice('删除成功!');
         let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
-        this.props.history.replaceState(null, url);
+        this.context.router.replace(url);
       }
     }
     this.setState(newState, () => {
@@ -116,7 +113,6 @@ class Editor extends React.Component {
   }
 
   init() {
-    console.log('init', this);
     let props = this.props;
     let state = this.state;
     if (!state.model) {
@@ -149,12 +145,17 @@ class Editor extends React.Component {
     });
   }
 
-  handleClose() {
+  handleClose = () => {
     console.log('handleClose');
     this.setState({ removeDialogOpen: false });
-  }
+  };
 
-  handleRemove() {
+  handleCreate = () => {
+    let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/_new';
+    this.context.router.replace(url);
+  };
+
+  handleRemove = () => {
     this._r = Math.random();
     this.props.actions.remove({
       service: this.state.serviceId,
@@ -164,9 +165,9 @@ class Editor extends React.Component {
     });
     this.loading = true;
     this.setState({ removeDialogOpen: false });
-  }
+  };
 
-  handleSave() {
+  handleSave = () => {
     let {
       data,
       model,
@@ -200,12 +201,12 @@ class Editor extends React.Component {
       _r: this._r,
       data: _.assign({}, data, { id: id == '_new' ? '' : id })
     });
-  }
+  };
 
-  remove() {
+  remove = () => {
     console.log('remove', this.state.id);
     this.setState({ removeDialogOpen: true });
-  }
+  };
 
   render() {
     console.log('Editor.render', this);
@@ -213,7 +214,9 @@ class Editor extends React.Component {
       id,
       model,
       data,
-      errors
+      errors,
+      serviceId,
+      modelName
       } = this.state;
     let { views, muiTheme} = this.context;
     if (!data) {
@@ -262,7 +265,7 @@ class Editor extends React.Component {
       title += id;
     }
     let groups = {
-      _: {
+      default: {
         name: '',
         fields: []
       }
@@ -330,7 +333,7 @@ class Editor extends React.Component {
       };
 
       let view = React.createElement(ViewClass, fieldProps);
-      let group = groups._;
+      let group = groups.default;
       if (cfg.group && groups[cfg.group]) {
         group = groups[cfg.group];
       }
@@ -343,9 +346,14 @@ class Editor extends React.Component {
         continue;
       }
       let groupNameElement = group.name ? <div style={styles.groupName}>{group.name}</div> : null;
-      groupElements.push(
-        <div key={groupKey}>{groupNameElement}<Paper zDepth={1} style={styles.group}>{group.fields}</Paper></div>
-      );
+      let groupEl = <div key={groupKey}>{groupNameElement}<Paper zDepth={1} style={styles.group}>{group.fields}</Paper>
+      </div>;
+      let path = `wrappers.${serviceId}-${modelName}-group-${groupKey}`;
+      let wrappers = _.get(views, path);
+      if (wrappers) {
+        groupEl = wrap(wrappers, groupEl, this, { key: path });
+      }
+      groupElements.push(groupEl);
     }
 
     let btnElements = [];
@@ -391,6 +399,15 @@ class Editor extends React.Component {
       >
         确定要删除吗? 删除后不可还原!
       </Dialog>);
+    }
+    if (!model.nocreate && id !== '_new' && model.abilities.create) {
+      btnElements.push(<RaisedButton
+        onMouseDown={this.handleCreate}
+        key="create"
+        label="新建"
+        disabled={this.loading}
+        style={styles.button}
+      />);
     }
     return (
       <div style={styles.root}>

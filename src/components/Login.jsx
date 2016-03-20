@@ -102,41 +102,49 @@ export default class Login extends React.Component {
     };
     let err;
     if (state.errorMsg) {
-      err = wrap(views.wrappers.loginError, <p style={styles.error}>{state.errorMsg}</p>);
+      err = wrap(views.wrappers.loginError, <p style={styles.error}>{state.errorMsg}</p>, this);
     }
 
     let el = (
       <Paper zDepth={2} style={styles.root}>
-        { wrap(views.wrappers.loginLogo, <img src="static/logo.png" style={styles.logo}/>)}
-        { wrap(views.wrappers.loginForm, <form style={styles.form}>
-          { wrap(views.wrappers.loginField, <div>
-            <TextField
-              floatingLabelText="用户名"
-              errorText={state.nameError}
-              ref="name"
-            />
-            <TextField
-              floatingLabelText="密码"
-              type="password"
-              errorText={state.passError}
-              ref="pass"
-              onEnterKeyDown={this.handleLogin}
-            />
-          </div>)}
+        { wrap(views.wrappers.loginLogo, <img src="static/logo.png" style={styles.logo}/>, this)}
+        { wrap(views.wrappers.loginForm,
+          <form style={styles.form}>
+            { wrap(views.wrappers.loginField, <div>
+                <TextField
+                  floatingLabelText="用户名"
+                  errorText={state.nameError}
+                  ref="name"
+                />
+                <TextField
+                  floatingLabelText="密码"
+                  type="password"
+                  errorText={state.passError}
+                  ref="pass"
+                  onEnterKeyDown={this.handleLogin}
+                />
+              </div>,
+              this
+            )}
 
-          { wrap(views.wrappers.loginButton, <RaisedButton
-            label="登录"
-            fullWidth={true}
-            secondary={true}
-            style={styles.button}
-            onTouchTap={this.handleLogin}
-          />)}
-          { err }
-        </form>)}
+            { wrap(views.wrappers.loginButton,
+              <RaisedButton
+                label="登录"
+                fullWidth={true}
+                secondary={true}
+                style={styles.button}
+                onTouchTap={this.handleLogin}
+              />,
+              this
+            )}
+            { err }
+          </form>,
+          this
+        )}
       </Paper>
     );
 
-    return wrap(views.wrappers.login, el);
+    return wrap(views.wrappers.login, el, this);
   }
 
   handleLogin() {

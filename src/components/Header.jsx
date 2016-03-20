@@ -190,7 +190,7 @@ class Header extends React.Component {
       </Paper>
     );
 
-    return wrap(views.wrappers.header, el);
+    return wrap(views.wrappers.header, el, this);
   }
 }
 

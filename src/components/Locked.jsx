@@ -26,6 +26,6 @@ export default class Locked extends React.Component {
       paddingTop: 100,
       color: '#b55'
     };
-    return wrap(this.context.views.wrappers.locked, <h1 style={style}>无权访问</h1>);
+    return wrap(this.context.views.wrappers.locked, <h1 style={style}>无权访问</h1>, this);
   }
 }

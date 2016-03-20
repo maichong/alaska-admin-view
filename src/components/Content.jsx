@@ -23,7 +23,6 @@ export default class Content extends React.Component {
   ];
 
   render() {
-    console.log('Content.render');
     let props = this.props;
     let views = this.context.views;
     let styles = {
@@ -37,9 +36,10 @@ export default class Content extends React.Component {
     return wrap(views.wrappers.content,
       <div id="content" style={styles.root}>
         {
-          wrap(views.wrappers.contentInner, <div id="contentInner" style={styles.inner}>{props.children}</div>)
+          wrap(views.wrappers.contentInner, <div id="contentInner" style={styles.inner}>{props.children}</div>, this)
         }
-      </div>
+      </div>,
+      this
     );
   }
 }

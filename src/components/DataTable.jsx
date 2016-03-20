@@ -109,53 +109,57 @@ export default class DataTable extends React.Component {
     </TableRow>;
 
     let bodyElement = <TableBody>
-      {data.map((record, index) => wrap(views.wrappers.dataTableRow, <TableRow key={index}>
-        {columns.map(col => {
-          let key = col.key;
-          let CellViewClass = views[col.field.cell];
-          if (!CellViewClass) {
-            console.warn('Missing : ' + col.field.cell);
-            return <TableRowColumn style={{background:'#fcc'}} key={key}>{record[key]}</TableRowColumn>;
-          }
-          return (<TableRowColumn key={key}>
-            {React.createElement(CellViewClass, {
-              value: record[key],
-              model,
-              key,
-              field: col.field
-            })}
-          </TableRowColumn>);
-        })}
-        <TableRowColumn>
-          <Link to={'/edit/'+service.id+'/'+model.name+'/'+record._id}>
-            <FontIcon className="material-icons" color="#666" hoverColor={primary1Color}>create</FontIcon>
-          </Link>
-          <IconButton>
-            <FontIcon className="material-icons" color="#666" hoverColor={accent1Color}>clear</FontIcon>
-          </IconButton>
-        </TableRowColumn>
-      </TableRow>))}
+      {data.map((record, index) => wrap(views.wrappers.dataTableRow,
+        <TableRow key={index}>
+          {columns.map(col => {
+            let key = col.key;
+            let CellViewClass = views[col.field.cell];
+            if (!CellViewClass) {
+              console.warn('Missing : ' + col.field.cell);
+              return <TableRowColumn style={{background:'#fcc'}} key={key}>{record[key]}</TableRowColumn>;
+            }
+            return (<TableRowColumn key={key}>
+              {React.createElement(CellViewClass, {
+                value: record[key],
+                model,
+                key,
+                field: col.field
+              })}
+            </TableRowColumn>);
+          })}
+          <TableRowColumn>
+            <Link to={'/edit/'+service.id+'/'+model.name+'/'+record._id}>
+              <FontIcon className="material-icons" color="#666" hoverColor={primary1Color}>create</FontIcon>
+            </Link>
+            <IconButton>
+              <FontIcon className="material-icons" color="#666" hoverColor={accent1Color}>clear</FontIcon>
+            </IconButton>
+          </TableRowColumn>
+        </TableRow>,
+        this))}
     </TableBody>;
 
     let tabelElement = wrap(views.wrappers.dataTable,
       <Table multiSelectable={true}>
         {wrap(views.wrappers.dataTableHeader,
           <TableHeader>
-            {wrap(views.wrappers.dataTableHeaderRow, headerRowElement)}
-          </TableHeader>
+            {wrap(views.wrappers.dataTableHeaderRow, headerRowElement, this)}
+          </TableHeader>,
+          this
         )}
-        {wrap(views.wrappers.dataTableBody, bodyElement)}
-      </Table>
+        {wrap(views.wrappers.dataTableBody, bodyElement, this)}
+      </Table>,
+      this
     );
 
     let el = (
       <div style={styles.root}>
         <Paper zDepth={1} style={styles.root}>
-          {wrap(views.wrappers.dataTable, tabelElement)}
+          {wrap(views.wrappers.dataTable, tabelElement, this)}
         </Paper>
       </div>
     );
-    return wrap(views.wrappers.list, el);
+    return wrap(views.wrappers.list, el, this);
   }
 
   render() {

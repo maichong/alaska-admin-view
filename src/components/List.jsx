@@ -133,7 +133,8 @@ class List extends React.Component {
         </div>
 
         <DataTable model={model} data={data}/>
-      </div>
+      </div>,
+      this
     );
   }
 

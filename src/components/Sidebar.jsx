@@ -53,11 +53,12 @@ export default class Sidebar extends React.Component {
             <div id="sidebarInner" style={styles.inner}>
               <Menu menu={props.menu}/>
               <Copyright />
-            </div>
+            </div>,
+            this
           )
         }
       </Paper>
     );
-    return wrap(views.wrappers.sidebar, el);
+    return wrap(views.wrappers.sidebar, el, this);
   }
 }

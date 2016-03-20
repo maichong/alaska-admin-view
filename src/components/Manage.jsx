@@ -76,11 +76,13 @@ export default class Manage extends React.Component {
             <div id="body" style={styles.body}>
               <Sidebar menu={settings.menu}/>
               <Content>{props.children}</Content>
-            </div>
+            </div>,
+            this
           )
         }
         {snack}
-      </div>
+      </div>,
+      this
     );
   }
 }

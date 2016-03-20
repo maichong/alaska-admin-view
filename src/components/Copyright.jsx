@@ -40,6 +40,6 @@ export default class Copyright extends React.Component {
         marginTop: 5
       }
     };
-    return wrap(views.wrappers.copyright, <div style={styles.root}>Powered By Alaska</div>);
+    return wrap(views.wrappers.copyright, <div style={styles.root}>Powered By Alaska</div>, this);
   }
 }

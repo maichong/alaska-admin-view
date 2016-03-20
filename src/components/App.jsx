@@ -101,10 +101,12 @@ class App extends React.Component {
                 <Route component={List} path="list/:service/:model"></Route>
                 <Route component={Editor} path="edit/:service/:model/:id"></Route>
                 {state.routes}
-              </Route>
+              </Route>,
+              this
             )
           }
-        </Router>
+        </Router>,
+        this
       );
     }
 
@@ -120,7 +122,7 @@ class App extends React.Component {
       el = <div className="boot-loading">Loading...</div>;
     }
 
-    return wrap(views.wrappers.app, el);
+    return wrap(views.wrappers.app, el, this);
   }
 }
 

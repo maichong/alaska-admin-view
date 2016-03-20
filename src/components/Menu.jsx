@@ -55,7 +55,6 @@ export default class Menu extends React.Component {
   }
 
   render() {
-    console.log('Menu.render', this);
     let props = this.props;
     let views = this.context.views;
     let styles = {
@@ -66,6 +65,6 @@ export default class Menu extends React.Component {
     let el = <List id="menu" style={styles.root}>
       { _.map(props.menu, item => this.createMenuItem(item))}
     </List>;
-    return wrap(views.wrappers.menu, el);
+    return wrap(views.wrappers.menu, el, this);
   }
 }

@@ -7,6 +7,12 @@
 import React from 'react';
 import * as _ from 'lodash';
 
-export default function wrap(wrappers, element) {
-  return _.reduce(wrappers, (el, Wrapper) => React.createElement(Wrapper, element.props, el), element);
+export default function wrap(wrappers, element, parent, props) {
+  if (!parent) {
+    console.error('parent is required');
+  }
+  if (!wrappers || !wrappers.length) {
+    return element;
+  }
+  return _.reduce(wrappers, (el, Wrapper) => React.createElement(Wrapper, _.assign({ parent }, props), el), element);
 }
