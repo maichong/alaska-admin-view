@@ -5,12 +5,10 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
-import Paper from 'material-ui/lib/paper';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Dialog from 'material-ui/lib/dialog';
-import FlatButton from 'material-ui/lib/flat-button';
+
+import FieldGroup from './FieldGroup';
+
+import { Button, Modal } from 'react-bootstrap';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -27,15 +25,10 @@ class Editor extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
     router: React.PropTypes.object,
   };
-
-  static mixins = [
-    ContextPure
-  ];
 
   constructor(props, context) {
     super(props);
@@ -47,7 +40,7 @@ class Editor extends React.Component {
       serviceId: props.params.service,
       modelName: props.params.model,
       id: props.params.id,
-      removeDialogOpen: false,
+      showRemoveDialog: false,
       errors: {}
     };
 
@@ -67,7 +60,7 @@ class Editor extends React.Component {
     this.init();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps) {
     let newState = {};
     if (nextProps.params) {
       newState.serviceId = nextProps.params.service;
@@ -147,7 +140,7 @@ class Editor extends React.Component {
 
   handleClose = () => {
     console.log('handleClose');
-    this.setState({ removeDialogOpen: false });
+    this.setState({ showRemoveDialog: false });
   };
 
   handleCreate = () => {
@@ -164,7 +157,7 @@ class Editor extends React.Component {
       _r: this._r
     });
     this.loading = true;
-    this.setState({ removeDialogOpen: false });
+    this.setState({ showRemoveDialog: false });
   };
 
   handleSave = () => {
@@ -204,8 +197,7 @@ class Editor extends React.Component {
   };
 
   remove = () => {
-    console.log('remove', this.state.id);
-    this.setState({ removeDialogOpen: true });
+    this.setState({ showRemoveDialog: true });
   };
 
   render() {
@@ -218,43 +210,10 @@ class Editor extends React.Component {
       serviceId,
       modelName
       } = this.state;
-    let { views, muiTheme} = this.context;
+    let { views } = this.context;
     if (!data) {
       return <div className="loading">Loading...</div>;
     }
-    let styles = {
-      root: {},
-      titleBar: {
-        height: 32,
-        overflow: 'hidden',
-        position: 'relative',
-        marginBottom: 20
-      },
-      title: {
-        fontSize: 32,
-        color: muiTheme.baseTheme.palette.primary1Color
-      },
-      titleId: {
-        fontSize: 12,
-        color: '#666',
-        height: 12,
-        position: 'absolute',
-        right: 0,
-        bottom: 0
-      },
-      group: {
-        marginBottom: 20,
-        padding: 10
-      },
-      groupName: {
-        fontSize: 16,
-        padding: 5,
-        color: muiTheme.baseTheme.palette.primary1Color
-      },
-      button: {
-        marginRight: 10
-      }
-    };
     let canSave = (id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update && !model.noedit);
     let title = (model.label || model.name) + ' > ';
     if (id == '_new') {
@@ -345,9 +304,7 @@ class Editor extends React.Component {
       if (!group.fields.length) {
         continue;
       }
-      let groupNameElement = group.name ? <div style={styles.groupName}>{group.name}</div> : null;
-      let groupEl = <div key={groupKey}>{groupNameElement}<Paper zDepth={1} style={styles.group}>{group.fields}</Paper>
-      </div>;
+      let groupEl = <FieldGroup key={groupKey} name={group.name}>{group.fields}</FieldGroup>;
       let path = `wrappers.${serviceId}-${modelName}-group-${groupKey}`;
       let wrappers = _.get(views, path);
       if (wrappers) {
@@ -359,66 +316,55 @@ class Editor extends React.Component {
     let btnElements = [];
     let removeDialogElement = null;
     if (canSave) {
-      btnElements.push(<RaisedButton
-        onMouseDown={this.handleSave}
+      btnElements.push(<Button
+        bsStyle="primary"
+        onClick={this.handleSave}
         key="save"
-        secondary={true}
-        label="保存"
         disabled={this.loading}
-        style={styles.button}
-      />);
+      >保存</Button>);
     }
     if (!model.noremove && id !== '_new' && model.abilities.remove) {
-      btnElements.push(<RaisedButton
-        onMouseDown={this.remove}
+      btnElements.push(<Button
+        bsStyle="danger"
+        onClick={this.remove}
         key="remove"
-        primary={true}
-        label="删除"
         disabled={this.loading}
-        style={styles.button}
-      />);
+      >删除</Button>);
       //确认删除
-      const actions = [
-        <FlatButton
-          label="取消"
-          secondary={true}
-          onTouchTap={this.handleClose}
-        />,
-        <FlatButton
-          label="删除"
-          primary={true}
-          keyboardFocused={true}
-          onTouchTap={this.handleRemove}
-        />,
-      ];
-      removeDialogElement = (<Dialog
+      removeDialogElement = (<Modal
         title="删除记录"
         actions={actions}
         modal={false}
-        open={this.state.removeDialogOpen}
+        show={this.state.showRemoveDialog}
       >
-        确定要删除吗? 删除后不可还原!
-      </Dialog>);
+        <Modal.Body>
+          确定要删除吗? 删除后不可还原!
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle="danger" onClick={this.handleRemove}>删除</Button>
+          <Button onClick={this.handleClose}>取消</Button>
+        </Modal.Footer>
+      </Modal>);
     }
     if (!model.nocreate && id !== '_new' && model.abilities.create) {
-      btnElements.push(<RaisedButton
-        onMouseDown={this.handleCreate}
+      btnElements.push(<Button
+        onClick={this.handleCreate}
+        bsStyle="link"
         key="create"
-        label="新建"
         disabled={this.loading}
-        style={styles.button}
-      />);
+      >新建</Button>);
     }
     return (
-      <div style={styles.root}>
-        <div style={styles.titleBar}>
-          <div style={styles.title}>{title}</div>
+      <div className="editor-content">
+        <div className="content-header">
+          <h4>{title}</h4>
           {
-            id === '_new' ? null : <div style={styles.titleId}>ID : {id}</div>
+            id === '_new' ? null : <div >ID : {id}</div>
           }
+          <div className="content-header-buttons">{btnElements}</div>
         </div>
         {groupElements}
-        {btnElements}
+        <div className="editor-action-buttons">{btnElements}</div>
         {removeDialogElement}
       </div>
     );

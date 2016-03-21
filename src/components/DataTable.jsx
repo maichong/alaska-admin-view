@@ -5,19 +5,9 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
-import Paper from 'material-ui/lib/paper';
-import Table from 'material-ui/lib/table/table';
-import TableBody from 'material-ui/lib/table/table-body';
-import TableFooter from 'material-ui/lib/table/table-footer';
-import TableHeader from 'material-ui/lib/table/table-header';
-import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
-import TableRow from 'material-ui/lib/table/table-row';
-import TableRowColumn from 'material-ui/lib/table/table-row-column';
-import FontIcon from 'material-ui/lib/font-icon';
-import IconButton from 'material-ui/lib/icon-button';
 import { Link } from 'react-router';
+import { Table } from 'react-bootstrap';
+import { shallowEqual } from 'alaska-admin-view';
 import wrap from '../utils/wrap';
 
 export default class DataTable extends React.Component {
@@ -29,14 +19,9 @@ export default class DataTable extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
   };
-
-  static mixins = [
-    ContextPure
-  ];
 
   constructor(props, context) {
     super(props);
@@ -53,34 +38,40 @@ export default class DataTable extends React.Component {
     let newState = {};
     if (nextProps.data) {
       newState.data = nextProps.data;
+      this.setState(newState, () => {
+        if (nextProps.model) {
+          this.init(this.props);
+        }
+      });
     }
-    this.setState(newState, () => {
-      this.init(this.props, this.context);
-    });
   }
 
-  init(props, context) {
+  init(props) {
     let model = props.model || this.props.model;
     if (!model) {
       return;
     }
 
     let columns = [];
-
     model.defaultColumns.forEach(key => {
       model.fields[key] && columns.push({
         key,
         field: model.fields[key]
       });
     });
-    this.setState({ columns, el: this._render() });
+    this.setState({ columns });
   }
 
-  _render() {
-    console.log('DataTable._render');
+  shouldComponentUpdate(props, state) {
+    if (!state.data || !state.columns) {
+      return false;
+    }
+    return !shallowEqual(state, this.state);
+  }
+
+  render() {
     let props = this.props;
     let views = this.context.views;
-    let muiTheme = this.context.muiTheme;
     let {
       columns,
       data
@@ -93,76 +84,58 @@ export default class DataTable extends React.Component {
     if (!model || !columns) {
       return <div className="loading">Loading...</div>;
     }
-    let primary1Color = muiTheme.baseTheme.palette.primary1Color;
-    let accent1Color = muiTheme.baseTheme.palette.accent1Color;
 
-    let headerRowElement = <TableRow>
+    let headerRowElement = (<tr>
       {
         columns.map(col => {
-          return <TableHeaderColumn
+          return <th
             key={col.key}
             tooltip={col.field.tooltip}
-          >{col.field.label}</TableHeaderColumn>
+          >{col.field.label}</th>
         })
       }
-      <TableHeaderColumn></TableHeaderColumn>
-    </TableRow>;
+      <th></th>
+    </tr>);
 
-    let bodyElement = <TableBody>
-      {data.map((record, index) => wrap(views.wrappers.dataTableRow,
-        <TableRow key={index}>
-          {columns.map(col => {
-            let key = col.key;
-            let CellViewClass = views[col.field.cell];
-            if (!CellViewClass) {
-              console.warn('Missing : ' + col.field.cell);
-              return <TableRowColumn style={{background:'#fcc'}} key={key}>{record[key]}</TableRowColumn>;
-            }
-            return (<TableRowColumn key={key}>
-              {React.createElement(CellViewClass, {
-                value: record[key],
-                model,
-                key,
-                field: col.field
-              })}
-            </TableRowColumn>);
-          })}
-          <TableRowColumn>
-            <Link to={'/edit/'+service.id+'/'+model.name+'/'+record._id}>
-              <FontIcon className="material-icons" color="#666" hoverColor={primary1Color}>create</FontIcon>
-            </Link>
-            <IconButton>
-              <FontIcon className="material-icons" color="#666" hoverColor={accent1Color}>clear</FontIcon>
-            </IconButton>
-          </TableRowColumn>
-        </TableRow>,
-        this))}
-    </TableBody>;
+    let bodyElement = (<tbody>
+    {data.map((record, index) => wrap(views.wrappers.dataTableRow,
+      <tr key={index}>
+        {columns.map(col => {
+          let key = col.key;
+          let CellViewClass = views[col.field.cell];
+          if (!CellViewClass) {
+            console.warn('Missing : ' + col.field.cell);
+            return <td style={{background:'#fcc'}} key={key}>{record[key]}</td>;
+          }
+          return (<td key={key}>
+            {React.createElement(CellViewClass, {
+              value: record[key],
+              model,
+              key,
+              field: col.field
+            })}
+          </td>);
+        })}
+        <td>
+          <Link to={'/edit/'+service.id+'/'+model.name+'/'+record._id}>
+            <i className="fa fa-edit"/>
+          </Link>
+        </td>
+      </tr>,
+      this))}
+    </tbody>);
 
-    let tabelElement = wrap(views.wrappers.dataTable,
-      <Table multiSelectable={true}>
+    return wrap(views.wrappers.dataTable,
+      <Table striped bordered hover>
         {wrap(views.wrappers.dataTableHeader,
-          <TableHeader>
-            {wrap(views.wrappers.dataTableHeaderRow, headerRowElement, this)}
-          </TableHeader>,
+          <thead>
+          {wrap(views.wrappers.dataTableHeaderRow, headerRowElement, this)}
+          </thead>,
           this
         )}
         {wrap(views.wrappers.dataTableBody, bodyElement, this)}
       </Table>,
       this
     );
-
-    let el = (
-      <div style={styles.root}>
-        <Paper zDepth={1} style={styles.root}>
-          {wrap(views.wrappers.dataTable, tabelElement, this)}
-        </Paper>
-      </div>
-    );
-    return wrap(views.wrappers.list, el, this);
-  }
-
-  render() {
-    return this.state.el || <div></div>;
   }
 }

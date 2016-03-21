@@ -5,8 +5,6 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
 import wrap from '../utils/wrap';
 
 export default class Locked extends React.Component {
@@ -14,10 +12,6 @@ export default class Locked extends React.Component {
   static contextTypes = {
     views: React.PropTypes.object,
   };
-
-  static mixins = [
-    ContextPure
-  ];
 
   render() {
     let style = {

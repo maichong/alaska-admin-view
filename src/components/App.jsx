@@ -5,8 +5,6 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
 
 import { Router, Redirect, IndexRoute, Route, Link, hashHistory } from 'react-router';
 import { bindActionCreators } from 'redux';
@@ -27,43 +25,19 @@ class App extends React.Component {
     views: React.PropTypes.object.isRequired
   };
 
-  static contextTypes = {
-    muiTheme: React.PropTypes.object
-  };
-
   static childContextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
   };
 
-  static mixins = [
-    ContextPure
-  ];
-
   constructor(props, context) {
     super(props);
-    let muiTheme = context.muiTheme || getMuiTheme();
     this.state = {
-      muiTheme
     };
-    if (!muiTheme.fieldNote) {
-      muiTheme.fieldNote = {
-        fontSize: 12,
-        color: '#999'
-      };
-      muiTheme.fieldNoteInline = {
-        display: 'inline-block',
-        paddingLeft: 10,
-        fontSize: 12,
-        color: '#999'
-      };
-    }
   }
 
   getChildContext() {
     return {
-      muiTheme: this.state.muiTheme,
       views: this.props.views,
       settings: this.props.settings,
     };
@@ -76,16 +50,10 @@ class App extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-      this.setState(newState);
-    }
+  componentWillReceiveProps(nextProps) {
   }
 
   render() {
-    console.log('App.render', this);
     let props = this.props;
     let state = this.state;
     let views = props.views;

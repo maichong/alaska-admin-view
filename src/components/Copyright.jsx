@@ -6,7 +6,6 @@
 
 import React from 'react';
 import wrap from '../utils/wrap';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
 export default class Copyright extends React.Component {
 
   static propTypes = {
@@ -16,10 +15,6 @@ export default class Copyright extends React.Component {
   static contextTypes = {
     views: React.PropTypes.object,
   };
-
-  static mixins = [
-    ContextPure
-  ];
 
   render() {
     let views = this.context.views;

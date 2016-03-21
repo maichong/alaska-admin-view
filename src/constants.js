@@ -30,10 +30,6 @@ export const DETAILS = 'DETAILS';
 export const DETAILS_COMPLETE = 'DETAILS_COMPLETE';
 export const DETAILS_ERROR = 'DETAILS_ERROR';
 
-export const SEARCH = 'SEARCH';
-export const SEARCH_COMPLETE = 'SEARCH_COMPLETE';
-export const SEARCH_ERROR = 'SEARCH_ERROR';
-
 export const SAVE = 'SAVE';
 export const SAVE_COMPLETE = 'SAVE_COMPLETE';
 export const SAVE_ERROR = 'SAVE_ERROR';

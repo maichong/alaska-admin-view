@@ -5,9 +5,6 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
-import Snackbar from 'material-ui/lib/snackbar';
 
 import { connect } from 'react-redux';
 import wrap from '../utils/wrap';
@@ -27,13 +24,8 @@ export default class Manage extends React.Component {
     settings: React.PropTypes.object,
   };
 
-  static mixins = [
-    ContextPure
-  ];
-
   constructor(props) {
     super(props);
-    this.handleRequestClose = this.handleRequestClose.bind(this);
     this.state = {
       open: false
     };
@@ -48,9 +40,9 @@ export default class Manage extends React.Component {
     }
   }
 
-  handleRequestClose() {
+  handleRequestClose = () => {
     this.setState({ open: false });
-  }
+  };
 
   render() {
     console.log('Manage.render', this);
@@ -63,11 +55,6 @@ export default class Manage extends React.Component {
         marginTop: 56
       }
     };
-    let snack = props.notice && state.open && props.notice.msg ? <Snackbar
-      open={true}
-      message={props.notice.msg}
-      onRequestClose={this.handleRequestClose}
-    /> : null;
     return wrap(views.wrappers.manage,
       <div id="manage" style={styles.root}>
         <Header/>
@@ -80,7 +67,6 @@ export default class Manage extends React.Component {
             this
           )
         }
-        {snack}
       </div>,
       this
     );

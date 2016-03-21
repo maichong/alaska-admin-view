@@ -6,8 +6,6 @@
 
 'use strict';
 
-import 'core-js/shim';
-import 'normalize.css';
 import '../style.less';
 
 require('react-tap-event-plugin')();

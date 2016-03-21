@@ -5,160 +5,123 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import * as _ from 'lodash';
 
+import { Button, Input, Panel } from 'react-bootstrap';
+
 import wrap from '../utils/wrap';
-import Paper from 'material-ui/lib/paper';
-import TextField from 'material-ui/lib/text-field';
-import RaisedButton from 'material-ui/lib/raised-button';
 
 
 export default class Login extends React.Component {
   static propTypes = {
-    children: React.PropTypes.node
+    login: React.PropTypes.object
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
   };
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-  };
-
-  static mixins = [
-    ContextPure
-  ];
-
-  constructor(props, context) {
+  constructor(props) {
     super(props);
     this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
       username: '',
       password: ''
     };
-
-    this.handleLogin = this.handleLogin.bind(this);
   }
 
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-    };
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
+  componentWillReceiveProps(nextProps) {
     let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
     if (nextProps.login && nextProps.login.errorMsg) {
       newState.errorMsg = nextProps.login.errorMsg;
     }
     this.setState(newState);
   }
 
+  handleLogin = () => {
+    let username = this.refs.name.getValue();
+    let password = this.refs.pass.getValue();
+    let state = {
+      errorMsg: '',
+      usernameError: '',
+      passwordError: ''
+    };
+    if (!username) {
+      state.usernameError = 'error';
+    }
+    if (!password) {
+      state.passwordError = 'error';
+    }
+    this.setState(state);
+    if (username && password) {
+      this.props.actions.login({ username, password });
+    }
+  };
+
+  handleKeyPress = (e) => {
+    if (e.key == 'Enter') {
+      this.handleLogin();
+    }
+  };
+
   render() {
-    console.log('Login.render', this);
     let props = this.props;
     let state = this.state;
-    let views = this.state.views;
-    let styles = {
-      root: {
-        width: 600,
-        margin: '80px auto 0',
-        padding: 50
-      },
-      logo: {
-        display: 'block',
-        width: 300,
-        margin: '0 auto 20px'
-      },
-      form: {
-        display: 'block',
-        width: 256,
-        margin: '10px auto 0'
-      },
-      button: {
-        marginTop: 20
-      },
-      error: {
-        color: state.muiTheme.textField.errorColor,
-        fontSize: 14
-      }
-    };
+    let views = this.context.views;
     let err;
     if (state.errorMsg) {
-      err = wrap(views.wrappers.loginError, <p style={styles.error}>{state.errorMsg}</p>, this);
+      err = wrap(views.wrappers.loginError, <p className="label label-danger">{state.errorMsg}</p>, this);
     }
 
     let el = (
-      <Paper zDepth={2} style={styles.root}>
-        { wrap(views.wrappers.loginLogo, <img src="static/logo.png" style={styles.logo}/>, this)}
+      <Panel id="login">
+        { wrap(views.wrappers.loginLogo, <img src="static/logo.png" className="logo"/>, this)}
         { wrap(views.wrappers.loginForm,
-          <form style={styles.form}>
+          <form>
             { wrap(views.wrappers.loginField, <div>
-                <TextField
-                  floatingLabelText="用户名"
+                <Input
+                  placeholder="用户名"
+                  bsStyle={state.usernameError}
+                  type="text"
                   errorText={state.nameError}
                   ref="name"
+                  addonBefore={<i className="fa fa-user"/>}
                 />
-                <TextField
-                  floatingLabelText="密码"
+                <Input
+                  placeholder="密码"
+                  bsStyle={state.passwordError}
                   type="password"
                   errorText={state.passError}
                   ref="pass"
                   onEnterKeyDown={this.handleLogin}
+                  onKeyPress={this.handleKeyPress}
+                  addonBefore={<i className="fa fa-key"/>}
                 />
               </div>,
               this
             )}
 
             { wrap(views.wrappers.loginButton,
-              <RaisedButton
-                label="登录"
-                fullWidth={true}
-                secondary={true}
-                style={styles.button}
-                onTouchTap={this.handleLogin}
-              />,
+              <Button
+                bsStyle="primary"
+                block
+                onClick={this.handleLogin}
+              >登录</Button>,
               this
             )}
             { err }
           </form>,
           this
         )}
-      </Paper>
+      </Panel>
     );
 
     return wrap(views.wrappers.login, el, this);
   }
 
-  handleLogin() {
-    let username = this.refs.name.getValue();
-    let password = this.refs.pass.getValue();
-    let errorMsg = '';
-    if (!username) {
-      errorMsg = '请输入用户名';
-    } else if (!password) {
-      errorMsg = '请输入密码';
-    }
-    this.setState({ errorMsg });
-    !errorMsg && this.props.actions.login({ username, password });
-  }
 }
 
 export default connect(({ login }) => ({ login }), dispatch => ({

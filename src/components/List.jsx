@@ -5,14 +5,13 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
-import RaisedButton from 'material-ui/lib/raised-button';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
+
+import { Button, Panel } from 'react-bootstrap';
 
 import DataTable from './DataTable';
 
@@ -23,36 +22,14 @@ class List extends React.Component {
   };
 
   static contextTypes = {
-    muiTheme: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
   };
-
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-  };
-
-  static mixins = [
-    ContextPure
-  ];
 
   constructor(props, context) {
     super(props);
     this.state = {
-      muiTheme: context.muiTheme ? context.muiTheme : getMuiTheme(),
-      views: context.views,
-      settings: context.settings,
       data: null
-    };
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: this.state.muiTheme,
-      views: this.context.views,
-      settings: this.context.settings,
     };
   }
 
@@ -62,84 +39,19 @@ class List extends React.Component {
 
   componentWillReceiveProps(nextProps, nextContext) {
     let newState = {};
-    if (nextContext.muiTheme) {
-      newState.muiTheme = nextContext.muiTheme;
-    }
-    if (nextContext.views) {
-      newState.views = nextContext.views;
-    }
     if (nextProps.list) {
       let list = nextProps.list;
       if (list.service == this.props.params.service && list.model == this.props.params.model) {
         newState.data = list.results;
       }
+      this.setState(newState, () => {
+        this.init(this.props);
+      });
     }
-    this.setState(newState, () => {
-      this.init(this.props, this.context);
-    });
   }
 
-  render() {
-    console.log('List.render', this);
-    let props = this.props;
-    let {
-      title,
-      service,
-      model,
-      data,
-      muiTheme,
-      views,
-      settings
-      } = this.state;
-    if (!model) {
-      return <div className="loading">Loading...</div>;
-    }
-    let styles = {
-      root: {},
-      titleBar: {
-        position: 'relative',
-        height: 36,
-        marginBottom: 20
-      },
-      title: {
-        overflow: 'hidden',
-        fontSize: 36,
-        height: 36,
-        color: muiTheme.baseTheme.palette.primary1Color
-      },
-      titleNote: {
-        color: '#999'
-      },
-      titleBtns: {
-        position: 'absolute',
-        right: 0,
-        top: 0
-      }
-    };
-    let titleBtns = [];
-    if (!model.nocreate && model.abilities.create) {
-      //判断create权限,显示新建按钮
-      titleBtns.push(<RaisedButton key="create" linkButton={true} href={'#/edit/'+service.id+'/'+model.name+'/_new'}
-                                   label="新建" secondary={true}/>);
-    }
-
-    return wrap(views.wrappers.list,
-      <div style={styles.root}>
-        <div style={styles.titleBar}>
-          <div style={styles.title}>{title} <span style={styles.titleNote}>{props.list.total}条记录</span></div>
-          <div style={styles.titleBtns}>
-            {titleBtns}
-          </div>
-        </div>
-
-        <DataTable model={model} data={data}/>
-      </div>,
-      this
-    );
-  }
-
-  init(props, context) {
-    let settings = context.settings;
+  init(props) {
+    let settings = this.context.settings;
     let serviceId = props.params.service;
     let modelName = props.params.model;
     if (!serviceId || !modelName || !settings || !settings.services) {
@@ -172,6 +84,45 @@ class List extends React.Component {
     let filters = this.state.filters;
     let perPage = this.state.perPage;
     props.actions.list({ service, model, page, filters, perPage });
+  }
+
+  render() {
+    let props = this.props;
+    let {
+      title,
+      service,
+      model,
+      data
+      } = this.state;
+    if (!model) {
+      return <div className="loading">Loading...</div>;
+    }
+    let views = this.context.views;
+    let titleBtns = [];
+    if (!model.nocreate && model.abilities.create) {
+      //判断create权限,显示新建按钮
+      let href = '#/edit/' + service.id + '/' + model.name + '/_new';
+      titleBtns.push(<Button
+        bsStyle="success"
+        key="create"
+        href={href}
+      >新建</Button>);
+    }
+
+    return wrap(views.wrappers.list,
+      <div className="list-content">
+        <div className="content-header">
+          <h4>{title} <i>{props.list.total}条记录</i></h4>
+          <div className="content-header-buttons">
+            {titleBtns}
+          </div>
+        </div>
+        <Panel>
+          <DataTable model={model} data={data}/>
+        </Panel>
+      </div>,
+      this
+    );
   }
 }
 

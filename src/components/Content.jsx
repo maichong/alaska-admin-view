@@ -5,7 +5,6 @@
  */
 
 import React from 'react';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
 import wrap from '../utils/wrap';
 
 export default class Content extends React.Component {
@@ -18,25 +17,13 @@ export default class Content extends React.Component {
     views: React.PropTypes.object,
   };
 
-  static mixins = [
-    ContextPure
-  ];
-
   render() {
     let props = this.props;
     let views = this.context.views;
-    let styles = {
-      root: {
-        marginLeft: 240
-      },
-      inner: {
-        padding: 20
-      }
-    };
     return wrap(views.wrappers.content,
-      <div id="content" style={styles.root}>
+      <div id="content">
         {
-          wrap(views.wrappers.contentInner, <div id="contentInner" style={styles.inner}>{props.children}</div>, this)
+          wrap(views.wrappers.contentInner, <div id="contentInner">{props.children}</div>, this)
         }
       </div>,
       this

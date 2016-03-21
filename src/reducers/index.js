@@ -13,7 +13,6 @@ import {
   LOGOUT_COMPLETE,
   LIST_COMPLETE,
   DETAILS_COMPLETE,
-  SEARCH_COMPLETE,
   SAVE_COMPLETE,
   SAVE_ERROR,
   REMOVE_COMPLETE,
@@ -139,28 +138,6 @@ export function details(state = {}, action) {
       [key]: _.assign({}, state[key], {
         [data._id]: data
       })
-    });
-  }
-  return state;
-}
-
-export function search(state = {}, action) {
-  let meta = action.meta;
-  if (!meta || !meta.service) {
-    return state;
-  }
-  let key = meta.service + '-' + meta.model;
-  if (action.type == SEARCH_COMPLETE) {
-    return _.assign({}, state, {
-      [key]: _.assign({}, state[key], {
-        [meta.keyword]: action.payload.results
-      })
-    });
-  }
-  if ((action.type == SAVE_COMPLETE || action.type == REMOVE_COMPLETE) && state[key]) {
-    //清空搜索缓存
-    return _.assign({}, state, {
-      [key]: {}
     });
   }
   return state;

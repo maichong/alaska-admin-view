@@ -5,18 +5,17 @@
  */
 
 import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import ContextPure from 'material-ui/lib/mixins/context-pure';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
 import wrap from '../utils/wrap';
 import shallowEqual from '../utils/shallow-equal';
+import _ from 'lodash';
+import { Label } from 'react-bootstrap';
 
 export default class Menu extends React.Component {
 
   static propTypes = {
     children: React.PropTypes.node,
-    menu: React.PropTypes.array,
+    items: React.PropTypes.array,
+    level: React.PropTypes.number,
   };
 
   static contextTypes = {
@@ -24,47 +23,78 @@ export default class Menu extends React.Component {
     router: React.PropTypes.object
   };
 
-  static mixins = [
-    ContextPure
-  ];
-
-  shouldComponentUpdate(props) {
-    return !shallowEqual(props, this.props);
+  constructor(props) {
+    super(props);
+    this.state = {
+      activated: '',
+      opened: '',
+    };
   }
 
-  createMenuItem(item, level = 0) {
-    //let views = this.state.views;
-    let nestedItems = _.map(item.subs, sub => this.createMenuItem(sub, level + 1));
+  shouldComponentUpdate(props, state) {
+    return state.activated != this.state.activated || state.opened != this.state.opened || !shallowEqual(props, this.props);
+  }
+
+  createMenuItem(item, level) {
+    let subMenu;
     let me = this;
-    let onTouchTap = item.link ? function () {
-      me.context.router.push(item.link);
-    } : null;
-    let el = <ListItem
-      onTouchTap={onTouchTap}
-      style={{color:'#aaa'}}
-      key={item.id}
-      nestedItems={nestedItems}
-      primaryText={item.label}
-    />;
-    //let wrappers = _.get(views.wrappers, 'menu-' + item.id.replace(/\./g, '-'));
-    //if (wrappers) {
-    //  el = wrap(wrappers, el);
-    //}
-    //el = wrap(views.wrappers.menuItem, el);
+    let itemId = item.id;
+    let activated = this.state.activated == itemId;
+    let hasSubs = item.subs && item.subs.length;
+    let opened = this.state.opened == itemId;
+    if (opened && hasSubs) {
+      function onSelect() {
+        me.setState({ activated: '' });
+      }
+
+      subMenu = <Menu items={item.subs} level={level + 1} onSelect={onSelect}/>
+    }
+
+    function onClick() {
+      if (item.link) {
+        me.context.router.push(item.link);
+      }
+      if (hasSubs) {
+        if (!opened) {
+          me.setState({ opened: itemId });
+        }
+      } else if (!activated) {
+        me.props.onSelect && me.props.onSelect(itemId);
+        me.setState({ activated: itemId, opened: '' });
+      }
+    }
+
+    let className = activated ? 'activated' : '';
+    if (opened) {
+      className = 'opened';
+    }
+    let icon = item.icon || 'hashtag';
+    let subsIcon = !hasSubs ? null : opened ? 'up' : 'down';
+    if (subsIcon) {
+      subsIcon = <i className={'has-subs-icon fa fa-angle-'+subsIcon}/>;
+    }
+    let badge = item.badge ? <Label bsStyle={item.badgeStyle}>{item.badge}</Label> : null;
+    let el = (
+      <li key={item.id} className={className}>
+        <a href="javascript:void(0)" onClick={onClick}>
+          <i className={'fa fa-'+icon}/>
+          {item.label}
+          {badge}
+          {subsIcon}
+        </a>
+        {subMenu}
+      </li>
+    );
     return el;
   }
 
   render() {
     let props = this.props;
-    let views = this.context.views;
-    let styles = {
-      root: {
-        background: '#333'
-      }
-    };
-    let el = <List id="menu" style={styles.root}>
-      { _.map(props.menu, item => this.createMenuItem(item))}
-    </List>;
-    return wrap(views.wrappers.menu, el, this);
+    let level = this.props.level || 0;
+    let items = _.map(props.items, item => this.createMenuItem(item, level));
+    console.log('items', items);
+    return <ul id={props.id} className="sidebar-menu">
+      { items }
+    </ul>;
   }
 }
