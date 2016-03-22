@@ -308,7 +308,7 @@ class Editor extends React.Component {
       let path = `wrappers.${serviceId}-${modelName}-group-${groupKey}`;
       let wrappers = _.get(views, path);
       if (wrappers) {
-        groupEl = wrap(wrappers, groupEl, this, { key: path });
+        groupEl = wrap(wrappers, groupEl, this, { key: groupKey });
       }
       groupElements.push(groupEl);
     }
