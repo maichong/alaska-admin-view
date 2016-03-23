@@ -1,6 +1,6 @@
 {
   "name": "alaska-admin-view",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Alaska admin view",
   "main": "lib/index.js",
   "scripts": {
@@ -40,13 +40,11 @@
   "dependencies": {
     "core-js": "^2.1.1",
     "lodash": "^4.5.1",
-    "normalize.css": "^3.0.3",
     "react": "^0.14.7",
     "react-bootstrap": "^0.28.3",
     "react-dom": "^0.14.7",
     "react-redux": "^4.4.0",
     "react-router": "^2.0.0",
-    "react-tap-event-plugin": "^0.2.2",
     "redux": "^3.3.1",
     "redux-actions": "^0.9.1",
     "redux-logger": "^2.6.0",

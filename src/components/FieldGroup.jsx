@@ -14,13 +14,18 @@ export default class FieldGroup extends React.Component {
   };
 
   render() {
-    let props = this.props;
-    return (
-      <Panel header={props.name}>
-        <form className="form-horizontal">
-          {props.children}
-        </form>
-      </Panel>
-    );
+    let props = this.props
+    let el = props.children;
+    if (props.form !== false) {
+      el = <form className="form-horizontal">
+        {el}
+      </form>;
+    }
+    if (props.panel !== false) {
+      el = <Panel header={props.title}>
+        {el}
+      </Panel>;
+    }
+    return el;
   }
 }

@@ -225,20 +225,18 @@ class Editor extends React.Component {
     }
     let groups = {
       default: {
-        name: '',
+        title: '',
         fields: []
       }
     };
 
     for (let groupKey in model.groups) {
-      let groupName = model.groups[groupKey];
-      if (typeof groupName == 'object') {
-        groupName = groupName.name;
+      let group = model.groups[groupKey];
+      if (typeof group == 'string') {
+        group = { title: group };
       }
-      groups[groupKey] = {
-        name: groupName,
-        fields: []
-      };
+      group.fields = [];
+      groups[groupKey] = group;
     }
     for (let key in model.fields) {
       let cfg = model.fields[key];
@@ -304,7 +302,7 @@ class Editor extends React.Component {
       if (!group.fields.length) {
         continue;
       }
-      let groupEl = <FieldGroup key={groupKey} name={group.name}>{group.fields}</FieldGroup>;
+      let groupEl = <FieldGroup key={groupKey} title={group.title} panel={group.panel} bsStyle={group.style}>{group.fields}</FieldGroup>;
       let path = `wrappers.${serviceId}-${modelName}-group-${groupKey}`;
       let wrappers = _.get(views, path);
       if (wrappers) {
