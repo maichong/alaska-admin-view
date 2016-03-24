@@ -107,7 +107,13 @@ export function settings(state = {}, action) {
 
 export function list(state = {}, action) {
   if (action.type === LIST_COMPLETE) {
-    return _.assign({}, action.meta, action.payload);
+    let newState = _.assign({}, action.meta, action.payload);
+    if (action.payload.page == 1) {
+      return newState;
+    } else {
+      newState.results = state.results.concat(newState.results);
+      return newState;
+    }
   }
   return state;
 }

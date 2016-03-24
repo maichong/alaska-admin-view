@@ -6,12 +6,12 @@
 
 import React from 'react';
 
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
 
-import { Button, Panel } from 'react-bootstrap';
+import {Button, Panel} from 'react-bootstrap';
 
 import DataTable from './DataTable';
 
@@ -29,11 +29,15 @@ class List extends React.Component {
   constructor(props, context) {
     super(props);
     this.state = {
-      data: null
+      data: null,
+      filters: {},
+      page: 0
     };
+    
   }
-
+  
   componentDidMount() {
+    window.addEventListener('scroll',this.handleScroll,false);
     this.init(this.props, this.context);
   }
 
@@ -47,6 +51,7 @@ class List extends React.Component {
       this.setState(newState, () => {
         this.init(this.props);
       });
+      this._loading = false;
     }
   }
 
@@ -73,18 +78,33 @@ class List extends React.Component {
     if (!data) {
       this.refresh();
     }
-    this.setState({ service, model, title, data: data || [] });
+    this.setState({service, model, title, data: data || []});
   }
 
   refresh() {
+    this.setState({page: 0}, ()=>this.loadMore());
+  }
+
+  loadMore() {
+    this._loading = true;
     let props = this.props;
     let service = props.params.service;
     let model = props.params.model;
-    let page = this.state.page;
+    let page = (this.state.page || 0) + 1;
     let filters = this.state.filters;
-    let perPage = this.state.perPage;
-    props.actions.list({ service, model, page, filters, perPage });
+    props.actions.list({service, model, page, filters});
+    this.setState({page});
   }
+
+  handleScroll = ()=> {
+    let body = document.body;
+    if (body.scrollTop + document.documentElement.clientHeight >= body.scrollHeight) {
+      if (!this.props.list.next || this._loading) {
+        return;
+      }
+      this.loadMore();
+    }
+  };
 
   render() {
     let props = this.props;
@@ -93,7 +113,7 @@ class List extends React.Component {
       service,
       model,
       data
-      } = this.state;
+    } = this.state;
     if (!model) {
       return <div className="loading">Loading...</div>;
     }
@@ -126,6 +146,6 @@ class List extends React.Component {
   }
 }
 
-export default connect(({ list }) => ({ list }), dispatch => ({
+export default connect(({list}) => ({list}), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(List);
