@@ -35,10 +35,12 @@ class List extends React.Component {
     };
     
   }
-  
+  componentWillUnmount(){
+    window.removeEventListener('scroll',this.handleScroll,false);
+  }
   componentDidMount() {
     window.addEventListener('scroll',this.handleScroll,false);
-    this.init(this.props, this.context);
+    this.init(this.props);
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
