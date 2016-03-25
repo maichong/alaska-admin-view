@@ -125,6 +125,7 @@ class Editor extends React.Component {
       props.actions.details({
         service: state.serviceId,
         model: state.modelName,
+        key: state.model.key,
         id
       });
     }
@@ -301,7 +302,8 @@ class Editor extends React.Component {
       if (!group.fields.length) {
         continue;
       }
-      let groupEl = <FieldGroup key={groupKey} title={group.title} panel={group.panel} bsStyle={group.style}>{group.fields}</FieldGroup>;
+      let groupEl = <FieldGroup key={groupKey} title={group.title} panel={group.panel}
+                                bsStyle={group.style}>{group.fields}</FieldGroup>;
       let path = `wrappers.${serviceId}-${modelName}-group-${groupKey}`;
       let wrappers = _.get(views, path);
       if (wrappers) {
