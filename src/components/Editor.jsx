@@ -249,7 +249,7 @@ class Editor extends React.Component {
       }
       if (cfg.depends) {
         if (typeof cfg.depends === 'string') {
-          if (!data[key]) {
+          if (!data[cfg.depends]) {
             continue;
           }
         } else if (!_.every(cfg.depends, (value, k) => data[k] === value)) {
