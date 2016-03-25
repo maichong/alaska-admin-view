@@ -9,6 +9,18 @@ body {
   font-size: 14px;
 }
 
+.form-control[disabled],
+.form-control[readonly],
+fieldset[disabled] .form-control,
+.select2-search input[type="text"][disabled],
+.select2-search input[type="text"][readonly],
+fieldset[disabled] .select2-search input[type="text"] {
+  background: #fff;
+  color: rgb(52, 73, 94);
+  cursor: default;
+  opacity: 1;
+}
+
 #login {
   width: 600px;
   margin: 100px auto 0;

@@ -201,7 +201,6 @@ class Editor extends React.Component {
   };
 
   render() {
-    console.log('Editor.render', this);
     let {
       id,
       model,
