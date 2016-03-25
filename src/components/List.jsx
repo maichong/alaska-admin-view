@@ -33,13 +33,15 @@ class List extends React.Component {
       filters: {},
       page: 0
     };
-    
+
   }
-  componentWillUnmount(){
-    window.removeEventListener('scroll',this.handleScroll,false);
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleScroll, false);
   }
+
   componentDidMount() {
-    window.addEventListener('scroll',this.handleScroll,false);
+    window.addEventListener('scroll', this.handleScroll, false);
     this.init(this.props);
   }
 
@@ -80,22 +82,23 @@ class List extends React.Component {
     if (!data) {
       this.refresh();
     }
-    this.setState({service, model, title, data: data || []});
+    this.setState({ service, model, title, data: data || [] });
   }
 
   refresh() {
-    this.setState({page: 0}, ()=>this.loadMore());
+    this.setState({ page: 0 }, ()=>this.loadMore());
   }
 
   loadMore() {
     this._loading = true;
     let props = this.props;
+    let state = this.state;
     let service = props.params.service;
     let model = props.params.model;
-    let page = (this.state.page || 0) + 1;
-    let filters = this.state.filters;
-    props.actions.list({service, model, page, filters});
-    this.setState({page});
+    let page = (state.page || 0) + 1;
+    let filters = state.filters;
+    props.actions.list({ service, model, page, filters, key: state.model.key });
+    this.setState({ page });
   }
 
   handleScroll = ()=> {
@@ -115,7 +118,7 @@ class List extends React.Component {
       service,
       model,
       data
-    } = this.state;
+      } = this.state;
     if (!model) {
       return <div className="loading">Loading...</div>;
     }
@@ -148,6 +151,6 @@ class List extends React.Component {
   }
 }
 
-export default connect(({list}) => ({list}), dispatch => ({
+export default connect(({list}) => ({ list }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(List);

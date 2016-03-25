@@ -88,8 +88,7 @@ export function settings(state = {}, action) {
           let model = service.models[j];
           if (model && model.fields) {
             model.service = service;
-            model.key = service.id + '-' + model.name;
-            let ability = `admin.${service.id}.${model.name}.`.toLowerCase();
+            let ability = `admin.${model.key}.`.toLowerCase();
             model.abilities = {
               read: settings.abilities[ability + 'read'],
               create: settings.abilities[ability + 'create'],
@@ -129,16 +128,13 @@ function detailsFromList(state = {}, action) {
 }
 
 export function details(state = {}, action) {
-  if (action.type === LIST_COMPLETE) {
-    let meta = action.meta;
-    let key = meta.service + '-' + meta.model;
+  let key = action.meta ? action.meta.key : '';
+  if (key && action.type === LIST_COMPLETE) {
     return _.assign({}, state, {
       [key]: detailsFromList(state[key], action)
     });
   }
-  if ((action.type == DETAILS_COMPLETE || action.type == SAVE_COMPLETE) && action.payload._id) {
-    let meta = action.meta;
-    let key = meta.service + '-' + meta.model;
+  if (key && (action.type == DETAILS_COMPLETE || action.type == SAVE_COMPLETE) && action.payload._id) {
     let data = action.payload;
     return _.assign({}, state, {
       [key]: _.assign({}, state[key], {
