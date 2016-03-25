@@ -7,8 +7,9 @@
 import React from 'react';
 
 import FieldGroup from './FieldGroup';
+import Relationship from './Relationship';
 
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, Navbar } from 'react-bootstrap';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -348,11 +349,19 @@ class Editor extends React.Component {
     if (!model.nocreate && id !== '_new' && model.abilities.create) {
       btnElements.push(<Button
         onClick={this.handleCreate}
-        bsStyle="link"
+        bsStyle="default"
         key="create"
         disabled={this.loading}
       >新建</Button>);
     }
+
+    let relationships = null;
+    if (id != '_new' && model.relationships && model.relationships.length) {
+      relationships = _.map(model.relationships, (r, index) => <Relationship key={index} from={id} path={r.path}
+                                                                             service={r.service} model={r.ref}
+                                                                             filters={r.filters} title={r.title}/>);
+    }
+
     return (
       <div className="editor-content">
         <div className="content-header">
@@ -363,8 +372,13 @@ class Editor extends React.Component {
           <div className="content-header-buttons">{btnElements}</div>
         </div>
         {groupElements}
-        <div className="editor-action-buttons">{btnElements}</div>
         {removeDialogElement}
+        {relationships}
+        <Navbar id="editorBottomBar" fixedBottom={true} fluid={true}>
+          <Navbar.Form pullRight>
+            {btnElements}
+          </Navbar.Form>
+        </Navbar>
       </div>
     );
   }

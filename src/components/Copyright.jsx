@@ -18,23 +18,6 @@ export default class Copyright extends React.Component {
 
   render() {
     let views = this.context.views;
-    let styles = {
-      root: {
-        background: '#222',
-        textAlign: 'center',
-        width: '100%',
-        height: 20,
-        lineHeight: '20px',
-        padding: '20px 0',
-        position: 'absolute',
-        bottom: 0,
-        color: '#999',
-        fontSize: 12
-      },
-      p: {
-        marginTop: 5
-      }
-    };
-    return wrap(views.wrappers.copyright, <div style={styles.root}>Powered By Alaska</div>, this);
+    return wrap(views.wrappers.copyright, <div id="copyright">Powered By Alaska</div>, this);
   }
 }
