@@ -128,7 +128,7 @@ function detailsFromList(state = {}, action) {
 }
 
 export function details(state = {}, action) {
-  let key = action.meta ? action.meta.key : '';
+  let key = action.meta ? action.meta.key || (action.meta.service + '.' + action.meta.model).toLowerCase() : '';
   if (key && action.type === LIST_COMPLETE) {
     return _.assign({}, state, {
       [key]: detailsFromList(state[key], action)
