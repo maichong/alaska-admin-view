@@ -193,6 +193,7 @@ class Editor extends React.Component {
     this.props.actions.save({
       service: model.service.id,
       model: model.name,
+      key: model.key,
       _r: this._r,
       data: _.assign({}, data, { id: id == '_new' ? '' : id })
     });

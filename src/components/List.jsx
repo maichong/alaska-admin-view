@@ -31,7 +31,8 @@ class List extends React.Component {
     this.state = {
       data: null,
       filters: {},
-      page: 0
+      page: 0,
+      list: {}
     };
 
   }
@@ -47,10 +48,12 @@ class List extends React.Component {
 
   componentWillReceiveProps(nextProps, nextContext) {
     let newState = {};
-    if (nextProps.list) {
-      let list = nextProps.list;
-      if (list.service == this.props.params.service && list.model == this.props.params.model) {
-        newState.data = list.results;
+    if (nextProps.lists && nextProps.lists !== this.props.list) {
+      let lists = nextProps.lists;
+      let model = this.state.model;
+      if (lists[model.key]) {
+        newState.list = lists[model.key];
+        newState.data = lists[model.key].results;
       }
       this.setState(newState, () => {
         this.init(this.props);
@@ -79,10 +82,11 @@ class List extends React.Component {
     if (this.state.model && this.state.model.name != model.name) {
       data = null;
     }
-    if (!data) {
-      this.refresh();
-    }
-    this.setState({ service, model, title, data: data || [] });
+    this.setState({ service, model, title, data: data || [] }, ()=> {
+      if (!data) {
+        this.refresh();
+      }
+    });
   }
 
   refresh() {
@@ -117,7 +121,8 @@ class List extends React.Component {
       title,
       service,
       model,
-      data
+      data,
+      list
       } = this.state;
     if (!model) {
       return <div className="loading">Loading...</div>;
@@ -137,7 +142,7 @@ class List extends React.Component {
     return wrap(views.wrappers.list,
       <div className="list-content">
         <div className="content-header">
-          <h4>{title} <i>{props.list.total}条记录</i></h4>
+          <h4>{title} <i>{list.total}条记录</i></h4>
           <div className="content-header-buttons">
             {titleBtns}
           </div>
@@ -151,6 +156,6 @@ class List extends React.Component {
   }
 }
 
-export default connect(({list}) => ({ list }), dispatch => ({
+export default connect(({ lists }) => ({ lists }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(List);

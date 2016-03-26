@@ -104,15 +104,20 @@ export function settings(state = {}, action) {
   return state;
 }
 
-export function list(state = {}, action) {
-  if (action.type === LIST_COMPLETE) {
-    let newState = _.assign({}, action.meta, action.payload);
-    if (action.payload.page == 1) {
-      return newState;
-    } else {
-      newState.results = state.results.concat(newState.results);
-      return newState;
+export function lists(state = {}, action) {
+  let key = action.meta ? action.meta.key : '';
+  if (key && action.type === LIST_COMPLETE) {
+    let res = action.payload;
+    let data = _.assign({}, action.meta, res);
+    if (action.payload.page != 1 && state[key]) {
+      data.results = state[key].results.concat(data.results);
     }
+    return _.assign({}, state, {
+      [key]: data
+    });
+  }
+  if (key && state[key] && (action.type === SAVE_COMPLETE || action.type === REMOVE_COMPLETE)) {
+    return _.omit(state, key);
   }
   return state;
 }

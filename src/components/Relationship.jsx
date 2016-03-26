@@ -11,7 +11,11 @@ import { PREFIX } from '../constants';
 import { stringify } from 'qs';
 import api from '../utils/api';
 
-export default class Relationship extends React.Component {
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as actions from '../actions';
+
+class Relationship extends React.Component {
 
   static propTypes = {
     children: React.PropTypes.node
@@ -24,10 +28,9 @@ export default class Relationship extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [],
+      data: null,
       model: null
     };
-    console.log('Relationship', props);
   }
 
   componentDidMount() {
@@ -35,10 +38,14 @@ export default class Relationship extends React.Component {
   }
 
   componentWillReceiveProps(props) {
-    if (props.service != this.props.service || props.model != this.props.model || props.from != this.props.from) {
-      setTimeout(()=> {
+    let model = this.state.model;
+    if (props.lists && props.lists[model.key] !== this.props.lists[model.key]) {
+      let list = props.lists[model.key];
+      this.setState({
+        data: list ? list.results : null
+      }, () => {
         this.init();
-      }, 50);
+      });
     }
   }
 
@@ -50,30 +57,34 @@ export default class Relationship extends React.Component {
     let serviceId = this.props.service;
     let modelName = this.props.model;
     let model = this.context.settings.services[serviceId].models[modelName];
-    if (!model || (model == this.state.model && this.state.data.length)) {
+    if (!model) {
       return;
+    }
+    let list = this.props.lists[model.key];
+    if (list) {
+      if (model === this.state.model && this.state.data) {
+        return;
+      }
     }
     let args = {
       service: serviceId,
-      model: modelName
+      model: modelName,
+      key: model.key
     };
     args.filters = _.assign({}, this.props.filters, {
       [this.props.path]: this.props.from
     });
-    api.post(PREFIX + '/api/list?' + stringify(args)).then(res => {
-      if (res.results) {
-        this.setState({
-          data: res.results
-        });
+    this.setState({ model }, ()=> {
+      if (!this.state.data) {
+        this.props.actions.list(args);
       }
     });
-    this.setState({ model });
   }
 
   render() {
     let {model,data} = this.state;
-    if (!model || !data.length) {
-      return <div></div>;
+    if (!model || !data) {
+      return <div>Relationship</div>;
     }
     let title = this.props.title || `关联: ${model.label}`;
     return (
@@ -86,3 +97,7 @@ export default class Relationship extends React.Component {
     );
   }
 }
+
+export default connect(({lists}) => ({ lists }), dispatch => ({
+  actions: bindActionCreators(actions, dispatch)
+}))(Relationship);
