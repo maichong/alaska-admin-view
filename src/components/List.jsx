@@ -108,7 +108,7 @@ class List extends React.Component {
   handleScroll = ()=> {
     let body = document.body;
     if (body.scrollTop + document.documentElement.clientHeight >= body.scrollHeight) {
-      if (!this.props.list.next || this._loading) {
+      if (!this.state.list.next || this._loading) {
         return;
       }
       this.loadMore();
