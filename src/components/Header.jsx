@@ -74,7 +74,7 @@ class Header extends React.Component {
       <Navbar id="header" fluid={true}>
 
         <Navbar.Header>
-          <img src="static/logo.png"/>
+          <img src="static/img/logo.png"/>
         </Navbar.Header>
         <Navbar.Collapse>
           <Nav pullRight>

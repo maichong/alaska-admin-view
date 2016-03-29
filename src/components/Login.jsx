@@ -78,7 +78,7 @@ export default class Login extends React.Component {
 
     let el = (
       <Panel id="login">
-        { wrap(views.wrappers.loginLogo, <img src="static/logo.png" className="logo"/>, this)}
+        { wrap(views.wrappers.loginLogo, <img src="static/img/logo.png" className="logo"/>, this)}
         { wrap(views.wrappers.loginForm,
           <form>
             { wrap(views.wrappers.loginField, <div>
