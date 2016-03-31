@@ -21,6 +21,7 @@ export default class DataTable extends React.Component {
   static contextTypes = {
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    t: React.PropTypes.func,
   };
 
   constructor(props, context) {
@@ -72,6 +73,7 @@ export default class DataTable extends React.Component {
   render() {
     let props = this.props;
     let views = this.context.views;
+    let t = this.context.t;
     let {
       columns,
       data
@@ -91,7 +93,7 @@ export default class DataTable extends React.Component {
           return <th
             key={col.key}
             tooltip={col.field.tooltip}
-          >{col.field.label}</th>
+          >{t(col.field.label, service.id)}</th>
         })
       }
       <th></th>

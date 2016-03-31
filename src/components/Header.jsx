@@ -25,6 +25,7 @@ class Header extends React.Component {
   static contextTypes = {
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    t: React.PropTypes.func,
   };
 
   constructor(props, context) {
@@ -69,6 +70,7 @@ class Header extends React.Component {
   render() {
     let props = this.props;
     let views = this.context.views;
+    let t = this.context.t;
     //let avatar = props.user.avatar || 'static/avatar.png';
     let el = (
       <Navbar id="header" fluid={true}>
@@ -79,8 +81,8 @@ class Header extends React.Component {
         <Navbar.Collapse>
           <Nav pullRight>
             <NavDropdown eventKey={3} title={props.user.username} id="basic-nav-dropdown">
-              <MenuItem eventKey={3.1} onClick={this.handleRefresh}>刷新</MenuItem>
-              <MenuItem eventKey={3.2} onClick={this.handleLogout}>退出登录</MenuItem>
+              <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
+              <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>

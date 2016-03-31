@@ -23,6 +23,7 @@ class Relationship extends React.Component {
 
   static contextTypes = {
     settings: React.PropTypes.object,
+    t: React.PropTypes.func,
   };
 
   constructor(props) {
@@ -82,11 +83,12 @@ class Relationship extends React.Component {
   }
 
   render() {
-    let {model,data} = this.state;
+    let { model, data } = this.state;
     if (!model || !data) {
-      return <div>Relationship</div>;
+      return <div></div>;
     }
-    let title = this.props.title || `关联: ${model.label}`;
+    const t = this.context.t;
+    let title = this.props.title ? t(this.props.title, model.service.id) : t('Relationship') + `: ${t(model.label, model.service.id)}`;
     return (
       <div className="panel panel-default">
         <div className="panel-heading">

@@ -6,11 +6,13 @@
 
 import React from 'react';
 
+import IntlMessageFormat from 'intl-messageformat';
 import { Router, Redirect, IndexRoute, Route, Link, hashHistory } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
+import _ from 'lodash';
 
 import Login from './Login';
 import Locked from './Locked';
@@ -28,18 +30,20 @@ class App extends React.Component {
   static childContextTypes = {
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    t: React.PropTypes.func,
   };
 
   constructor(props, context) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
+    this._messageCache = {};
   }
 
   getChildContext() {
     return {
       views: this.props.views,
       settings: this.props.settings,
+      t: this.t
     };
   }
 
@@ -50,8 +54,39 @@ class App extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-  }
+  t = (message, serviceId, values, formats) => {
+    if (_.isObject(serviceId)) {
+      formats = values;
+      values = serviceId;
+      serviceId = 'alaska-admin';
+    }
+    if (!serviceId) {
+      serviceId = 'alaska-admin';
+    }
+    let locales = this.props.settings.locales[serviceId];
+    let locale = this.props.settings.locale;
+    if (!locales || !locales[locale]) {
+      return message;
+    }
+
+    let messages = locales[locale];
+    let messageTemp = messages[message];
+    if (!messageTemp) {
+      return message;
+    }
+    if (!values) {
+      return messageTemp;
+    }
+
+    if (!this._messageCache[locale]) {
+      this._messageCache[locale] = {};
+    }
+
+    if (!this._messageCache[locale][message]) {
+      this._messageCache[locale][message] = new IntlMessageFormat(messageTemp, locale, formats);
+    }
+    return this._messageCache[locale][message].format(values);
+  };
 
   render() {
     let props = this.props;

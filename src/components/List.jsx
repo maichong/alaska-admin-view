@@ -24,6 +24,7 @@ class List extends React.Component {
   static contextTypes = {
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    t: React.PropTypes.func,
   };
 
   constructor(props, context) {
@@ -128,6 +129,7 @@ class List extends React.Component {
       return <div className="loading">Loading...</div>;
     }
     let views = this.context.views;
+    let t = this.context.t;
     let titleBtns = [];
     if (!model.nocreate && model.abilities.create) {
       //判断create权限,显示新建按钮
@@ -136,13 +138,13 @@ class List extends React.Component {
         bsStyle="success"
         key="create"
         href={href}
-      >新建</Button>);
+      >{t('Create')}</Button>);
     }
 
     return wrap(views.wrappers.list,
       <div className="list-content">
         <div className="content-header">
-          <h4>{title} <i>{list.total}条记录</i></h4>
+          <h4>{t(title, service.id)} <i>{t('total records', { total: list.total })}</i></h4>
           <div className="content-header-buttons">
             {titleBtns}
           </div>

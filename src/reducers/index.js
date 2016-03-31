@@ -79,8 +79,8 @@ export function access(state = false, action) {
 }
 
 export function settings(state = {}, action) {
-  if ((action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) && action.payload.access) {
-    let settings = action.payload.settings;
+  if ((action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE)) {
+    let settings = action.payload.settings || {};
     for (let i in settings.services) {
       let service = settings.services[i];
       if (service && service.models) {

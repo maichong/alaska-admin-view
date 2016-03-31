@@ -23,17 +23,18 @@ class Editor extends React.Component {
     children: React.PropTypes.node,
     details: React.PropTypes.object,
     params: React.PropTypes.object,
+    actions: React.PropTypes.object,
   };
 
   static contextTypes = {
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    t: React.PropTypes.func,
     router: React.PropTypes.object,
   };
 
   constructor(props, context) {
     super(props);
-    console.log('Editor.constructor', props, context);
 
     this._r = Math.random();
 
@@ -78,12 +79,13 @@ class Editor extends React.Component {
       }
     }
     if (nextProps.save && nextProps.save._r == this._r) {
+      let t = this.context.t;
       this.loading = false;
       if (nextProps.save.error) {
         //保存失败
-        this.props.actions.notice('保存失败:' + nextProps.save.error.message);
+        this.props.actions.notice(t('Save failed', { msg: nextProps.save.error.message }));
       } else {
-        this.props.actions.notice('保存成功!');
+        this.props.actions.notice(t('Saved successfully'));
         if (this.state.id == '_new') {
           let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.save.res._id;
           this.context.router.replace(url);
@@ -91,12 +93,13 @@ class Editor extends React.Component {
       }
     }
     if (nextProps.remove && nextProps.remove._r == this._r) {
+      let t = this.context.t;
       this.loading = false;
       if (nextProps.remove.error) {
         //保存失败
-        this.props.actions.notice('删除失败:' + nextProps.remove.error.message);
+        this.props.actions.notice(t('Remove failed', { msg: nextProps.remove.error.message }));
       } else {
-        this.props.actions.notice('删除成功!');
+        this.props.actions.notice(t('Removed successfully'));
         let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
         this.context.router.replace(url);
       }
@@ -178,7 +181,8 @@ class Editor extends React.Component {
           || (typeof field.required === 'string' && data[field.required])
           || (typeof field.required === 'object' && _.every(field.required, (value, k) => data[k] === value))
         ) {
-          errors[key] = 'required';
+          const t = this.context.t;
+          errors[key] = t('This field is required!');
           hasError = true;
         }
       }
@@ -212,16 +216,16 @@ class Editor extends React.Component {
       serviceId,
       modelName
       } = this.state;
-    let { views } = this.context;
+    const { views, t } = this.context;
     if (!data) {
       return <div className="loading">Loading...</div>;
     }
     let canSave = (id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update && !model.noedit);
-    let title = (model.label || model.name) + ' > ';
+    let title = t(model.label || model.name, serviceId) + ' > ';
     if (id == '_new') {
-      title += '新建';
+      title += t('Create');
     } else if (model.title) {
-      title += data[model.title];
+      title += t(data[model.title], serviceId);
     } else {
       title += id;
     }
@@ -236,6 +240,10 @@ class Editor extends React.Component {
       let group = model.groups[groupKey];
       if (typeof group == 'string') {
         group = { title: group };
+      }
+      if (!group._title) {
+        group._title = group.title;
+        group.title = t(group.title, serviceId);
       }
       group.fields = [];
       groups[groupKey] = group;
@@ -280,6 +288,15 @@ class Editor extends React.Component {
         }
       }
 
+      if (!cfg._label) {
+        cfg._label = cfg.label;
+        cfg.label = t(cfg.label, serviceId);
+      }
+      if (cfg.help && !cfg._help) {
+        cfg._help = cfg.help;
+        cfg.help = t(cfg.help, serviceId);
+      }
+
       let fieldProps = {
         key,
         value: data[key],
@@ -322,7 +339,7 @@ class Editor extends React.Component {
         onClick={this.handleSave}
         key="save"
         disabled={this.loading}
-      >保存</Button>);
+      >{t('Save')}</Button>);
     }
     if (!model.noremove && id !== '_new' && model.abilities.remove) {
       btnElements.push(<Button
@@ -330,20 +347,20 @@ class Editor extends React.Component {
         onClick={this.remove}
         key="remove"
         disabled={this.loading}
-      >删除</Button>);
+      >{t('Remove')}</Button>);
       //确认删除
       removeDialogElement = (<Modal
-        title="删除记录"
+        title={t('Remove Record')}
         actions={actions}
         modal={false}
         show={this.state.showRemoveDialog}
       >
         <Modal.Body>
-          确定要删除吗? 删除后不可还原!
+          {t('confirm remove record')}
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle="danger" onClick={this.handleRemove}>删除</Button>
-          <Button onClick={this.handleClose}>取消</Button>
+          <Button bsStyle="danger" onClick={this.handleRemove}>{t('Remove')}</Button>
+          <Button onClick={this.handleClose}>{t('Cancel')}</Button>
         </Modal.Footer>
       </Modal>);
     }
@@ -353,7 +370,7 @@ class Editor extends React.Component {
         bsStyle="default"
         key="create"
         disabled={this.loading}
-      >新建</Button>);
+      >{t('Create')}</Button>);
     }
 
     let relationships = null;

@@ -11,6 +11,7 @@ export default class Locked extends React.Component {
 
   static contextTypes = {
     views: React.PropTypes.object,
+    t: React.PropTypes.func,
   };
 
   render() {
@@ -20,6 +21,7 @@ export default class Locked extends React.Component {
       paddingTop: 100,
       color: '#b55'
     };
-    return wrap(this.context.views.wrappers.locked, <h1 style={style}>无权访问</h1>, this);
+    const t = this.context.t;
+    return wrap(this.context.views.wrappers.locked, <h1 style={style}>{t('Access Denied')}</h1>, this);
   }
 }

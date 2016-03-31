@@ -23,6 +23,7 @@ export default class Login extends React.Component {
 
   static contextTypes = {
     views: React.PropTypes.object,
+    t: React.PropTypes.func,
   };
 
   constructor(props) {
@@ -71,6 +72,7 @@ export default class Login extends React.Component {
     let props = this.props;
     let state = this.state;
     let views = this.context.views;
+    let t = this.context.t;
     let err;
     if (state.errorMsg) {
       err = wrap(views.wrappers.loginError, <p className="label label-danger">{state.errorMsg}</p>, this);
@@ -83,7 +85,7 @@ export default class Login extends React.Component {
           <form>
             { wrap(views.wrappers.loginField, <div>
                 <Input
-                  placeholder="用户名"
+                  placeholder={t('Username')}
                   bsStyle={state.usernameError}
                   type="text"
                   errorText={state.nameError}
@@ -91,7 +93,7 @@ export default class Login extends React.Component {
                   addonBefore={<i className="fa fa-user"/>}
                 />
                 <Input
-                  placeholder="密码"
+                  placeholder={t('Password')}
                   bsStyle={state.passwordError}
                   type="password"
                   errorText={state.passError}
@@ -109,7 +111,7 @@ export default class Login extends React.Component {
                 bsStyle="primary"
                 block
                 onClick={this.handleLogin}
-              >登录</Button>,
+              >{t('Login')}</Button>,
               this
             )}
             { err }
