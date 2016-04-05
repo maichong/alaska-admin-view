@@ -92,7 +92,6 @@ export default class Menu extends React.Component {
     let props = this.props;
     let level = this.props.level || 0;
     let items = _.map(props.items, item => this.createMenuItem(item, level));
-    console.log('items', items);
     return <ul id={props.id} className="sidebar-menu">
       { items }
     </ul>;

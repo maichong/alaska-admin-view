@@ -75,8 +75,10 @@ fieldset[disabled] .select2-search input[type="text"] {
 
 .sidebar-menu {
   display: block;
-  padding: 0;
+  padding: 0 0 53px;
   color: #89949b;
+  overflow-y: auto;
+  height: 100%;
   li {
     outline: 0;
     cursor: pointer;
@@ -199,6 +201,7 @@ fieldset[disabled] .select2-search input[type="text"] {
 #editorBottomBar {
   left: 240px;
   background: @dark-color;
+  z-index: 1;
   .btn {
     margin-left: 10px;
   }

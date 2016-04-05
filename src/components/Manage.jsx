@@ -45,7 +45,7 @@ export default class Manage extends React.Component {
   };
 
   render() {
-    console.log('Manage.render', this);
+    //console.log('Manage.render', this);
     let props = this.props;
     let state = this.state;
     let { views, settings } = this.context;

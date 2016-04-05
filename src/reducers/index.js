@@ -99,6 +99,17 @@ export function settings(state = {}, action) {
         }
       }
     }
+    let all = {};
+    _.forEach(settings.locales, service => {
+      _.forEach(service, (locale, key) => {
+        if (!all[key]) {
+          all[key] = {};
+        }
+        _.defaults(all[key], locale);
+      });
+    });
+    settings.locales.all = all;
+
     return _.assign({}, settings);
   }
   return state;

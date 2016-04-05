@@ -63,16 +63,30 @@ class App extends React.Component {
     if (!serviceId) {
       serviceId = 'alaska-admin';
     }
+    let all = this.props.settings.locales.all;
     let locales = this.props.settings.locales[serviceId];
     let locale = this.props.settings.locale;
     if (!locales || !locales[locale]) {
-      return message;
+      //没有找到特定模块的特定翻译
+
+      locales = all;
+      if (!locales || !locales[locale]) {
+        //没有找到所有模块翻译
+        return message;
+      }
     }
 
     let messages = locales[locale];
     let messageTemp = messages[message];
     if (!messageTemp) {
-      return message;
+      if (all[locale]) {
+        messages = all[locale];
+        messageTemp = messages[message];
+      }
+      if (!messageTemp) {
+        //没有找到所有模块翻译
+        return message;
+      }
     }
     if (!values) {
       return messageTemp;
@@ -103,7 +117,11 @@ class App extends React.Component {
               <Route component={Manage} path="/">
                 <Route component={List} path="list/:service/:model"></Route>
                 <Route component={Editor} path="edit/:service/:model/:id"></Route>
-                {state.routes}
+                {
+                  _.map(views.routes, (item, index)=> {
+                    return <Route key={index} component={item.component} path={item.path}></Route>
+                  })
+                }
               </Route>,
               this
             )

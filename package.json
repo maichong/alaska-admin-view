@@ -1,6 +1,6 @@
 {
   "name": "alaska-admin-view",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Alaska admin view",
   "main": "lib/index.js",
   "scripts": {
