@@ -86,7 +86,7 @@ export default class Login extends React.Component {
             { wrap(views.wrappers.loginField, <div>
                 <Input
                   placeholder={t('Username')}
-                  bsStyle={state.usernameError}
+                  bsStyle={state.usernameError||undefined}
                   type="text"
                   errorText={state.nameError}
                   ref="name"
@@ -94,7 +94,7 @@ export default class Login extends React.Component {
                 />
                 <Input
                   placeholder={t('Password')}
-                  bsStyle={state.passwordError}
+                  bsStyle={state.passwordError||undefined}
                   type="password"
                   errorText={state.passError}
                   ref="pass"
