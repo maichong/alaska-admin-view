@@ -15,7 +15,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 class Editor extends React.Component {
 
@@ -117,7 +117,13 @@ class Editor extends React.Component {
     }
     let id = state.id;
     if (id === '_new') {
-      this.setState({ data: {} });
+      let data = {};
+      _.forEach(state.model.fields, field => {
+        if (field.default !== undefined) {
+          data[field.path] = field.default;
+        }
+      });
+      this.setState({ data });
       return;
     }
     let key = state.model.key;
