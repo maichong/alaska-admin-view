@@ -20,6 +20,7 @@ export default class Menu extends React.Component {
 
   static contextTypes = {
     views: React.PropTypes.object,
+    t: React.PropTypes.func,
     router: React.PropTypes.object
   };
 
@@ -36,6 +37,7 @@ export default class Menu extends React.Component {
   }
 
   createMenuItem(item, level) {
+    const t = this.context.t;
     let subMenu;
     let me = this;
     let itemId = item.id;
@@ -78,7 +80,7 @@ export default class Menu extends React.Component {
       <li key={item.id} className={className}>
         <a href="javascript:void(0)" onClick={onClick}>
           <i className={'fa fa-'+icon}/>
-          {item.label}
+          {t(item.label)}
           {badge}
           {subsIcon}
         </a>
