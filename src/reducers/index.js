@@ -50,7 +50,7 @@ export function login(state = {}, action) {
 
 export function signed(state = false, action) {
   if (action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE) {
-    return action.payload.signed;
+    return !!action.payload.signed;
   }
   if (action.type === LOGOUT_COMPLETE) {
     return false;
