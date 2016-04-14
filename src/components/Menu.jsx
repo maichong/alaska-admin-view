@@ -80,7 +80,7 @@ export default class Menu extends React.Component {
       <li key={item.id} className={className}>
         <a href="javascript:void(0)" onClick={onClick}>
           <i className={'fa fa-'+icon}/>
-          {t(item.label)}
+          {t(item.label, item.service)}
           {badge}
           {subsIcon}
         </a>

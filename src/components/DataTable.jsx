@@ -19,6 +19,7 @@ export default class DataTable extends React.Component {
   };
 
   static contextTypes = {
+    router: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
     t: React.PropTypes.func,
@@ -74,6 +75,7 @@ export default class DataTable extends React.Component {
     let props = this.props;
     let views = this.context.views;
     let t = this.context.t;
+    let router = this.context.router;
     let {
       columns,
       data
@@ -100,31 +102,34 @@ export default class DataTable extends React.Component {
     </tr>);
 
     let bodyElement = (<tbody>
-    {data.map((record, index) => wrap(views.wrappers.dataTableRow,
-      <tr key={index}>
-        {columns.map(col => {
-          let key = col.key;
-          let CellViewClass = views[col.field.cell];
-          if (!CellViewClass) {
-            console.warn('Missing : ' + col.field.cell);
-            return <td style={{background:'#fcc'}} key={key}>{record[key]}</td>;
-          }
-          return (<td key={key}>
-            {React.createElement(CellViewClass, {
-              value: record[key],
-              model,
-              key,
-              field: col.field
-            })}
-          </td>);
-        })}
-        <td>
-          <Link to={'/edit/'+service.id+'/'+model.name+'/'+record._id}>
-            <i className="fa fa-edit"/>
-          </Link>
-        </td>
-      </tr>,
-      this))}
+    {data.map((record, index) => {
+      let url = '/edit/' + service.id + '/' + model.name + '/' + record._id;
+      return wrap(views.wrappers.dataTableRow,
+        <tr key={index} onDoubleClick={() => {router.push(url);console.log(url);}}>
+          {columns.map(col => {
+            let key = col.key;
+            let CellViewClass = views[col.field.cell];
+            if (!CellViewClass) {
+              console.warn('Missing : ' + col.field.cell);
+              return <td style={{background:'#fcc'}} key={key}>{record[key]}</td>;
+            }
+            return (<td key={key}>
+              {React.createElement(CellViewClass, {
+                value: record[key],
+                model,
+                key,
+                field: col.field
+              })}
+            </td>);
+          })}
+          <td>
+            <Link to={url}>
+              <i className="fa fa-edit"/>
+            </Link>
+          </td>
+        </tr>,
+        this);
+    })}
     </tbody>);
 
     return wrap(views.wrappers.dataTable,
