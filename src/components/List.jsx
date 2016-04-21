@@ -152,11 +152,11 @@ class List extends React.Component {
     if (!model.nocreate && model.abilities.create) {
       //判断create权限,显示新建按钮
       let href = '#/edit/' + service.id + '/' + model.name + '/_new';
-      titleBtns.push(<button
+      titleBtns.push(<a
         className="btn btn-success"
         key="create"
         href={href}
-      >{t('Create')}</button>);
+      >{t('Create')}</a>);
     }
 
     let searchInput = model.searchFields.length ?
