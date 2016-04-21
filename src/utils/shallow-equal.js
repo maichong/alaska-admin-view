@@ -4,7 +4,8 @@
  * @author Liang <liang@maichong.it>
  */
 
-import * as _ from 'lodash';
+import _without from 'lodash/without';
+import _slice from 'lodash/slice';
 
 export default function shallowEqual(objA, objB) {
   if (objA === objB) {
@@ -16,9 +17,9 @@ export default function shallowEqual(objA, objB) {
     return false;
   }
 
-  let excludes = _.slice(arguments, 2);
-  const keysA = _.without.apply(_, [Object.keys(objA)].concat(excludes));
-  const keysB = _.without.apply(_, [Object.keys(objB)].concat(excludes));
+  let excludes = _slice(arguments, 2);
+  const keysA = _without.apply(null, [Object.keys(objA)].concat(excludes));
+  const keysB = _without.apply(null, [Object.keys(objB)].concat(excludes));
 
   if (keysA.length !== keysB.length) {
     return false;

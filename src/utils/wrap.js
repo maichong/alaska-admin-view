@@ -5,7 +5,8 @@
  */
 
 import React from 'react';
-import * as _ from 'lodash';
+import _assign from 'lodash/assign';
+import _reduce from 'lodash/reduce';
 
 export default function wrap(wrappers, element, parent, props) {
   if (!parent) {
@@ -14,5 +15,5 @@ export default function wrap(wrappers, element, parent, props) {
   if (!wrappers || !wrappers.length) {
     return element;
   }
-  return _.reduce(wrappers, (el, Wrapper) => React.createElement(Wrapper, _.assign({ parent }, props), el), element);
+  return _reduce(wrappers, (el, Wrapper) => React.createElement(Wrapper, _assign({ parent }, props), el), element);
 }

@@ -5,7 +5,6 @@
  */
 
 import React from 'react';
-import _ from 'lodash';
 import DataTable from './DataTable';
 import { PREFIX } from '../constants';
 import { stringify } from 'qs';
@@ -72,7 +71,7 @@ class Relationship extends React.Component {
       model: modelName,
       key: model.key
     };
-    args.filters = _.assign({}, this.props.filters, {
+    args.filters = Object.assign({}, this.props.filters, {
       [this.props.path]: this.props.from
     });
     this.setState({ model }, ()=> {

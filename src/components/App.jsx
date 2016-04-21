@@ -12,7 +12,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
-import _ from 'lodash';
 
 import Login from './Login';
 import Locked from './Locked';
@@ -55,7 +54,7 @@ class App extends React.Component {
   }
 
   t = (message, serviceId, values, formats) => {
-    if (_.isObject(serviceId)) {
+    if (typeof serviceId === 'object') {
       formats = values;
       values = serviceId;
       serviceId = 'alaska-admin';
@@ -118,7 +117,7 @@ class App extends React.Component {
                 <Route component={List} path="list/:service/:model"></Route>
                 <Route component={Editor} path="edit/:service/:model/:id"></Route>
                 {
-                  _.map(views.routes, (item, index)=> {
+                  (views.routes || []).map((item, index) => {
                     return <Route key={index} component={item.component} path={item.path}></Route>
                   })
                 }

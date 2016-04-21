@@ -5,7 +5,6 @@
  */
 
 import React from 'react';
-import { Panel } from 'react-bootstrap';
 
 export default class FieldGroup extends React.Component {
 
@@ -22,9 +21,11 @@ export default class FieldGroup extends React.Component {
       </form>;
     }
     if (props.panel !== false) {
-      el = <Panel header={props.title}>
-        {el}
-      </Panel>;
+      let heading = props.title ? <div className="panel-heading">{props.title}</div> : null;
+      el = <div className="panel panel-default">
+        {heading}
+        <div className="panel-body">{el}</div>
+      </div>;
     }
     return el;
   }

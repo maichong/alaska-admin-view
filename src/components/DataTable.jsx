@@ -6,7 +6,6 @@
 
 import React from 'react';
 import { Link } from 'react-router';
-import { Table } from 'react-bootstrap';
 import { shallowEqual } from 'alaska-admin-view';
 import wrap from '../utils/wrap';
 
@@ -16,6 +15,8 @@ export default class DataTable extends React.Component {
     children: React.PropTypes.node,
     model: React.PropTypes.object,
     data: React.PropTypes.array,
+    sort: React.PropTypes.string,
+    onSort: React.PropTypes.func
   };
 
   static contextTypes = {
@@ -72,19 +73,18 @@ export default class DataTable extends React.Component {
   }
 
   render() {
-    let props = this.props;
-    let views = this.context.views;
-    let t = this.context.t;
-    let router = this.context.router;
-    let {
+    const props = this.props;
+    const views = this.context.views;
+    const t = this.context.t;
+    const router = this.context.router;
+    const {
       columns,
       data
       } = this.state;
-    let model = props.model;
-    let service = model.service;
-    let styles = {
-      root: {}
-    };
+    const model = props.model;
+    const sort = props.sort;
+    const onSort = props.onSort;
+    const service = model.service;
     if (!model || !columns) {
       return <div className="loading">Loading...</div>;
     }
@@ -92,10 +92,24 @@ export default class DataTable extends React.Component {
     let headerRowElement = (<tr>
       {
         columns.map(col => {
+          let sortIcon = null;
+          let handleClick;
+          if (!col.nosort && onSort) {
+            if (col.key === sort) {
+              sortIcon = <i className="fa fa-sort-asc"></i>;
+              handleClick = () => onSort('-' + col.key);
+            } else if ('-' + col.key === sort) {
+              sortIcon = <i className="fa fa-sort-desc"></i>;
+              handleClick = () => onSort(col.key);
+            } else {
+              handleClick = () => onSort('-' + col.key);
+            }
+          }
           return <th
             key={col.key}
             tooltip={col.field.tooltip}
-          >{t(col.field.label, service.id)}</th>
+            onClick={handleClick}
+          >{t(col.field.label, service.id)}{sortIcon}</th>;
         })
       }
       <th></th>
@@ -133,7 +147,7 @@ export default class DataTable extends React.Component {
     </tbody>);
 
     return wrap(views.wrappers.dataTable,
-      <Table striped bordered hover>
+      <table className="data-table table table-striped table-bordered table-hover">
         {wrap(views.wrappers.dataTableHeader,
           <thead>
           {wrap(views.wrappers.dataTableHeaderRow, headerRowElement, this)}
@@ -141,7 +155,7 @@ export default class DataTable extends React.Component {
           this
         )}
         {wrap(views.wrappers.dataTableBody, bodyElement, this)}
-      </Table>,
+      </table>,
       this
     );
   }

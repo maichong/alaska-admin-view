@@ -7,8 +7,6 @@
 import React from 'react';
 import wrap from '../utils/wrap';
 import shallowEqual from '../utils/shallow-equal';
-import _ from 'lodash';
-import { Label } from 'react-bootstrap';
 
 export default class Menu extends React.Component {
 
@@ -75,7 +73,7 @@ export default class Menu extends React.Component {
     if (subsIcon) {
       subsIcon = <i className={'has-subs-icon fa fa-angle-'+subsIcon}/>;
     }
-    let badge = item.badge ? <Label bsStyle={item.badgeStyle}>{item.badge}</Label> : null;
+    let badge = item.badge ? <span className={'label label-'+item.badgeStyle}>{item.badge}</span> : null;
     let el = (
       <li key={item.id} className={className}>
         <a href="javascript:void(0)" onClick={onClick}>
@@ -93,7 +91,7 @@ export default class Menu extends React.Component {
   render() {
     let props = this.props;
     let level = this.props.level || 0;
-    let items = _.map(props.items, item => this.createMenuItem(item, level));
+    let items = (props.items || []).map(item => this.createMenuItem(item, level));
     return <ul id={props.id} className="sidebar-menu">
       { items }
     </ul>;

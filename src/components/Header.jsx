@@ -8,7 +8,8 @@ import React from 'react';
 
 import wrap from '../utils/wrap';
 
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
+import NavDropdown from 'react-bootstrap/lib/NavDropdown';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -73,21 +74,22 @@ class Header extends React.Component {
     let t = this.context.t;
     //let avatar = props.user.avatar || 'static/avatar.png';
     let el = (
-      <Navbar id="header" fluid={true}>
+      <nav id="header" className="navbar navbar-default">
+        <div className="container-fluid">
 
-        <Navbar.Header>
-          <img src="static/img/logo.png"/>
-        </Navbar.Header>
-        <Navbar.Collapse>
-          <Nav pullRight>
-            <NavDropdown eventKey={3} title={props.user.username} id="basic-nav-dropdown">
-              <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
-              <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
-            </NavDropdown>
-          </Nav>
-        </Navbar.Collapse>
-
-      </Navbar>
+          <div className="navbar-header">
+            <img src="static/img/logo.png"/>
+          </div>
+          <div className="navbar-collapse collapse">
+            <nav className="nav navbar-nav navbar-right">
+              <NavDropdown eventKey={3} title={props.user.username} id="basic-nav-dropdown">
+                <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
+                <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
+              </NavDropdown>
+            </nav>
+          </div>
+        </div>
+      </nav>
     );
 
     return wrap(views.wrappers.header, el, this);

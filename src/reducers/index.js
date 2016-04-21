@@ -4,7 +4,11 @@
  * @author Liang <liang@maichong.it>
  */
 
-import * as _ from 'lodash';
+import _assign from 'lodash/assign';
+import _forEach from 'lodash/forEach';
+import _defaults from 'lodash/defaults';
+import _omit from 'lodash/omit';
+
 import {
   NOTICE,
   REFRESH_INFO_COMPLETE,
@@ -28,20 +32,20 @@ export function notice(state = {}, action) {
 
 export function login(state = {}, action) {
   if (action.type == LOGOUT_COMPLETE) {
-    return _.assign({}, state, {
+    return _assign({}, state, {
       show: true
     });
   }
   if (action.type == REFRESH_INFO_COMPLETE) {
     if (!action.payload.signed) {
-      state = _.assign({}, state, {
+      state = _assign({}, state, {
         show: true
       });
     }
   }
 
   if (action.type == LOGIN_ERROR) {
-    state = _.assign({}, state, {
+    state = _assign({}, state, {
       errorMsg: action.payload.message
     });
   }
@@ -100,17 +104,17 @@ export function settings(state = {}, action) {
       }
     }
     let all = {};
-    _.forEach(settings.locales, service => {
-      _.forEach(service, (locale, key) => {
+    _forEach(settings.locales, service => {
+      _forEach(service, (locale, key) => {
         if (!all[key]) {
           all[key] = {};
         }
-        _.defaults(all[key], locale);
+        _defaults(all[key], locale);
       });
     });
     settings.locales.all = all;
 
-    return _.assign({}, settings);
+    return _assign({}, settings);
   }
   return state;
 }
@@ -119,16 +123,16 @@ export function lists(state = {}, action) {
   let key = action.meta ? action.meta.key : '';
   if (key && action.type === LIST_COMPLETE) {
     let res = action.payload;
-    let data = _.assign({}, action.meta, res);
+    let data = _assign({}, action.meta, res);
     if (action.payload.page != 1 && state[key]) {
       data.results = state[key].results.concat(data.results);
     }
-    return _.assign({}, state, {
+    return _assign({}, state, {
       [key]: data
     });
   }
   if (key && state[key] && (action.type === SAVE_COMPLETE || action.type === REMOVE_COMPLETE)) {
-    return _.omit(state, key);
+    return _omit(state, key);
   }
   return state;
 }
@@ -140,20 +144,20 @@ function detailsFromList(state = {}, action) {
     let record = results[i];
     tmp[record._id] = record;
   }
-  return _.assign({}, state, tmp);
+  return _assign({}, state, tmp);
 }
 
 export function details(state = {}, action) {
   let key = action.meta ? action.meta.key : '';
   if (key && action.type === LIST_COMPLETE) {
-    return _.assign({}, state, {
+    return _assign({}, state, {
       [key]: detailsFromList(state[key], action)
     });
   }
   if (key && (action.type == DETAILS_COMPLETE || action.type == SAVE_COMPLETE) && action.payload._id) {
     let data = action.payload;
-    return _.assign({}, state, {
-      [key]: _.assign({}, state[key], {
+    return _assign({}, state, {
+      [key]: _assign({}, state[key], {
         [data._id]: data
       })
     });
@@ -164,12 +168,12 @@ export function details(state = {}, action) {
 export function save(state = {}, action) {
   if (action.type == SAVE_COMPLETE) {
     //保存后清空搜索缓存
-    return _.assign({}, action.meta, {
+    return _assign({}, action.meta, {
       res: action.payload,
       error: ''
     });
   } else if (action.type == SAVE_ERROR) {
-    return _.assign({}, action.meta, {
+    return _assign({}, action.meta, {
       res: action.payload,
       error: action.payload
     });
@@ -180,12 +184,12 @@ export function save(state = {}, action) {
 export function remove(state = {}, action) {
   if (action.type == REMOVE_COMPLETE) {
     //保存后清空搜索缓存
-    return _.assign({}, action.meta, {
+    return _assign({}, action.meta, {
       res: action.payload,
       error: ''
     });
   } else if (action.type == REMOVE_ERROR) {
-    return _.assign({}, action.meta, {
+    return _assign({}, action.meta, {
       res: action.payload,
       error: action.payload
     });

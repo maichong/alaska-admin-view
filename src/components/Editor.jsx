@@ -9,13 +9,15 @@ import React from 'react';
 import FieldGroup from './FieldGroup';
 import Relationship from './Relationship';
 
-import { Button, Modal, Navbar } from 'react-bootstrap';
-
+import Modal from 'react-bootstrap/lib/Modal';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
-import _ from 'lodash';
+import _forEach from 'lodash/forEach';
+import _every from 'lodash/every';
+import _get from 'lodash/get';
+import _map from 'lodash/map';
 
 class Editor extends React.Component {
 
@@ -118,7 +120,7 @@ class Editor extends React.Component {
     let id = state.id;
     if (id === '_new') {
       let data = {};
-      _.forEach(state.model.fields, field => {
+      _forEach(state.model.fields, field => {
         if (field.default !== undefined) {
           data[field.path] = field.default;
         }
@@ -143,7 +145,7 @@ class Editor extends React.Component {
 
   handleChange(key, value) {
     this.setState({
-      data: _.assign({}, this.state.data, {
+      data: Object.assign({}, this.state.data, {
         [key]: value
       })
     });
@@ -185,7 +187,7 @@ class Editor extends React.Component {
       if (field.required && !data[key]) {
         if (field.required === true
           || (typeof field.required === 'string' && data[field.required])
-          || (typeof field.required === 'object' && _.every(field.required, (value, k) => data[k] === value))
+          || (typeof field.required === 'object' && _every(field.required, (value, k) => data[k] === value))
         ) {
           const t = this.context.t;
           errors[key] = t('This field is required!');
@@ -205,7 +207,7 @@ class Editor extends React.Component {
       model: model.name,
       key: model.key,
       _r: this._r,
-      data: _.assign({}, data, { id: id == '_new' ? '' : id })
+      data: Object.assign({}, data, { id: id == '_new' ? '' : id })
     });
   };
 
@@ -267,7 +269,7 @@ class Editor extends React.Component {
           if (!data[cfg.depends]) {
             continue;
           }
-        } else if (!_.every(cfg.depends, (value, k) => data[k] === value)) {
+        } else if (!_every(cfg.depends, (value, k) => data[k] === value)) {
           //没有全部匹配
           continue;
         }
@@ -288,7 +290,7 @@ class Editor extends React.Component {
           if (data[cfg.disabled]) {
             disabled = true;
           }
-        } else if (_.every(cfg.disabled, (value, k) => data[k] === value)) {
+        } else if (_every(cfg.disabled, (value, k) => data[k] === value)) {
           //全部匹配
           disabled = true;
         }
@@ -330,7 +332,7 @@ class Editor extends React.Component {
       let groupEl = <FieldGroup key={groupKey} title={group.title} panel={group.panel}
                                 bsStyle={group.style}>{group.fields}</FieldGroup>;
       let path = `wrappers.${serviceId}-${modelName}-group-${groupKey}`;
-      let wrappers = _.get(views, path);
+      let wrappers = _get(views, path);
       if (wrappers) {
         groupEl = wrap(wrappers, groupEl, this, { key: groupKey });
       }
@@ -340,50 +342,48 @@ class Editor extends React.Component {
     let btnElements = [];
     let removeDialogElement = null;
     if (canSave) {
-      btnElements.push(<Button
-        bsStyle="primary"
+      btnElements.push(<button
+        className="btn btn-primary"
         onClick={this.handleSave}
         key="save"
         disabled={this.loading}
-      >{t('Save')}</Button>);
+      >{t('Save')}</button>);
     }
     if (!model.noremove && id !== '_new' && model.abilities.remove) {
-      btnElements.push(<Button
-        bsStyle="danger"
+      btnElements.push(<button
+        className="btn btn-danger"
         onClick={this.remove}
         key="remove"
         disabled={this.loading}
-      >{t('Remove')}</Button>);
+      >{t('Remove')}</button>);
       //确认删除
-      removeDialogElement = (<Modal
-        title={t('Remove Record')}
-        actions={actions}
-        modal={false}
-        show={this.state.showRemoveDialog}
-      >
-        <Modal.Body>
-          {t('confirm remove record')}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button bsStyle="danger" onClick={this.handleRemove}>{t('Remove')}</Button>
-          <Button onClick={this.handleClose}>{t('Cancel')}</Button>
-        </Modal.Footer>
-      </Modal>);
+      if (this.state.showRemoveDialog) {
+        removeDialogElement = (<Modal show={true}>
+          <div className="modal-header">{t('Remove Record')}</div>
+          <div className="modal-body">
+            {t('confirm remove record')}
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-danger" onClick={this.handleRemove}>{t('Remove')}</button>
+            <button className="btn" onClick={this.handleClose}>{t('Cancel')}</button>
+          </div>
+        </Modal>);
+      }
     }
     if (!model.nocreate && id !== '_new' && model.abilities.create) {
-      btnElements.push(<Button
+      btnElements.push(<button
         onClick={this.handleCreate}
-        bsStyle="default"
+        className="btn btn-default"
         key="create"
         disabled={this.loading}
-      >{t('Create')}</Button>);
+      >{t('Create')}</button>);
     }
 
     let relationships = null;
     if (id != '_new' && model.relationships && model.relationships.length) {
-      relationships = _.map(model.relationships, (r, index) => <Relationship key={index} from={id} path={r.path}
-                                                                             service={r.service} model={r.ref}
-                                                                             filters={r.filters} title={r.title}/>);
+      relationships = _map(model.relationships, (r, index) => <Relationship key={index} from={id} path={r.path}
+                                                                            service={r.service} model={r.ref}
+                                                                            filters={r.filters} title={r.title}/>);
     }
 
     return (
@@ -398,11 +398,13 @@ class Editor extends React.Component {
         {groupElements}
         {removeDialogElement}
         {relationships}
-        <Navbar id="editorBottomBar" fixedBottom={true} fluid={true}>
-          <Navbar.Form pullRight>
-            {btnElements}
-          </Navbar.Form>
-        </Navbar>
+        <nav className="navbar navbar-fixed-bottom bottom-bar">
+          <div className="container-fluid">
+            <div className="navbar-form navbar-right">
+              {btnElements}
+            </div>
+          </div>
+        </nav>
       </div>
     );
   }

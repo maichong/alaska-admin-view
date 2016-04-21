@@ -9,12 +9,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import * as _ from 'lodash';
-
-import { Button, Input, Panel } from 'react-bootstrap';
-
 import wrap from '../utils/wrap';
-
 
 export default class Login extends React.Component {
   static propTypes = {
@@ -30,7 +25,9 @@ export default class Login extends React.Component {
     super(props);
     this.state = {
       username: '',
-      password: ''
+      password: '',
+      usernameError: '',
+      passwordError: ''
     };
   }
 
@@ -42,19 +39,26 @@ export default class Login extends React.Component {
     this.setState(newState);
   }
 
+  handleUsername = (e) => {
+    this.setState({ username: e.target.value });
+  };
+
+  handlePassword = (e) => {
+    this.setState({ password: e.target.value });
+  };
+
   handleLogin = () => {
-    let username = this.refs.name.getValue();
-    let password = this.refs.pass.getValue();
+    let { username, password } = this.state;
     let state = {
       errorMsg: '',
       usernameError: '',
       passwordError: ''
     };
     if (!username) {
-      state.usernameError = 'error';
+      state.usernameError = ' has-error';
     }
     if (!password) {
-      state.passwordError = 'error';
+      state.passwordError = ' has-error';
     }
     this.setState(state);
     if (username && password) {
@@ -69,7 +73,6 @@ export default class Login extends React.Component {
   };
 
   render() {
-    let props = this.props;
     let state = this.state;
     let views = this.context.views;
     let t = this.context.t;
@@ -79,46 +82,53 @@ export default class Login extends React.Component {
     }
 
     let el = (
-      <Panel id="login">
+      <div className="panel" id="login">
         { wrap(views.wrappers.loginLogo, <img src="static/img/logo.png" className="logo"/>, this)}
         { wrap(views.wrappers.loginForm,
           <form>
             { wrap(views.wrappers.loginField, <div>
-                <Input
-                  placeholder={t('Username')}
-                  bsStyle={state.usernameError||undefined}
-                  type="text"
-                  errorText={state.nameError}
-                  ref="name"
-                  addonBefore={<i className="fa fa-user"/>}
-                />
-                <Input
-                  placeholder={t('Password')}
-                  bsStyle={state.passwordError||undefined}
-                  type="password"
-                  errorText={state.passError}
-                  ref="pass"
-                  onEnterKeyDown={this.handleLogin}
-                  onKeyPress={this.handleKeyPress}
-                  addonBefore={<i className="fa fa-key"/>}
-                />
+                <div className={'form-group'+state.usernameError}>
+                  <div className="input-group">
+                    <div className="input-group-addon"><i className="fa fa-user"/></div>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={t('Username')}
+                      onChange={this.handleUsername}
+                      value={state.username}
+                    />
+                  </div>
+                </div>
+                <div className={'form-group'+state.passwordError}>
+                  <div className="input-group">
+                    <div className="input-group-addon"><i className="fa fa-key"/></div>
+                    <input
+                      type="password"
+                      className="form-control"
+                      placeholder={t('Password')}
+                      onChange={this.handlePassword}
+                      value={state.password}
+                      onEnterKeyDown={this.handleLogin}
+                      onKeyPress={this.handleKeyPress}
+                    />
+                  </div>
+                </div>
               </div>,
               this
             )}
 
             { wrap(views.wrappers.loginButton,
-              <Button
-                bsStyle="primary"
-                block
+              <a
+                className="btn btn-primary btn-block"
                 onClick={this.handleLogin}
-              >{t('Login')}</Button>,
+              >{t('Login')}</a>,
               this
             )}
             { err }
           </form>,
           this
         )}
-      </Panel>
+      </div>
     );
 
     return wrap(views.wrappers.login, el, this);

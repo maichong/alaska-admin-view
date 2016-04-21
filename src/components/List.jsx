@@ -6,14 +6,13 @@
 
 import React from 'react';
 
-import {bindActionCreators} from 'redux';
-import {connect} from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
 
-import {Button, Panel} from 'react-bootstrap';
-
 import DataTable from './DataTable';
+import SearchField from './SearchField';
 
 class List extends React.Component {
 
@@ -31,9 +30,11 @@ class List extends React.Component {
     super(props);
     this.state = {
       data: null,
+      search: '',
       filters: {},
       page: 0,
-      list: {}
+      list: {},
+      sort: ''
     };
 
   }
@@ -49,7 +50,10 @@ class List extends React.Component {
 
   componentWillReceiveProps(nextProps, nextContext) {
     let newState = {};
-    if (nextProps.lists && nextProps.lists !== this.props.list) {
+    if (nextProps.params.model !== this.props.params.model) {
+      this.init(nextProps);
+    }
+    if (nextProps.lists && nextProps.lists !== this.props.lists) {
       let lists = nextProps.lists;
       let model = this.state.model;
       if (lists[model.key]) {
@@ -57,7 +61,6 @@ class List extends React.Component {
         newState.data = lists[model.key].results;
       }
       this.setState(newState, () => {
-        this.init(this.props);
       });
       this._loading = false;
     }
@@ -80,18 +83,25 @@ class List extends React.Component {
     }
     let title = props.title || this.props.title || model.label;
     let data = this.state.data;
+    let sort = this.state.sort;
     if (this.state.model && this.state.model.name != model.name) {
+      //更新了model
       data = null;
     }
-    this.setState({ service, model, title, data: data || [] }, ()=> {
+    sort = model.defaultSort.split(' ')[0];
+    this.setState({ service, model, title, data: data || [], search: '', sort }, ()=> {
       if (!data) {
         this.refresh();
       }
     });
   }
 
+  handleSearch = (search) => {
+    this.setState({ search, data: [] }, () => this.refresh());
+  };
+
   refresh() {
-    this.setState({ page: 0 }, ()=>this.loadMore());
+    this.setState({ page: 0 }, () => this.loadMore());
   }
 
   loadMore() {
@@ -102,7 +112,9 @@ class List extends React.Component {
     let model = props.params.model;
     let page = (state.page || 0) + 1;
     let filters = state.filters;
-    props.actions.list({ service, model, page, filters, key: state.model.key });
+    let search = state.search;
+    let sort = state.sort;
+    props.actions.list({ service, model, page, filters, search, key: state.model.key, sort });
     this.setState({ page });
   }
 
@@ -116,14 +128,20 @@ class List extends React.Component {
     }
   };
 
+  handleSort = (sort) => {
+    this.setState({ sort, data: null }, () => this.refresh());
+  };
+
   render() {
     let props = this.props;
     let {
+      search,
       title,
       service,
       model,
       data,
-      list
+      list,
+      sort
       } = this.state;
     if (!model) {
       return <div className="loading">Loading...</div>;
@@ -134,12 +152,15 @@ class List extends React.Component {
     if (!model.nocreate && model.abilities.create) {
       //判断create权限,显示新建按钮
       let href = '#/edit/' + service.id + '/' + model.name + '/_new';
-      titleBtns.push(<Button
-        bsStyle="success"
+      titleBtns.push(<button
+        className="btn btn-success"
         key="create"
         href={href}
-      >{t('Create')}</Button>);
+      >{t('Create')}</button>);
     }
+
+    let searchInput = model.searchFields.length ?
+      <SearchField placeholder={t('Search')} onChange={this.handleSearch} value={search}/> : null;
 
     return wrap(views.wrappers.list,
       <div className="list-content">
@@ -149,9 +170,20 @@ class List extends React.Component {
             {titleBtns}
           </div>
         </div>
-        <Panel>
-          <DataTable model={model} data={data}/>
-        </Panel>
+        <div className="panel panel-default">
+          <div className="panel-body">
+            <DataTable model={model} data={data} sort={sort} onSort={this.handleSort}/>
+          </div>
+        </div>
+        <nav className="navbar navbar-fixed-bottom bottom-bar">
+          <div className="container-fluid">
+            <div className="navbar-form navbar-right">
+              <div className="form-group">
+                {searchInput}
+              </div>
+            </div>
+          </div>
+        </nav>
       </div>,
       this
     );
