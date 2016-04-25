@@ -45,7 +45,7 @@ async function api(url, options) {
 api.post = async function (url, data, options) {
   if (hasFile(data)) {
     let body = new FormData();
-    _forEach(data, (value, key)=> {
+    _forEach(data, (value, key) => {
       if (Array.isArray(value)) {
         for (let i in value) {
           body.append(key, value[i]);

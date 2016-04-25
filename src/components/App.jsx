@@ -7,17 +7,29 @@
 import React from 'react';
 
 import IntlMessageFormat from 'intl-messageformat';
-import { Router, Redirect, IndexRoute, Route, Link, hashHistory } from 'react-router';
+import { Router, Route, useRouterHistory } from 'react-router';
+import createHashHistory from 'history/lib/createHashHistory';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import wrap from '../utils/wrap';
+import qs from 'qs';
 
 import Login from './Login';
 import Locked from './Locked';
 import Manage from './Manage';
 import Editor from './Editor';
 import List from './List';
+
+const ReactToastr = require('react-toastr');
+const { ToastContainer } = ReactToastr;
+const ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
+
+const createAppHistory = useRouterHistory(createHashHistory);
+const history = createAppHistory({
+  parseQueryString: qs.parse,
+  stringifyQuery: qs.stringify
+});
 
 class App extends React.Component {
 
@@ -30,6 +42,7 @@ class App extends React.Component {
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
     t: React.PropTypes.func,
+    toast: React.PropTypes.func,
   };
 
   constructor(props, context) {
@@ -42,7 +55,8 @@ class App extends React.Component {
     return {
       views: this.props.views,
       settings: this.props.settings,
-      t: this.t
+      t: this.t,
+      toast: this.toast
     };
   }
 
@@ -52,6 +66,27 @@ class App extends React.Component {
       props.actions.refreshInfo();
     }
   }
+
+  toast = (method, title, body, options) => {
+    if (typeof body === 'object') {
+      options = body;
+      body = '';
+    }
+    options = options || {};
+    if (options.closeButton !== false) {
+      options.closeButton = true;
+    }
+    if (!options.showAnimation) {
+      options.showAnimation = 'fadeIn';
+    }
+    if (!options.hideAnimation) {
+      options.hideAnimation = 'fadeOut';
+    }
+    if (!options.timeOut) {
+      options.timeOut = 10000;
+    }
+    this.refs.container[method](title, body, options);
+  };
 
   t = (message, serviceId, values, formats) => {
     if (typeof serviceId === 'object') {
@@ -110,15 +145,15 @@ class App extends React.Component {
     //有权限
     if (props.access) {
       el = wrap(views.wrappers.router,
-        <Router history={hashHistory}>
+        <Router history={history}>
           {
             wrap(views.wrappers.routes,
               <Route component={Manage} path="/">
-                <Route component={List} path="list/:service/:model"></Route>
-                <Route component={Editor} path="edit/:service/:model/:id"></Route>
+                <Route component={List} path="list/:service/:model"/>
+                <Route component={Editor} path="edit/:service/:model/:id"/>
                 {
                   (views.routes || []).map((item, index) => {
-                    return <Route key={index} component={item.component} path={item.path}></Route>
+                    return <Route key={index} component={item.component} path={item.path}/>
                   })
                 }
               </Route>,
@@ -142,10 +177,21 @@ class App extends React.Component {
       el = <div className="boot-loading">Loading...</div>;
     }
 
-    return wrap(views.wrappers.app, el, this);
+    return wrap(views.wrappers.app, <div>
+      {el}
+      <ToastContainer
+        ref="container"
+        toastMessageFactory={ToastMessageFactory}
+        className="toast-top-right"/>
+    </div>, this);
   }
 }
 
-export default connect(({ login, access, signed, settings }) => ({ login, access, signed, settings }), dispatch => ({
+export default connect(({ login, access, signed, settings }) => ({
+  login,
+  access,
+  signed,
+  settings
+}), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(App);

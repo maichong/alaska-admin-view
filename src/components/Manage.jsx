@@ -40,9 +40,6 @@ export default class Manage extends React.Component {
     }
   }
 
-  handleRequestClose = () => {
-    this.setState({ open: false });
-  };
 
   render() {
     //console.log('Manage.render', this);

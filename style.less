@@ -59,6 +59,10 @@ fieldset[disabled] .select2-search input[type="text"] {
   }
 }
 
+#body {
+  margin-top: 56px;
+}
+
 #sidebar {
   position: fixed;
   background: @dark-color;
@@ -159,10 +163,26 @@ fieldset[disabled] .select2-search input[type="text"] {
 
 #content {
   margin-left: 240px;
+  .list-content {
+    margin-top: 64px;
+    .content-header {
+      position: fixed;
+      left: 240px;
+      right: 0;
+      top: 56px;
+      background: #eaf0f5;
+      padding-left: 10px;
+      z-index: 900;
+      .content-header-buttons {
+        top: 11px;
+        right: 10px
+      }
+    }
+  }
 }
 
 #contentInner {
-  padding: 1px 20px 50px
+  padding: 1px 10px 50px
 }
 
 .loading {
@@ -234,5 +254,31 @@ fieldset[disabled] .select2-search input[type="text"] {
         padding-left: 5px;
       }
     }
+  }
+}
+
+.field-filter {
+  margin: 0 15px;
+  padding: 8px 0;
+  position: relative;
+  &.error {
+    background: rgba(255, 0, 0, 0.1) !important;
+  }
+  .form-inline {
+    .form-group,
+    & > .form-control {
+      margin: 0 5px;
+    }
+    input.form-control {
+      width: 106px;
+    }
+  }
+  .btn {
+    outline: none !important;
+  }
+  .field-filter-close {
+    position: absolute;
+    right: 10px;
+    top: 8px;
   }
 }

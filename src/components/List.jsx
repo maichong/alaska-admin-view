@@ -14,6 +14,15 @@ import wrap from '../utils/wrap';
 import DataTable from './DataTable';
 import SearchField from './SearchField';
 
+import DropdownButton from 'react-bootstrap/lib/DropdownButton';
+import MenuItem from 'react-bootstrap/lib/MenuItem';
+
+import _forEach from 'lodash/forEach';
+import _assign from 'lodash/assign';
+import _omit from 'lodash/omit';
+import _without from 'lodash/without';
+import _size from 'lodash/size';
+
 class List extends React.Component {
 
   static propTypes = {
@@ -24,19 +33,23 @@ class List extends React.Component {
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
     t: React.PropTypes.func,
+    router: React.PropTypes.object,
   };
 
   constructor(props, context) {
     super(props);
+    let query = props.location.query || {};
     this.state = {
       data: null,
-      search: '',
-      filters: {},
+      search: query.search || '',
+      filters: query.filters || {},
       page: 0,
       list: {},
-      sort: ''
+      sort: query.sort || '',
+      filterItems: [],
+      filterViews: [],
+      filterViewsMap: {},
     };
-
   }
 
   componentWillUnmount() {
@@ -70,26 +83,57 @@ class List extends React.Component {
     let settings = this.context.settings;
     let serviceId = props.params.service;
     let modelName = props.params.model;
-    if (!serviceId || !modelName || !settings || !settings.services) {
-      return;
-    }
+    if (!serviceId || !modelName || !settings || !settings.services) return;
     let service = settings.services[serviceId];
-    if (!service) {
-      return;
-    }
+    if (!service) return;
     let model = service.models[modelName];
-    if (!model) {
-      return;
-    }
+    if (!model) return;
+    const t = this.context.t;
     let title = props.title || this.props.title || model.label;
     let data = this.state.data;
     let sort = this.state.sort;
-    if (this.state.model && this.state.model.name != model.name) {
+    let search = this.state.search;
+    let filters = this.state.filters;
+    let filterViews = this.state.filterViews;
+    let filterViewsMap = this.state.filterViewsMap;
+    let filterItems = [];
+    if (this.state.model && this.state.model.name !== model.name) {
       //更新了model
       data = null;
+      filters = {};
+      filterViews = [];
+      filterViewsMap = {};
+      sort = '';
+      search = '';
     }
-    sort = model.defaultSort.split(' ')[0];
-    this.setState({ service, model, title, data: data || [], search: '', sort }, ()=> {
+    _forEach(model.fields, field => {
+      if (!field._label) {
+        field._label = field.label;
+        field.label = t(field.label, serviceId);
+      }
+      if (!field.filter) return;
+      filterItems.push(<MenuItem key={field.path} eventKey={field.path}>{field.label}</MenuItem>);
+    });
+    if (!sort) {
+      sort = model.defaultSort.split(' ')[0];
+    }
+    this.setState({
+      service,
+      model,
+      title,
+      data: data || [],
+      search,
+      sort,
+      filterItems,
+      filters,
+      filterViews,
+      filterViewsMap
+    }, () => {
+      _forEach(filters, (value, key)=> {
+        if (!filterViewsMap[key]) {
+          this.handleFilter(key);
+        }
+      });
       if (!data) {
         this.refresh();
       }
@@ -97,7 +141,10 @@ class List extends React.Component {
   }
 
   handleSearch = (search) => {
-    this.setState({ search, data: [] }, () => this.refresh());
+    this.setState({ search, data: [] }, () => {
+      this.refresh();
+      this.updateQuery();
+    });
   };
 
   refresh() {
@@ -118,19 +165,66 @@ class List extends React.Component {
     this.setState({ page });
   }
 
-  handleScroll = ()=> {
+  handleScroll = () => {
     let body = document.body;
     if (body.scrollTop + document.documentElement.clientHeight >= body.scrollHeight) {
-      if (!this.state.list.next || this._loading) {
-        return;
-      }
+      if (!this.state.list.next || this._loading) return;
       this.loadMore();
     }
   };
 
   handleSort = (sort) => {
-    this.setState({ sort, data: null }, () => this.refresh());
+    this.setState({ sort, data: null }, () => {
+      this.refresh();
+      this.updateQuery();
+    });
   };
+
+  handleFilter = (eventKey) => {
+    const { filters, filterViews, filterViewsMap, model } = this.state;
+    if (filterViewsMap[eventKey]) return;
+    const field = model.fields[eventKey];
+    const views = this.context.views;
+    let FilterView = views[field.filter];
+    let view;
+    const onChange = filter => {
+      let filters = _assign({}, this.state.filters, { [field.path]: filter });
+      this.setState({ filters, data: null, page: 0 }, () => {
+        this.loadMore();
+        this.updateQuery();
+      });
+    };
+    const onClose = () => {
+      let filters = _omit(this.state.filters, field.path);
+      let filterViews = _without(this.state.filterViews, view);
+      let filterViewsMap = _omit(this.state.filterViewsMap, field.path);
+      this.setState({ filters, filterViews, filterViewsMap, data: null, page: 0 }, () => {
+        this.loadMore();
+        this.updateQuery();
+      });
+    };
+    view = filterViewsMap[eventKey] =
+      <FilterView key={field.path} field={field} onChange={onChange} onClose={onClose} value={filters[eventKey]}/>;
+    filterViews.push(view);
+    this.setState({ filterViews, filterViewsMap });
+  };
+
+  updateQuery() {
+    let query = { t: Date.now() };
+    const { filters, sort, search } = this.state;
+    if (search) {
+      query.search = search;
+    }
+    if (sort) {
+      query.sort = sort;
+    }
+    if (_size(filters)) {
+      query.filters = filters;
+    }
+    let pathname = this.props.location.pathname;
+    let state = this.props.location.state;
+    this.context.router.replace({ pathname, query, state });
+  }
 
   render() {
     let props = this.props;
@@ -141,7 +235,9 @@ class List extends React.Component {
       model,
       data,
       list,
-      sort
+      sort,
+      filterItems,
+      filterViews
       } = this.state;
     if (!model) {
       return <div className="loading">Loading...</div>;
@@ -149,6 +245,11 @@ class List extends React.Component {
     let views = this.context.views;
     let t = this.context.t;
     let titleBtns = [];
+
+    if (filterItems.length) {
+      titleBtns.push(<DropdownButton title={t('Filter')} onSelect={this.handleFilter}>{filterItems}</DropdownButton>);
+    }
+
     if (!model.nocreate && model.abilities.create) {
       //判断create权限,显示新建按钮
       let href = '#/edit/' + service.id + '/' + model.name + '/_new';
@@ -170,6 +271,7 @@ class List extends React.Component {
             {titleBtns}
           </div>
         </div>
+        <div>{filterViews}</div>
         <div className="panel panel-default">
           <div className="panel-body">
             <DataTable model={model} data={data} sort={sort} onSort={this.handleSort}/>

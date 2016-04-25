@@ -6,8 +6,6 @@
 
 export const PREFIX = window.PREFIX || '.';
 
-export const NOTICE = 'NOTICE';
-
 export const LOAD = 'LOAD';
 export const LOAD_COMPLETE = 'LOAD_COMPLETE';
 
@@ -37,5 +35,3 @@ export const SAVE_ERROR = 'SAVE_ERROR';
 export const REMOVE = 'REMOVE';
 export const REMOVE_COMPLETE = 'REMOVE_COMPLETE';
 export const REMOVE_ERROR = 'REMOVE_ERROR';
-
-

@@ -22,7 +22,6 @@ import _map from 'lodash/map';
 class Editor extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
     details: React.PropTypes.object,
     params: React.PropTypes.object,
     actions: React.PropTypes.object,
@@ -33,6 +32,7 @@ class Editor extends React.Component {
     settings: React.PropTypes.object,
     t: React.PropTypes.func,
     router: React.PropTypes.object,
+    toast: React.PropTypes.func,
   };
 
   constructor(props, context) {
@@ -49,14 +49,10 @@ class Editor extends React.Component {
     };
 
     let service = context.settings.services[this.state.serviceId];
-    if (!service) {
-      return;
-    }
+    if (!service) return;
     this.state.service = service;
     let model = service.models[this.state.modelName];
-    if (!model) {
-      return;
-    }
+    if (!model) return;
     this.state.model = model;
   }
 
@@ -65,11 +61,16 @@ class Editor extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const toast = this.context.toast;
     let newState = {};
     if (nextProps.params) {
       newState.serviceId = nextProps.params.service;
       newState.modelName = nextProps.params.model;
       newState.id = nextProps.params.id;
+      if (newState.id === '_new' && this.state.id && this.state.id !== '_new') {
+        //新建时候清空表单
+        newState.data = {};
+      }
 
       let service = this.context.settings.services[newState.serviceId];
       if (service) {
@@ -81,27 +82,29 @@ class Editor extends React.Component {
       }
     }
     if (nextProps.save && nextProps.save._r == this._r) {
+      this._r = Math.random();
       let t = this.context.t;
       this.loading = false;
       if (nextProps.save.error) {
         //保存失败
-        this.props.actions.notice(t('Save failed', { msg: nextProps.save.error.message }));
+        toast('error', t('Save failed'), nextProps.save.error.message);
       } else {
-        this.props.actions.notice(t('Saved successfully'));
-        if (this.state.id == '_new') {
+        toast('success', t('Saved successfully'));
+        if (this.state.id === '_new') {
           let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.save.res._id;
           this.context.router.replace(url);
         }
       }
     }
     if (nextProps.remove && nextProps.remove._r == this._r) {
+      this._r = Math.random();
       let t = this.context.t;
       this.loading = false;
       if (nextProps.remove.error) {
         //保存失败
-        this.props.actions.notice(t('Remove failed', { msg: nextProps.remove.error.message }));
+        toast('error', t('Remove failed'), nextProps.save.error.message);
       } else {
-        this.props.actions.notice(t('Removed successfully'));
+        toast('success', t('Removed successfully'));
         let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
         this.context.router.replace(url);
       }
@@ -114,18 +117,19 @@ class Editor extends React.Component {
   init() {
     let props = this.props;
     let state = this.state;
-    if (!state.model) {
-      return;
-    }
+    if (!state.model) return;
     let id = state.id;
     if (id === '_new') {
-      let data = {};
+      let data = state.data || {};
+      let newData = {};
       _forEach(state.model.fields, field => {
-        if (field.default !== undefined) {
-          data[field.path] = field.default;
+        if (data[field.path] !== undefined) {
+          newData[field.path] = data[field.path];
+        } else if (field.default !== undefined) {
+          newData[field.path] = field.default;
         }
       });
-      this.setState({ data });
+      this.setState({ data: newData });
       return;
     }
     let key = state.model.key;
@@ -196,9 +200,7 @@ class Editor extends React.Component {
       }
     }
     this.setState({ errors });
-    if (hasError) {
-      return;
-    }
+    if (hasError) return;
     this._r = Math.random();
     this.loading = true;
 
@@ -380,7 +382,7 @@ class Editor extends React.Component {
     }
 
     let relationships = null;
-    if (id != '_new' && model.relationships && model.relationships.length) {
+    if (id != '_new' && model.relationships) {
       relationships = _map(model.relationships, (r, index) => <Relationship key={index} from={id} path={r.path}
                                                                             service={r.service} model={r.ref}
                                                                             filters={r.filters} title={r.title}/>);

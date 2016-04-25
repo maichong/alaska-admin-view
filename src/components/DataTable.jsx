@@ -51,9 +51,7 @@ export default class DataTable extends React.Component {
 
   init(props) {
     let model = props.model || this.props.model;
-    if (!model) {
-      return;
-    }
+    if (!model) return;
 
     let columns = [];
     model.defaultColumns.forEach(key => {

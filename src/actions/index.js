@@ -8,10 +8,9 @@
 import qs from 'qs';
 import _omit from 'lodash/omit';
 import api from '../utils/api';
-import { createAction, createApiAction, createAsyncAction } from '../utils/action-creator';
+import { createApiAction, createAsyncAction } from '../utils/action-creator';
 import {
   PREFIX,
-  NOTICE,
   REFRESH_INFO,
   LOGIN,
   LOGOUT,
@@ -33,24 +32,17 @@ const loading = {};
 //  }
 //});
 
-export const notice = createAction(NOTICE, msg => {
-  return {
-    msg,
-    rand: Math.random()
-  };
-});
-
 export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/api/login/info');
 
 export const logout = createApiAction(LOGOUT, PREFIX + '/api/login/logout');
 
 export const login = createApiAction(LOGIN, PREFIX + '/api/login/login');
 
-export const list = createAsyncAction(LIST, async (args, dispatch)=> {
+export const list = createAsyncAction(LIST, async (args, dispatch) => {
   return await api.post(PREFIX + '/api/list?' + qs.stringify(args));
 });
 
-export const details = createAsyncAction(DETAILS, async (args, dispatch)=> {
+export const details = createAsyncAction(DETAILS, async (args, dispatch) => {
   let key = JSON.stringify(args);
   loading[key] = true;
   let res = await api.post(PREFIX + '/api/details?' + qs.stringify(args));
@@ -66,10 +58,10 @@ export function detailsIfNeed(args) {
   return details(args);
 }
 
-export const save = createAsyncAction(SAVE, async (args, dispatch)=> {
+export const save = createAsyncAction(SAVE, async (args, dispatch) => {
   return await api.post(PREFIX + '/api/save?' + qs.stringify(_omit(args, 'data')), args.data);
 });
 
-export const remove = createAsyncAction(REMOVE, async (args, dispatch)=> {
+export const remove = createAsyncAction(REMOVE, async (args, dispatch) => {
   return await api.post(PREFIX + '/api/remove?' + qs.stringify(_omit(args, 'id')), { id: args.id });
 });

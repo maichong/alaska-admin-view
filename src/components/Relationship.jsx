@@ -6,9 +6,6 @@
 
 import React from 'react';
 import DataTable from './DataTable';
-import { PREFIX } from '../constants';
-import { stringify } from 'qs';
-import api from '../utils/api';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -17,7 +14,14 @@ import * as actions from '../actions';
 class Relationship extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node
+    actions: React.PropTypes.object,
+    filters: React.PropTypes.object,
+    lists: React.PropTypes.object,
+    service: React.PropTypes.string,
+    model: React.PropTypes.string,
+    path: React.PropTypes.string,
+    from: React.PropTypes.string,
+    title: React.PropTypes.string,
   };
 
   static contextTypes = {
@@ -39,6 +43,13 @@ class Relationship extends React.Component {
 
   componentWillReceiveProps(props) {
     let model = this.state.model;
+    if (props.from !== this.props.from) {
+      this.setState({
+        data: null
+      }, () => {
+        this.init();
+      });
+    }
     if (props.lists && props.lists[model.key] !== this.props.lists[model.key]) {
       let list = props.lists[model.key];
       this.setState({
@@ -57,15 +68,9 @@ class Relationship extends React.Component {
     let serviceId = this.props.service;
     let modelName = this.props.model;
     let model = this.context.settings.services[serviceId].models[modelName];
-    if (!model) {
-      return;
-    }
+    if (!model) return;
     let list = this.props.lists[model.key];
-    if (list) {
-      if (model === this.state.model && this.state.data) {
-        return;
-      }
-    }
+    if (list && model === this.state.model && this.state.data) return;
     let args = {
       service: serviceId,
       model: modelName,
@@ -74,7 +79,7 @@ class Relationship extends React.Component {
     args.filters = Object.assign({}, this.props.filters, {
       [this.props.path]: this.props.from
     });
-    this.setState({ model }, ()=> {
+    this.setState({ model }, () => {
       if (!this.state.data) {
         this.props.actions.list(args);
       }
@@ -99,6 +104,6 @@ class Relationship extends React.Component {
   }
 }
 
-export default connect(({lists}) => ({ lists }), dispatch => ({
+export default connect(({ lists }) => ({ lists }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(Relationship);
