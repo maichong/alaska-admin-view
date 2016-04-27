@@ -1,7 +1,13 @@
 {
   "name": "alaska-admin-view",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Alaska admin view",
+  "keywords": [
+    "alaska",
+    "alaska-admin",
+    "admin",
+    "template"
+  ],
   "main": "lib/index.js",
   "scripts": {
     "build": "babel ./src --out-dir ./lib",
@@ -13,11 +19,6 @@
     "type": "git",
     "url": "git+https://github.com/maichong/alaska-admin-view.git"
   },
-  "keywords": [
-    "alaska",
-    "admin",
-    "template"
-  ],
   "author": {
     "email": "liang@maichong.it",
     "name": "liang",

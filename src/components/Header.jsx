@@ -69,10 +69,20 @@ class Header extends React.Component {
   };
 
   render() {
-    let props = this.props;
-    let views = this.context.views;
-    let t = this.context.t;
-    //let avatar = props.user.avatar || 'static/avatar.png';
+    const props = this.props;
+    const views = this.context.views;
+    const t = this.context.t;
+    const settings = this.context.settings;
+    let locales = null;
+    if (settings && settings.locales && Object.keys(settings.locales.all).length > 1) {
+      let all = settings.locales.all;
+      let locale = settings.locale;
+      let name = (all[locale] || {}).lang || locale;
+      locales = Object.keys(all).map(key => <MenuItem
+        onClick={()=>{location.href='?locale='+key+location.hash}}>{(all[key] || {}).lang || key}</MenuItem>);
+
+      locales = <NavDropdown title={name}>{locales}</NavDropdown>;
+    }
     let el = (
       <nav id="header" className="navbar navbar-default">
         <div className="container-fluid">
@@ -82,7 +92,8 @@ class Header extends React.Component {
           </div>
           <div className="navbar-collapse collapse">
             <nav className="nav navbar-nav navbar-right">
-              <NavDropdown eventKey={3} title={props.user.username} id="basic-nav-dropdown">
+              {locales}
+              <NavDropdown eventKey={3} title={props.user.username}>
                 <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
                 <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
               </NavDropdown>
