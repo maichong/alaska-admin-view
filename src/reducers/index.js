@@ -10,7 +10,6 @@ import _defaults from 'lodash/defaults';
 import _omit from 'lodash/omit';
 
 import {
-  NOTICE,
   REFRESH_INFO_COMPLETE,
   LOGIN_COMPLETE,
   LOGIN_ERROR,
@@ -22,13 +21,6 @@ import {
   REMOVE_COMPLETE,
   REMOVE_ERROR
 } from '../constants';
-
-export function notice(state = {}, action) {
-  if (action.type == NOTICE) {
-    return action.payload;
-  }
-  return state;
-}
 
 export function login(state = {}, action) {
   if (action.type == LOGOUT_COMPLETE) {

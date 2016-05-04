@@ -74,6 +74,7 @@ class Header extends React.Component {
     const t = this.context.t;
     const settings = this.context.settings;
     let locales = null;
+    const logo = settings.logo;
     if (settings && settings.locales && Object.keys(settings.locales.all).length > 1) {
       let all = settings.locales.all;
       let locale = settings.locale;
@@ -88,7 +89,7 @@ class Header extends React.Component {
         <div className="container-fluid">
 
           <div className="navbar-header">
-            <img src="static/img/logo.png"/>
+            <img src={logo || 'static/img/logo.png'}/>
           </div>
           <div className="navbar-collapse collapse">
             <nav className="nav navbar-nav navbar-right">

@@ -17,6 +17,7 @@ export default class Login extends React.Component {
   };
 
   static contextTypes = {
+    settings: React.PropTypes.object,
     views: React.PropTypes.object,
     t: React.PropTypes.func,
   };
@@ -80,10 +81,11 @@ export default class Login extends React.Component {
     if (state.errorMsg) {
       err = wrap(views.wrappers.loginError, <p className="label label-danger">{state.errorMsg}</p>, this);
     }
+    const logo = this.context.settings.logo;
 
     let el = (
       <div className="panel" id="login">
-        { wrap(views.wrappers.loginLogo, <img src="static/img/logo.png" className="logo"/>, this)}
+        { wrap(views.wrappers.loginLogo, <img src={logo || 'static/img/logo.png'} className="logo"/>, this)}
         { wrap(views.wrappers.loginForm,
           <form>
             { wrap(views.wrappers.loginField, <div>

@@ -10,9 +10,19 @@ import 'whatwg-fetch';
 import _isObject from 'lodash/isObject';
 import _forEach from 'lodash/forEach';
 import _assign from 'lodash/assign';
+import _size from 'lodash/size';
+import _isArray from 'lodash/isArray';
 
-async function api(url, options) {
+async function api(url, data, options) {
   console.log('API ', url, options);
+  if (_size(data)) {
+    let querystring = qs.stringify(data);
+    if (url.indexOf('?') > -1) {
+      url += '&' + querystring;
+    } else {
+      url += '?' + querystring;
+    }
+  }
   let res = await fetch(url, _assign({
     method: 'GET',
     credentials: 'same-origin'
@@ -54,12 +64,12 @@ api.post = async function (url, data, options) {
         body.append(key, value);
       }
     });
-    return api(url, _assign({
+    return api(url, null, _assign({
       method: 'POST',
       body
     }, options));
   }
-  return api(url, _assign({
+  return api(url, null, _assign({
     method: 'POST',
     body: JSON.stringify(data || {}),
     headers: {
@@ -69,13 +79,13 @@ api.post = async function (url, data, options) {
 };
 
 api.del = function (url, options) {
-  return api(url, _assign({
+  return api(url, null, _assign({
     method: 'DELETE'
   }, options));
 };
 
 api.put = function (url, data, options) {
-  return api(url, _assign({
+  return api(url, null, _assign({
     method: 'PUT',
     body: data
   }, options));
