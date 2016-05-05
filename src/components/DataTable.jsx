@@ -104,7 +104,7 @@ export default class DataTable extends React.Component {
             }
           }
           return <th
-            key={col.key}
+            key={col.field.path}
             tooltip={col.field.tooltip}
             onClick={handleClick}
           >{t(col.field.label, service.id)}{sortIcon}</th>;
@@ -134,7 +134,7 @@ export default class DataTable extends React.Component {
               })}
             </td>);
           })}
-          <td>
+          <td key="_a">
             <Link to={url}>
               <i className="fa fa-edit"/>
             </Link>

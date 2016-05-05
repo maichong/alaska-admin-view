@@ -7,6 +7,7 @@
 
 import './formdata';
 import 'whatwg-fetch';
+import qs from 'qs';
 import _isObject from 'lodash/isObject';
 import _forEach from 'lodash/forEach';
 import _assign from 'lodash/assign';

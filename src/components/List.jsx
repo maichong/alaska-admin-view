@@ -106,13 +106,13 @@ class List extends React.Component {
       sort = '';
       search = '';
     }
-    _forEach(model.fields, field => {
+    _forEach(model.fields, (field, index) => {
       if (!field._label) {
         field._label = field.label;
         field.label = t(field.label, serviceId);
       }
       if (!field.filter) return;
-      filterItems.push(<MenuItem key={field.path} eventKey={field.path}>{field.label}</MenuItem>);
+      filterItems.push(<MenuItem key={index} eventKey={field.path}>{field.label}</MenuItem>);
     });
     if (!sort) {
       sort = model.defaultSort.split(' ')[0];
@@ -204,7 +204,7 @@ class List extends React.Component {
       });
     };
     view = filterViewsMap[eventKey] =
-      <FilterView key={field.path} field={field} onChange={onChange} onClose={onClose} value={filters[eventKey]}/>;
+      <FilterView key={eventKey} field={field} onChange={onChange} onClose={onClose} value={filters[eventKey]}/>;
     filterViews.push(view);
     this.setState({ filterViews, filterViewsMap });
   };
@@ -247,7 +247,7 @@ class List extends React.Component {
     let titleBtns = [];
 
     if (filterItems.length) {
-      titleBtns.push(<DropdownButton title={t('Filter')} onSelect={this.handleFilter}>{filterItems}</DropdownButton>);
+      titleBtns.push(<DropdownButton id="listFilterDropdown" key="listFilterDropdown" title={t('Filter')} onSelect={this.handleFilter}>{filterItems}</DropdownButton>);
     }
 
     if (!model.nocreate && model.abilities.create) {

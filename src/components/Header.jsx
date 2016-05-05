@@ -80,9 +80,9 @@ class Header extends React.Component {
       let locale = settings.locale;
       let name = (all[locale] || {}).lang || locale;
       locales = Object.keys(all).map(key => <MenuItem
-        onClick={()=>{location.href='?locale='+key+location.hash}}>{(all[key] || {}).lang || key}</MenuItem>);
+        onClick={()=>{location.href='?locale='+key+location.hash}} key={key}>{(all[key] || {}).lang || key}</MenuItem>);
 
-      locales = <NavDropdown title={name}>{locales}</NavDropdown>;
+      locales = <NavDropdown title={name} id="navLocalesDropdown">{locales}</NavDropdown>;
     }
     let el = (
       <nav id="header" className="navbar navbar-default">
@@ -94,7 +94,7 @@ class Header extends React.Component {
           <div className="navbar-collapse collapse">
             <nav className="nav navbar-nav navbar-right">
               {locales}
-              <NavDropdown eventKey={3} title={props.user.username}>
+              <NavDropdown eventKey={3} title={props.user.username} id="navUserDropdown">
                 <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
                 <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
               </NavDropdown>
