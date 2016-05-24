@@ -17,7 +17,8 @@ import {
   LIST,
   DETAILS,
   SAVE,
-  REMOVE
+  REMOVE,
+  ACTION
 } from '../constants';
 
 const loading = {};
@@ -57,6 +58,10 @@ export function detailsIfNeed(args) {
   }
   return details(args);
 }
+
+export const action = createAsyncAction(ACTION, async (args, dispatch) => {
+  return await api.post(PREFIX + '/api/action?' + qs.stringify(_omit(args, 'data')), args.data);
+});
 
 export const save = createAsyncAction(SAVE, async (args, dispatch) => {
   return await api.post(PREFIX + '/api/save?' + qs.stringify(_omit(args, 'data')), args.data);

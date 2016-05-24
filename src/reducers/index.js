@@ -19,7 +19,9 @@ import {
   SAVE_COMPLETE,
   SAVE_ERROR,
   REMOVE_COMPLETE,
-  REMOVE_ERROR
+  REMOVE_ERROR,
+  ACTION_COMPLETE,
+  ACTION_ERROR
 } from '../constants';
 
 export function login(state = {}, action) {
@@ -84,13 +86,13 @@ export function settings(state = {}, action) {
           let model = service.models[j];
           if (model && model.fields) {
             model.service = service;
+            model.abilities = {};
             let ability = `admin.${model.key}.`.toLowerCase();
-            model.abilities = {
-              read: settings.abilities[ability + 'read'],
-              create: settings.abilities[ability + 'create'],
-              update: settings.abilities[ability + 'update'],
-              remove: settings.abilities[ability + 'remove'],
-            };
+            _forEach(settings.abilities, (can, key)=> {
+              if (key.indexOf(ability) !== 0) return;
+              let name = key.substr(ability.length);
+              model.abilities[name] = can;
+            });
           }
         }
       }
@@ -146,7 +148,7 @@ export function details(state = {}, action) {
       [key]: detailsFromList(state[key], action)
     });
   }
-  if (key && (action.type == DETAILS_COMPLETE || action.type == SAVE_COMPLETE) && action.payload._id) {
+  if (key && (action.type == DETAILS_COMPLETE || action.type == SAVE_COMPLETE || action.type == ACTION_COMPLETE) && action.payload._id) {
     let data = action.payload;
     return _assign({}, state, {
       [key]: _assign({}, state[key], {
@@ -181,6 +183,21 @@ export function remove(state = {}, action) {
       error: ''
     });
   } else if (action.type == REMOVE_ERROR) {
+    return _assign({}, action.meta, {
+      res: action.payload,
+      error: action.payload
+    });
+  }
+  return state;
+}
+
+export function action(state = {}, action) {
+  if (action.type == ACTION_COMPLETE) {
+    return _assign({}, action.meta, {
+      res: action.payload,
+      error: ''
+    });
+  } else if (action.type == ACTION_ERROR) {
     return _assign({}, action.meta, {
       res: action.payload,
       error: action.payload

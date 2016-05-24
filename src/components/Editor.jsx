@@ -19,6 +19,18 @@ import _every from 'lodash/every';
 import _get from 'lodash/get';
 import _map from 'lodash/map';
 
+function checkDepends(depends, data) {
+  if (typeof depends === 'string') {
+    if (!data[depends]) {
+      return false;
+    }
+  } else if (!_every(depends, (value, k) => data[k] === value)) {
+    //没有全部匹配
+    return false;
+  }
+  return true;
+}
+
 class Editor extends React.Component {
 
   static propTypes = {
@@ -102,11 +114,31 @@ class Editor extends React.Component {
       this.loading = false;
       if (nextProps.remove.error) {
         //保存失败
-        toast('error', t('Remove failed'), nextProps.save.error.message);
+        toast('error', t('Remove failed'), nextProps.remove.error.message);
       } else {
         toast('success', t('Removed successfully'));
         let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
         this.context.router.replace(url);
+      }
+    }
+    if (nextProps.action && nextProps.action._r == this._r) {
+      this._r = Math.random();
+      let t = this.context.t;
+      this.loading = false;
+      if (nextProps.action.error) {
+        //保存失败
+        toast('error', t('Failed'), nextProps.action.error.message);
+      } else {
+        toast('success', t('Successfully'));
+        if (nextProps.action.res._id) {
+          if (this.state.id === '_new') {
+            let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.action.res._id;
+            this.context.router.replace(url);
+          }
+        } else {
+          let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
+          this.context.router.replace(url);
+        }
       }
     }
     this.setState(newState, () => {
@@ -186,14 +218,12 @@ class Editor extends React.Component {
     let fields = model.fields;
     let errors = {};
     let hasError = false;
+    const t = this.context.t;
     for (let key in fields) {
       let field = fields[key];
+
       if (field.required && !data[key]) {
-        if (field.required === true
-          || (typeof field.required === 'string' && data[field.required])
-          || (typeof field.required === 'object' && _every(field.required, (value, k) => data[k] === value))
-        ) {
-          const t = this.context.t;
+        if (field.required === true || checkDepends(field.required, data)) {
           errors[key] = t('This field is required!');
           hasError = true;
         }
@@ -212,6 +242,25 @@ class Editor extends React.Component {
       data: Object.assign({}, data, { id: id == '_new' ? '' : id })
     });
   };
+
+  handleAction(action) {
+    let {
+      data,
+      model,
+      id
+      } = this.state;
+    this._r = Math.random();
+    this.loading = true;
+
+    this.props.actions.action({
+      service: model.service.id,
+      model: model.name,
+      key: model.key,
+      action,
+      _r: this._r,
+      data: Object.assign({}, data, { id: id == '_new' ? '' : id })
+    });
+  }
 
   remove = () => {
     this.setState({ showRemoveDialog: true });
@@ -260,22 +309,9 @@ class Editor extends React.Component {
     }
     for (let key in model.fields) {
       let cfg = model.fields[key];
-      if (cfg.hidden) {
-        continue;
-      }
-      if (!cfg.view) {
-        continue;
-      }
-      if (cfg.depends) {
-        if (typeof cfg.depends === 'string') {
-          if (!data[cfg.depends]) {
-            continue;
-          }
-        } else if (!_every(cfg.depends, (value, k) => data[k] === value)) {
-          //没有全部匹配
-          continue;
-        }
-      }
+      if (cfg.hidden) continue;
+      if (!cfg.view) continue;
+      if (cfg.depends && !checkDepends(cfg.depends, data)) continue;
       let ViewClass = views[cfg.view];
       if (!ViewClass) {
         console.warn('Missing : ' + cfg.view);
@@ -288,13 +324,8 @@ class Editor extends React.Component {
       } else if (cfg.disabled) {
         if (cfg.disabled === true) {
           disabled = true;
-        } else if (typeof cfg.disabled === 'string') {
-          if (data[cfg.disabled]) {
-            disabled = true;
-          }
-        } else if (_every(cfg.disabled, (value, k) => data[k] === value)) {
-          //全部匹配
-          disabled = true;
+        } else {
+          disabled = checkDepends(cfg.disabled, data);
         }
       }
 
@@ -343,7 +374,11 @@ class Editor extends React.Component {
 
     let btnElements = [];
     let removeDialogElement = null;
-    if (canSave) {
+
+    if (canSave && model.actions.save && model.actions.save.depends && !checkDepends(model.actions.save.depends, data)) {
+      canSave = false;
+    }
+    if (canSave && model.actions.save !== false) {
       btnElements.push(<button
         className="btn btn-primary"
         onClick={this.handleSave}
@@ -351,7 +386,11 @@ class Editor extends React.Component {
         disabled={this.loading}
       >{t('Save')}</button>);
     }
-    if (!model.noremove && id !== '_new' && model.abilities.remove) {
+    let canRemove = true;
+    if (model.actions.remove && model.actions.remove.depends && !checkDepends(model.actions.remove.depends, data)) {
+      canRemove = false;
+    }
+    if (canRemove && !model.noremove && id !== '_new' && model.abilities.remove && model.actions.remove !== false) {
       btnElements.push(<button
         className="btn btn-danger"
         onClick={this.remove}
@@ -372,7 +411,12 @@ class Editor extends React.Component {
         </Modal>);
       }
     }
-    if (!model.nocreate && id !== '_new' && model.abilities.create) {
+
+    let canCreate = true;
+    if (model.actions.create && model.actions.create.depends && !checkDepends(model.actions.create.depends, data)) {
+      canCreate = false;
+    }
+    if (canCreate && !model.nocreate && id !== '_new' && model.abilities.create) {
       btnElements.push(<button
         onClick={this.handleCreate}
         className="btn btn-default"
@@ -380,6 +424,20 @@ class Editor extends React.Component {
         disabled={this.loading}
       >{t('Create')}</button>);
     }
+
+    //扩展动作按钮
+    _forEach(model.actions, (action, key)=> {
+      if (!action.sled || ['create', 'save', 'remove'].indexOf(key) > -1) return;
+      if (!model.abilities[key]) return;
+      if (action.depends && !checkDepends(action.depends, data)) return;
+      let className = 'btn btn-' + (action.style || 'default');
+      btnElements.push(<button
+        onClick={() => this.handleAction(key)}
+        className={className}
+        key={key}
+        disabled={this.loading}
+      >{t(action.title)}</button>);
+    });
 
     let relationships = null;
     if (id != '_new' && model.relationships) {
@@ -412,6 +470,6 @@ class Editor extends React.Component {
   }
 }
 
-export default connect(({ details, save, remove }) => ({ details, save, remove }), dispatch => ({
+export default connect(({ details, save, remove, action }) => ({ details, save, remove, action }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(Editor);
