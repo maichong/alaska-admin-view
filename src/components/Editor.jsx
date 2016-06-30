@@ -436,7 +436,7 @@ class Editor extends React.Component {
         className={className}
         key={key}
         disabled={this.loading}
-      >{t(action.title)}</button>);
+      >{t(action.title, serviceId)}</button>);
     });
 
     let relationships = null;
