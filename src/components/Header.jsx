@@ -6,25 +6,23 @@
 
 import React from 'react';
 
-import wrap from '../utils/wrap';
-
+import Node from './Node';
+import LocaleNav from './LocaleNav';
 import NavDropdown from 'react-bootstrap/lib/NavDropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 
 class Header extends React.Component {
 
   static propTypes = {
     children: React.PropTypes.node,
-    actions: React.PropTypes.object,
     user: React.PropTypes.object,
   };
 
   static contextTypes = {
-    views: React.PropTypes.object,
+    actions: React.PropTypes.object,
     settings: React.PropTypes.object,
     t: React.PropTypes.func,
   };
@@ -55,14 +53,14 @@ class Header extends React.Component {
   };
 
   handleRefresh = () => {
-    this.props.actions.refreshInfo();
+    this.context.actions.refreshInfo();
     this.setState({
       open: false
     });
   };
 
   handleLogout = () => {
-    this.props.actions.logout();
+    this.context.actions.logout();
     this.setState({
       open: false
     });
@@ -70,44 +68,24 @@ class Header extends React.Component {
 
   render() {
     const props = this.props;
-    const views = this.context.views;
-    const t = this.context.t;
-    const settings = this.context.settings;
-    let locales = null;
-    const logo = settings.logo;
-    if (settings && settings.locales && Object.keys(settings.locales.all).length > 1) {
-      let all = settings.locales.all;
-      let locale = settings.locale;
-      let name = (all[locale] || {}).lang || locale;
-      locales = Object.keys(all).map(key => <MenuItem
-        onClick={()=>{location.href='?locale='+key+location.hash}} key={key}>{(all[key] || {}).lang || key}</MenuItem>);
-
-      locales = <NavDropdown title={name} id="navLocalesDropdown">{locales}</NavDropdown>;
-    }
-    let el = (
-      <nav id="header" className="navbar navbar-default">
+    const { t } = this.context;
+    return (
+      <Node id="header" tag="nav" className="navbar navbar-default">
         <div className="container-fluid">
-
-          <div className="navbar-header">
-            <img src={logo || 'static/img/logo.png'}/>
+          <div className="nav menu-toggle">
+            <i className="fa fa-bars"/>
           </div>
-          <div className="navbar-collapse collapse">
-            <nav className="nav navbar-nav navbar-right">
-              {locales}
-              <NavDropdown eventKey={3} title={props.user.username} id="navUserDropdown">
-                <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
-                <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
-              </NavDropdown>
-            </nav>
-          </div>
+          <ul className="nav navbar-nav navbar-right">
+            <LocaleNav/>
+            <NavDropdown eventKey={3} title={props.user.username} id="navUserDropdown">
+              <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
+              <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
+            </NavDropdown>
+          </ul>
         </div>
-      </nav>
+      </Node>
     );
-
-    return wrap(views.wrappers.header, el, this);
   }
 }
 
-export default connect(({ user }) => ({ user }), dispatch => ({
-  actions: bindActionCreators(actions, dispatch)
-}))(Header);
+export default connect(({ user }) => ({ user }))(Header);

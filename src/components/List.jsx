@@ -9,8 +9,8 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import wrap from '../utils/wrap';
 
+import Node from './Node';
 import DataTable from './DataTable';
 import SearchField from './SearchField';
 
@@ -247,7 +247,8 @@ class List extends React.Component {
     let titleBtns = [];
 
     if (filterItems.length) {
-      titleBtns.push(<DropdownButton id="listFilterDropdown" key="listFilterDropdown" title={t('Filter')} onSelect={this.handleFilter}>{filterItems}</DropdownButton>);
+      titleBtns.push(<DropdownButton id="listFilterDropdown" key="listFilterDropdown" title={t('Filter')}
+                                     onSelect={this.handleFilter}>{filterItems}</DropdownButton>);
     }
 
     if (!model.nocreate && model.abilities.create) {
@@ -263,8 +264,8 @@ class List extends React.Component {
     let searchInput = model.searchFields.length ?
       <SearchField placeholder={t('Search')} onChange={this.handleSearch} value={search}/> : null;
 
-    return wrap(views.wrappers.list,
-      <div className="list-content">
+    return (
+      <Node id="list">
         <div className="content-header">
           <h4>{t(title, service.id)} <i>{t('total records', { total: list.total })}</i></h4>
           <div className="content-header-buttons">
@@ -286,8 +287,7 @@ class List extends React.Component {
             </div>
           </div>
         </nav>
-      </div>,
-      this
+      </Node>
     );
   }
 }

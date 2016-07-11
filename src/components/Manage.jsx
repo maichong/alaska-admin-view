@@ -7,7 +7,7 @@
 import React from 'react';
 
 import { connect } from 'react-redux';
-import wrap from '../utils/wrap';
+import Node from './Node';
 
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -20,53 +20,19 @@ export default class Manage extends React.Component {
   };
 
   static contextTypes = {
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
+    settings: React.PropTypes.object
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    let newState = {};
-    if (nextProps.notice && nextProps.notice.rand != this.rand) {
-      newState.open = true;
-      this.rand = nextProps.notice.rand;
-      this.setState(newState);
-    }
-  }
-
-
   render() {
-    //console.log('Manage.render', this);
-    let props = this.props;
-    let state = this.state;
-    let { views, settings } = this.context;
-    let styles = {
-      root: {},
-      body: {
-        marginTop: 56
-      }
-    };
-    return wrap(views.wrappers.manage,
-      <div id="manage" style={styles.root}>
+    let { children } = this.props;
+    let { settings } = this.context;
+    return <Node id="manage">
+      <Sidebar menu={settings.menu}/>
+      <Node id="body">
         <Header/>
-        {
-          wrap(views.wrappers.body,
-            <div id="body" style={styles.body}>
-              <Sidebar menu={settings.menu}/>
-              <Content>{props.children}</Content>
-            </div>,
-            this
-          )
-        }
-      </div>,
-      this
-    );
+        <Content>{children}</Content>
+      </Node>
+    </Node>
   }
 }
 

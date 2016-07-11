@@ -5,23 +5,18 @@
  */
 
 import React from 'react';
-import wrap from '../utils/wrap';
+import Node from './Node';
 
 export default class Locked extends React.Component {
 
   static contextTypes = {
-    views: React.PropTypes.object,
-    t: React.PropTypes.func,
+    t: React.PropTypes.func
   };
 
   render() {
-    let style = {
-      fontSize: 32,
-      textAlign: 'center',
-      paddingTop: 100,
-      color: '#b55'
-    };
     const t = this.context.t;
-    return wrap(this.context.views.wrappers.locked, <h1 style={style}>{t('Access Denied')}</h1>, this);
+    return <Node id="locked">
+      <h1>{t('Access Denied')}</h1>
+    </Node>;
   }
 }

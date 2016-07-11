@@ -9,7 +9,8 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import wrap from '../utils/wrap';
+import Node from './Node';
+import { IF } from 'jsx-plus';
 
 export default class Login extends React.Component {
   static propTypes = {
@@ -18,7 +19,6 @@ export default class Login extends React.Component {
 
   static contextTypes = {
     settings: React.PropTypes.object,
-    views: React.PropTypes.object,
     t: React.PropTypes.func,
   };
 
@@ -75,65 +75,51 @@ export default class Login extends React.Component {
 
   render() {
     let state = this.state;
-    let views = this.context.views;
-    let t = this.context.t;
-    let err;
-    if (state.errorMsg) {
-      err = wrap(views.wrappers.loginError, <p className="label label-danger">{state.errorMsg}</p>, this);
-    }
+    const t = this.context.t;
     const logo = this.context.settings.logo;
 
-    let el = (
-      <div className="panel" id="login">
-        { wrap(views.wrappers.loginLogo, <img src={logo || 'static/img/logo.png'} className="logo"/>, this)}
-        { wrap(views.wrappers.loginForm,
-          <form>
-            { wrap(views.wrappers.loginField, <div>
-                <div className={'form-group'+state.usernameError}>
-                  <div className="input-group">
-                    <div className="input-group-addon"><i className="fa fa-user"/></div>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder={t('Username')}
-                      onChange={this.handleUsername}
-                      value={state.username}
-                    />
-                  </div>
-                </div>
-                <div className={'form-group'+state.passwordError}>
-                  <div className="input-group">
-                    <div className="input-group-addon"><i className="fa fa-key"/></div>
-                    <input
-                      type="password"
-                      className="form-control"
-                      placeholder={t('Password')}
-                      onChange={this.handlePassword}
-                      value={state.password}
-                      onEnterKeyDown={this.handleLogin}
-                      onKeyPress={this.handleKeyPress}
-                    />
-                  </div>
-                </div>
-              </div>,
-              this
-            )}
+    return (
+      <Node id="login" className="panel">
+        <Node id="loginLogo" tag="img" src={logo || 'static/img/logo.png'}/>
+        <Node id="loginForm" tag="form">
+          <Node id="loginField">
+            <div className={'form-group'+state.usernameError}>
+              <div className="input-group">
+                <div className="input-group-addon"><i className="fa fa-user"/></div>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder={t('Username')}
+                  onChange={this.handleUsername}
+                  value={state.username}
+                />
+              </div>
+            </div>
+            <div className={'form-group'+state.passwordError}>
+              <div className="input-group">
+                <div className="input-group-addon"><i className="fa fa-key"/></div>
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder={t('Password')}
+                  onChange={this.handlePassword}
+                  value={state.password}
+                  onEnterKeyDown={this.handleLogin}
+                  onKeyPress={this.handleKeyPress}
+                />
+              </div>
+            </div>
+          </Node>
 
-            { wrap(views.wrappers.loginButton,
-              <a
-                className="btn btn-primary btn-block"
-                onClick={this.handleLogin}
-              >{t('Login')}</a>,
-              this
-            )}
-            { err }
-          </form>,
-          this
-        )}
-      </div>
+          <Node id="loginButton" className="btn btn-primary btn-block"
+                onClick={this.handleLogin}>{t('Login')}</Node>
+
+          <IF test={state.errorMsg}>
+            <Node id="loginError" className="label label-danger">{state.errorMsg}</Node>
+          </IF>
+        </Node>
+      </Node>
     );
-
-    return wrap(views.wrappers.login, el, this);
   }
 
 }

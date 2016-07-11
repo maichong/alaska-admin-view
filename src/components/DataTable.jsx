@@ -6,8 +6,8 @@
 
 import React from 'react';
 import { Link } from 'react-router';
-import { shallowEqual } from 'alaska-admin-view';
-import wrap from '../utils/wrap';
+import shallowEqual from '../utils/shallow-equal';
+import Node from './Node';
 
 export default class DataTable extends React.Component {
 
@@ -21,8 +21,8 @@ export default class DataTable extends React.Component {
 
   static contextTypes = {
     router: React.PropTypes.object,
-    views: React.PropTypes.object,
     settings: React.PropTypes.object,
+    views: React.PropTypes.object,
     t: React.PropTypes.func,
   };
 
@@ -116,45 +116,39 @@ export default class DataTable extends React.Component {
     let bodyElement = (<tbody>
     {data.map((record, index) => {
       let url = '/edit/' + service.id + '/' + model.name + '/' + record._id;
-      return wrap(views.wrappers.dataTableRow,
-        <tr key={index} onDoubleClick={() => {router.push(url);console.log(url);}}>
-          {columns.map(col => {
-            let key = col.key;
-            let CellViewClass = views[col.field.cell];
-            if (!CellViewClass) {
-              console.warn('Missing : ' + col.field.cell);
-              return <td style={{background:'#fcc'}} key={key}>{record[key]}</td>;
-            }
-            return (<td key={key}>
-              {React.createElement(CellViewClass, {
-                value: record[key],
-                model,
-                key,
-                field: col.field
-              })}
-            </td>);
-          })}
-          <td key="_a">
-            <Link to={url}>
-              <i className="fa fa-edit"/>
-            </Link>
-          </td>
-        </tr>,
-        this);
+      return <tr key={index} onDoubleClick={() => {router.push(url);console.log(url);}}>
+        {columns.map(col => {
+          let key = col.key;
+          let CellViewClass = views[col.field.cell];
+          if (!CellViewClass) {
+            console.warn('Missing : ' + col.field.cell);
+            return <td style={{background:'#fcc'}} key={key}>{record[key]}</td>;
+          }
+          return (<td key={key}>
+            {React.createElement(CellViewClass, {
+              value: record[key],
+              model,
+              key,
+              field: col.field
+            })}
+          </td>);
+        })}
+        <td key="_a">
+          <Link to={url}>
+            <i className="fa fa-edit"/>
+          </Link>
+        </td>
+      </tr>
     })}
     </tbody>);
 
-    return wrap(views.wrappers.dataTable,
+    return (
       <table className="data-table table table-striped table-bordered table-hover">
-        {wrap(views.wrappers.dataTableHeader,
-          <thead>
-          {wrap(views.wrappers.dataTableHeaderRow, headerRowElement, this)}
-          </thead>,
-          this
-        )}
-        {wrap(views.wrappers.dataTableBody, bodyElement, this)}
-      </table>,
-      this
+        <thead>
+        {headerRowElement}
+        </thead>
+        {bodyElement}
+      </table>
     );
   }
 }

@@ -12,9 +12,9 @@ import createHashHistory from 'history/lib/createHashHistory';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import wrap from '../utils/wrap';
 import qs from 'qs';
 
+import Node from './Node';
 import Login from './Login';
 import Locked from './Locked';
 import Manage from './Manage';
@@ -39,6 +39,7 @@ class App extends React.Component {
   };
 
   static childContextTypes = {
+    actions: React.PropTypes.object,
     views: React.PropTypes.object,
     settings: React.PropTypes.object,
     t: React.PropTypes.func,
@@ -54,6 +55,7 @@ class App extends React.Component {
   getChildContext() {
     return {
       views: this.props.views,
+      actions: this.props.actions,
       settings: this.props.settings,
       t: this.t,
       toast: this.toast
@@ -144,25 +146,17 @@ class App extends React.Component {
 
     //有权限
     if (props.access) {
-      el = wrap(views.wrappers.router,
-        <Router history={history}>
+      el = <Router history={history}>
+        <Route component={Manage} path="/">
+          <Route component={List} path="list/:service/:model"/>
+          <Route component={Editor} path="edit/:service/:model/:id"/>
           {
-            wrap(views.wrappers.routes,
-              <Route component={Manage} path="/">
-                <Route component={List} path="list/:service/:model"/>
-                <Route component={Editor} path="edit/:service/:model/:id"/>
-                {
-                  (views.routes || []).map((item, index) => {
-                    return <Route key={index} component={item.component} path={item.path}/>
-                  })
-                }
-              </Route>,
-              this
-            )
+            (views.routes || []).map((item, index) => {
+              return <Route key={index} component={item.component} path={item.path}/>
+            })
           }
-        </Router>,
-        this
-      );
+        </Route>
+      </Router>
     }
 
     //已登录,但无权限
@@ -177,13 +171,13 @@ class App extends React.Component {
       el = <div className="boot-loading">Loading...</div>;
     }
 
-    return wrap(views.wrappers.app, <div>
+    return ( <Node id="app">
       {el}
       <ToastContainer
         ref="container"
         toastMessageFactory={ToastMessageFactory}
         className="toast-top-right"/>
-    </div>, this);
+    </Node>);
   }
 }
 

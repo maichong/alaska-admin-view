@@ -6,6 +6,7 @@
 
 import React from 'react';
 
+import Node from './Node';
 import FieldGroup from './FieldGroup';
 import Relationship from './Relationship';
 
@@ -13,7 +14,6 @@ import Modal from 'react-bootstrap/lib/Modal';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
-import wrap from '../utils/wrap';
 import _forEach from 'lodash/forEach';
 import _every from 'lodash/every';
 import _get from 'lodash/get';
@@ -364,11 +364,6 @@ class Editor extends React.Component {
       }
       let groupEl = <FieldGroup key={groupKey} title={group.title} panel={group.panel}
                                 bsStyle={group.style}>{group.fields}</FieldGroup>;
-      let path = `wrappers.${serviceId}-${modelName}-group-${groupKey}`;
-      let wrappers = _get(views, path);
-      if (wrappers) {
-        groupEl = wrap(wrappers, groupEl, this, { key: groupKey });
-      }
       groupElements.push(groupEl);
     }
 
@@ -447,7 +442,7 @@ class Editor extends React.Component {
     }
 
     return (
-      <div className="editor-content">
+      <Node id="editor">
         <div className="content-header">
           <h4>{title}</h4>
           {
@@ -465,7 +460,7 @@ class Editor extends React.Component {
             </div>
           </div>
         </nav>
-      </div>
+      </Node>
     );
   }
 }

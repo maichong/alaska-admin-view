@@ -1,0 +1,53 @@
+@active-color: #1abc9c;
+@dark-color: #232928;
+
+body, html {
+  background: #eaf0f5;
+}
+
+body {
+  font-size: 14px;
+}
+
+.form-control[disabled],
+.form-control[readonly],
+fieldset[disabled] .form-control,
+.select2-search input[type="text"][disabled],
+.select2-search input[type="text"][readonly],
+fieldset[disabled] .select2-search input[type="text"] {
+  background: #fff;
+  color: rgb(52, 73, 94);
+  cursor: default;
+  opacity: 1;
+}
+
+.form-control, .select2-search input[type="text"] {
+  border-width: 1px;
+}
+
+.loading {
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+  line-height: 50px;
+  margin-top: 100px;
+}
+
+#copyright {
+  height: 53px;
+  background: #000;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  text-align: center;
+  line-height: 53px;
+  color: #555;
+  width: 100%;
+}
+
+@import 'body';
+@import 'editor';
+@import 'header';
+@import 'list';
+@import 'login';
+@import 'menu';

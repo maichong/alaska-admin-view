@@ -7,36 +7,23 @@
 import React from 'react';
 import Menu from './Menu';
 import Copyright from './Copyright';
-import wrap from '../utils/wrap';
-
+import Node from './Node';
 
 export default class Sidebar extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    menu: React.PropTypes.array,
-  };
-
-  static contextTypes = {
-    views: React.PropTypes.object,
+    menu: React.PropTypes.array
   };
 
   render() {
-    let props = this.props;
-    let views = this.context.views;
-    let el = (
-      <div id="sidebar">
-        {
-          wrap(views.wrappers.sidebarInner,
-            <div id="sidebarInner">
-              <Menu id="menu" items={props.menu}/>
-              <Copyright />
-            </div>,
-            this
-          )
-        }
-      </div>
+    let { menu } = this.props;
+    return (
+      <Node id="sidebar">
+        <Node id="sidebarInner">
+          <Menu items={menu}/>
+          <Copyright />
+        </Node>
+      </Node>
     );
-    return wrap(views.wrappers.sidebar, el, this);
   }
 }

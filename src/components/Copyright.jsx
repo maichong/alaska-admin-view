@@ -5,19 +5,10 @@
  */
 
 import React from 'react';
-import wrap from '../utils/wrap';
+import Node from './Node';
+
 export default class Copyright extends React.Component {
-
-  static propTypes = {
-    children: React.PropTypes.node
-  };
-
-  static contextTypes = {
-    views: React.PropTypes.object,
-  };
-
   render() {
-    let views = this.context.views;
-    return wrap(views.wrappers.copyright, <div id="copyright">Powered By Alaska</div>, this);
+    return <Node id="copyright">Powered By Alaska</Node>;
   }
 }

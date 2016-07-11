@@ -1,0 +1,39 @@
+
+.data-table {
+  thead {
+    user-select: none;
+    -webkit-user-select: none;
+    th {
+      cursor: pointer;
+      .fa {
+        padding-left: 5px;
+      }
+    }
+  }
+}
+
+.field-filter {
+  margin: 0 15px;
+  padding: 8px 0;
+  position: relative;
+  &.error {
+    background: rgba(255, 0, 0, 0.1) !important;
+  }
+  .form-inline {
+    .form-group,
+    & > .form-control {
+      margin: 0 5px;
+    }
+    input.form-control {
+      width: 106px;
+    }
+  }
+  .btn {
+    outline: none !important;
+  }
+  .field-filter-close {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+  }
+}

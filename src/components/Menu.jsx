@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import wrap from '../utils/wrap';
 import shallowEqual from '../utils/shallow-equal';
+import Node from './Node';
 
 export default class Menu extends React.Component {
 
@@ -92,8 +92,8 @@ export default class Menu extends React.Component {
     let props = this.props;
     let level = this.props.level || 0;
     let items = (props.items || []).map(item => this.createMenuItem(item, level));
-    return <ul id={props.id} className="sidebar-menu">
+    return <Node id="menu" tag="ul" className="sidebar-menu">
       { items }
-    </ul>;
+    </Node>;
   }
 }
