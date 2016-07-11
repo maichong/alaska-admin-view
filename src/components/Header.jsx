@@ -14,17 +14,20 @@ import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+const { node, object, func } = React.PropTypes;
+
 class Header extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    user: React.PropTypes.object,
+    children: node,
+    user: object,
   };
 
   static contextTypes = {
-    actions: React.PropTypes.object,
-    settings: React.PropTypes.object,
-    t: React.PropTypes.func,
+    actions: object,
+    views: object,
+    settings: object,
+    t: func,
   };
 
   constructor(props, context) {
@@ -68,7 +71,7 @@ class Header extends React.Component {
 
   render() {
     const { user } = this.props;
-    const { t } = this.context;
+    const { t, views } = this.context;
     return (
       <Node id="header" tag="nav" className="navbar navbar-default">
         <div className="container-fluid">
@@ -76,6 +79,7 @@ class Header extends React.Component {
             <i className="fa fa-bars"/>
           </div>
           <ul className="nav navbar-nav navbar-right">
+            {views.navs}
             <LocaleNav/>
             <NavDropdown eventKey={3}
                          title={<div><img src={user.avatar || 'static/img/avatar.png'}/>{user.username}</div>}

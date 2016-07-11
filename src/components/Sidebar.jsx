@@ -8,11 +8,14 @@ import React from 'react';
 import Menu from './Menu';
 import Copyright from './Copyright';
 import Node from './Node';
+import Logo from './Logo';
+
+const { array } = React.PropTypes;
 
 export default class Sidebar extends React.Component {
 
   static propTypes = {
-    menu: React.PropTypes.array
+    menu: array
   };
 
   render() {
@@ -20,6 +23,7 @@ export default class Sidebar extends React.Component {
     return (
       <Node id="sidebar">
         <Node id="sidebarInner">
+          <Logo/>
           <Menu items={menu}/>
           <Copyright />
         </Node>

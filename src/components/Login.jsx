@@ -6,20 +6,22 @@
 
 import React from 'react';
 
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import Node from './Node';
 import { IF } from 'jsx-plus';
 
+const { func, object } = React.PropTypes;
+
 export default class Login extends React.Component {
   static propTypes = {
-    login: React.PropTypes.object
+    login: object
   };
 
   static contextTypes = {
-    settings: React.PropTypes.object,
-    t: React.PropTypes.func,
+    actions: object,
+    settings: object,
+    t: func,
   };
 
   constructor(props) {
@@ -63,7 +65,7 @@ export default class Login extends React.Component {
     }
     this.setState(state);
     if (username && password) {
-      this.props.actions.login({ username, password });
+      this.context.actions.login({ username, password });
     }
   };
 
@@ -76,11 +78,11 @@ export default class Login extends React.Component {
   render() {
     let state = this.state;
     const t = this.context.t;
-    const logo = this.context.settings.logo;
+    const logoReverse = this.context.settings.logoReverse;
 
     return (
       <Node id="login" className="panel">
-        <Node id="loginLogo" tag="img" src={logo || 'static/img/logo.png'}/>
+        <Node id="loginLogo"><img src={logoReverse || 'static/img/logo_reverse.png'}/> </Node>
         <Node id="loginForm" tag="form">
           <Node id="loginField">
             <div className={'form-group'+state.usernameError}>
@@ -121,9 +123,6 @@ export default class Login extends React.Component {
       </Node>
     );
   }
-
 }
 
-export default connect(({ login }) => ({ login }), dispatch => ({
-  actions: bindActionCreators(actions, dispatch)
-}))(Login);
+export default connect(({ login }) => ({ login }))(Login);
