@@ -6,8 +6,6 @@
 
 import api from './api';
 
-export { createAction } from 'redux-actions';
-
 export const createAsyncAction = (type, asyncFn) => (arg) => (dispatch) => {
   dispatch({ type: type + '_START', meta: arg });
   return {

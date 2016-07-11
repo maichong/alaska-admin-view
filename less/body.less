@@ -1,25 +1,15 @@
+#app.hidden {
+  display: block !important;
+}
 
 #body {
   margin-top: 56px;
-}
-
-#content {
   margin-left: 240px;
-  .list-content {
-    margin-top: 64px;
-    .content-header {
-      position: fixed;
-      left: 240px;
-      right: 0;
-      top: 56px;
-      background: #eaf0f5;
-      padding-left: 10px;
-      z-index: 900;
-      .content-header-buttons {
-        top: 11px;
-        right: 10px
-      }
-    }
+  #app.icon & {
+    margin-left: 45px;
+  }
+  #app.hidden & {
+    margin-left: 0;
   }
 }
 
@@ -29,6 +19,9 @@
 
 .content-header {
   position: relative;
+  background: #eaf0f5;
+  padding-left: 10px;
+  z-index: 900;
   h4 {
     i {
       color: #999;
@@ -46,6 +39,12 @@
 }
 
 .bottom-bar {
+  #app.icon & {
+    left: 45px;
+  }
+  #app.hidden & {
+    left: 0;
+  }
   left: 240px;
   background: @dark-color;
   z-index: 1;

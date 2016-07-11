@@ -13,6 +13,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import qs from 'qs';
+import $ from 'jquery';
 
 import Node from './Node';
 import Login from './Login';
@@ -67,7 +68,27 @@ class App extends React.Component {
     if (!props.access && !props.signed && !props.login.show) {
       props.actions.refreshInfo();
     }
+
+    $(window).on('resize', this.handleResize);
+    this.handleResize();
   }
+
+  componentWillUnmount() {
+    $(window).off('resize', this.handleResize)
+  }
+
+  handleResize = ()=> {
+    let { layout } = this.props;
+    if (window.innerWidth <= 768) {
+      if (layout == 'full') {
+        this.props.actions.layout('hidden');
+      }
+    } else {
+      if (layout == 'hidden') {
+        this.props.actions.layout('full');
+      }
+    }
+  };
 
   toast = (method, title, body, options) => {
     if (typeof body === 'object') {
@@ -171,7 +192,7 @@ class App extends React.Component {
       el = <div className="boot-loading">Loading...</div>;
     }
 
-    return ( <Node id="app">
+    return ( <Node id="app" className={props.layout}>
       {el}
       <ToastContainer
         ref="container"
@@ -181,11 +202,12 @@ class App extends React.Component {
   }
 }
 
-export default connect(({ login, access, signed, settings }) => ({
+export default connect(({ login, access, signed, settings, layout }) => ({
   login,
   access,
   signed,
-  settings
+  settings,
+  layout
 }), dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 }))(App);

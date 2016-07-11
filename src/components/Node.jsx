@@ -12,7 +12,8 @@ export default class Node extends React.Component {
   static propTypes = {
     children: React.PropTypes.node,
     tag: React.PropTypes.string,
-    id: React.PropTypes.string
+    id: React.PropTypes.string,
+    wrapper: React.PropTypes.string,
   };
 
   static contextTypes = {
@@ -20,11 +21,12 @@ export default class Node extends React.Component {
   };
 
   render() {
-    let { tag, id, children, ...others } = this.props;
-    if (id) {
+    let { tag, id, children, wrapper, ...others } = this.props;
+    wrapper = wrapper || id;
+    if (wrapper) {
       const wrappers = this.context.views.wrappers;
-      if (wrappers[id] && wrappers[id].length) {
-        children = _reduce(wrappers[id], (el, Wrapper) => React.createElement(Wrapper, {}, el), children);
+      if (wrappers[wrapper] && wrappers[wrapper].length) {
+        children = _reduce(wrappers[wrapper], (el, Wrapper) => React.createElement(Wrapper, {}, el), children);
       }
     }
     tag = tag || 'div';

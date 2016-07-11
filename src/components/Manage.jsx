@@ -13,21 +13,23 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import Content from './Content';
 
+const { node, object } = React.PropTypes;
+
 export default class Manage extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node
+    children: node
   };
 
   static contextTypes = {
-    settings: React.PropTypes.object
+    settings: object
   };
 
   render() {
     let { children } = this.props;
     let { settings } = this.context;
     return <Node id="manage">
-      <Sidebar menu={settings.menu}/>
+      <Sidebar menu={settings.menu} layout={this.props.layout}/>
       <Node id="body">
         <Header/>
         <Content>{children}</Content>
@@ -36,4 +38,4 @@ export default class Manage extends React.Component {
   }
 }
 
-export default connect(({ settings, notice }) => ({ settings, notice }))(Manage);
+export default connect(({ settings, layout }) => ({ settings, layout }))(Manage);

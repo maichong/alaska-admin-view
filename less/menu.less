@@ -6,6 +6,7 @@
   left: 0;
   top: 0;
   bottom: 0;
+  z-index: 10000;
 }
 
 #sidebarInner {
@@ -27,10 +28,10 @@
     max-height: 56px;
     margin: 0 auto;
   }
-}
 
-#menu {
-  padding-bottom: 53px;
+  .icon {
+    display: none;
+  }
 }
 
 .sidebar-menu {
@@ -38,11 +39,17 @@
   padding: 0;
   color: #89949b;
   overflow-y: auto;
-  height: 100%;
+  overflow-x: visible;
+  position: relative;
+  height: auto;
+
+  &.menu-0 {
+    padding-bottom: 53px;
+  }
+
   li {
     outline: 0;
     cursor: pointer;
-    overflow: hidden;
     position: relative;
     list-style: none;
     padding: 0;
@@ -69,21 +76,22 @@
     }
     &.activated {
       & > a {
-        background: rgba(0, 0, 0, 0.5);
+        background: #1c2120;
         border-color: @active-color;
+        color: @active-color;
       }
       .sidebar-menu {
         display: block;
       }
       &:after {
-        top: 11px;
+        top: 14px;
         right: 0;
         content: '';
         position: absolute;
         display: inline-block;
-        border-top: 12px solid transparent;
-        border-bottom: 12px solid transparent;
-        border-right: 10px solid #e9f0f5;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-right: 6px solid #e9f0f5;
       }
     }
   }
@@ -93,9 +101,10 @@
     height: 45px;
     line-height: 45px;
     font-size: 14px;
-    padding-left: 15px;
+    padding-left: 12px;
     color: #89949b;
     border-left: solid 4px transparent;
+    overflow: hidden;
     i.fa {
       margin-right: 10px;
       width: 14px;
@@ -110,5 +119,61 @@
     position: absolute;
     right: 50px;
     top: 15px;
+  }
+}
+
+#app.icon {
+  #sidebar {
+    width: 45px;
+  }
+  #logo {
+    .logo {
+      display: none;
+    }
+    img.icon {
+      display: block;
+      max-width: 45px;
+    }
+  }
+
+  .sidebar-menu.menu-0 {
+    & li.opened > a {
+      color: @active-color;
+      border-color: @active-color;
+    }
+
+    & > li > a > .has-subs-icon {
+      display: none;
+    }
+  }
+
+  .sidebar-menu {
+    overflow: visible;
+
+    .sidebar-menu {
+      position: absolute;
+      left: 180px;
+      top: 0;
+      width: 180px;
+      z-index: 20000;
+      background: #1c2120;
+      &.menu-1 {
+        left: 45px;
+      }
+      li {
+        border: none;
+        margin-left: 0;
+        &::before {
+          display: none;
+          content: '';
+        }
+        a {
+          border: none;
+        }
+      }
+      li.activated:after {
+        display: none;
+      }
+    }
   }
 }

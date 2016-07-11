@@ -21,7 +21,8 @@ import {
   REMOVE_COMPLETE,
   REMOVE_ERROR,
   ACTION_COMPLETE,
-  ACTION_ERROR
+  ACTION_ERROR,
+  LAYOUT
 } from '../constants';
 
 export function login(state = {}, action) {
@@ -202,6 +203,13 @@ export function action(state = {}, action) {
       res: action.payload,
       error: action.payload
     });
+  }
+  return state;
+}
+
+export function layout(state = 'full', action) {
+  if (action.type == LAYOUT) {
+    return action.payload;
   }
   return state;
 }

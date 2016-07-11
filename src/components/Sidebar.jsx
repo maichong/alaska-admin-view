@@ -10,21 +10,41 @@ import Copyright from './Copyright';
 import Node from './Node';
 import Logo from './Logo';
 
-const { array } = React.PropTypes;
+const { array, string, object } = React.PropTypes;
 
 export default class Sidebar extends React.Component {
 
   static propTypes = {
-    menu: array
+    menu: array,
+    layout: string
+  };
+
+  static contextTypes = {
+    router: object
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      menu: ''
+    };
+  }
+
+  handleChange = (item) => {
+    this.context.router.push(item.link);
+    this.setState({ menu: item.id });
   };
 
   render() {
-    let { menu } = this.props;
+    let { menu, layout } = this.props;
+    if (layout == 'hidden') {
+      return <div></div>;
+    }
     return (
       <Node id="sidebar">
         <Node id="sidebarInner">
           <Logo/>
-          <Menu items={menu}/>
+          <Menu items={menu} layout={layout} value={this.state.menu} onChange={this.handleChange}/>
           <Copyright />
         </Node>
       </Node>

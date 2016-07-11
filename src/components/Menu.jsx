@@ -8,25 +8,41 @@ import React from 'react';
 import shallowEqual from '../utils/shallow-equal';
 import Node from './Node';
 
+const { object, func, number, array, string, node } = React.PropTypes;
+
+function findSubs(subs, id) {
+  for (let i in subs) {
+    let sub = subs[i];
+    if (sub.id == id) return true;
+    if (sub.subs && sub.subs.length) {
+      let has = findSubs(sub.subs, id);
+      if (has) return true;
+    }
+  }
+  return false;
+}
+
 export default class Menu extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    items: React.PropTypes.array,
-    level: React.PropTypes.number,
+    children: node,
+    items: array,
+    level: number,
+    layout: string,
+    value: string,
+    onChange: func
   };
 
   static contextTypes = {
-    views: React.PropTypes.object,
-    t: React.PropTypes.func,
-    router: React.PropTypes.object
+    views: object,
+    t: func
   };
 
   constructor(props) {
     super(props);
     this.state = {
       activated: '',
-      opened: '',
+      opened: ''
     };
   }
 
@@ -35,64 +51,79 @@ export default class Menu extends React.Component {
   }
 
   createMenuItem(item, level) {
+    const me = this;
     const t = this.context.t;
+    const { layout, onChange, value } = this.props;
     let subMenu;
-    let me = this;
     let itemId = item.id;
-    let activated = this.state.activated == itemId;
+    let activated = this.state.activated == itemId || value == itemId;
     let hasSubs = item.subs && item.subs.length;
     let opened = this.state.opened == itemId;
     if (opened && hasSubs) {
-      function onSelect() {
-        me.setState({ activated: '' });
+
+      function onChangeFinal(v) {
+        onChange(v);
+        let newState = { activated: '' };
+        if (level == 0 && layout == 'icon') {
+          newState.opened = '';
+        }
+        me.setState(newState);
       }
 
-      subMenu = <Menu items={item.subs} level={level + 1} onSelect={onSelect}/>
+      subMenu = <Menu
+        items={item.subs}
+        level={level + 1}
+        layout={layout}
+        onChange={onChangeFinal}
+        value={value}/>
     }
 
     function onClick() {
       if (item.link) {
-        me.context.router.push(item.link);
+        me.props.onChange(item);
       }
       if (hasSubs) {
         if (!opened) {
           me.setState({ opened: itemId });
+        } else {
+          me.setState({ opened: '' });
         }
       } else if (!activated) {
-        me.props.onSelect && me.props.onSelect(itemId);
         me.setState({ activated: itemId, opened: '' });
       }
     }
 
-    let className = activated ? 'activated' : '';
-    if (opened) {
-      className = 'opened';
-    }
     let icon = item.icon || 'hashtag';
     let subsIcon = !hasSubs ? null : opened ? 'up' : 'down';
     if (subsIcon) {
+      if (layout == 'icon') {
+        subsIcon = 'right';
+      }
       subsIcon = <i className={'has-subs-icon fa fa-angle-'+subsIcon}/>;
     }
     let badge = item.badge ? <span className={'label label-'+item.badgeStyle}>{item.badge}</span> : null;
-    let el = (
+    let className = activated ? 'activated' : '';
+    if (opened || (value && hasSubs && findSubs(item.subs, value))) {
+      className = 'opened';
+    }
+    return (
       <li key={item.id} className={className}>
         <a href="javascript:void(0)" onClick={onClick}>
           <i className={'fa fa-'+icon}/>
-          {t(item.label, item.service)}
+          <span>{t(item.label, item.service)}</span>
           {badge}
           {subsIcon}
         </a>
         {subMenu}
       </li>
     );
-    return el;
   }
 
   render() {
     let props = this.props;
     let level = this.props.level || 0;
     let items = (props.items || []).map(item => this.createMenuItem(item, level));
-    return <Node id="menu" tag="ul" className="sidebar-menu">
+    return <Node wrapper="menu" tag="ul" className={'sidebar-menu menu-'+level}>
       { items }
     </Node>;
   }

@@ -9,6 +9,7 @@ import qs from 'qs';
 import _omit from 'lodash/omit';
 import api from '../utils/api';
 import { createApiAction, createAsyncAction } from '../utils/action-creator';
+import createAction from 'redux-actions/lib/createAction';
 import {
   PREFIX,
   REFRESH_INFO,
@@ -18,7 +19,8 @@ import {
   DETAILS,
   SAVE,
   REMOVE,
-  ACTION
+  ACTION,
+  LAYOUT
 } from '../constants';
 
 const loading = {};
@@ -70,3 +72,5 @@ export const save = createAsyncAction(SAVE, async (args, dispatch) => {
 export const remove = createAsyncAction(REMOVE, async (args, dispatch) => {
   return await api.post(PREFIX + '/api/remove?' + qs.stringify(_omit(args, 'id')), { id: args.id });
 });
+
+export const layout = createAction(LAYOUT);

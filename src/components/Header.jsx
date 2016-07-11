@@ -14,13 +14,14 @@ import MenuItem from 'react-bootstrap/lib/MenuItem';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-const { node, object, func } = React.PropTypes;
+const { node, object, func, string } = React.PropTypes;
 
 class Header extends React.Component {
 
   static propTypes = {
     children: node,
     user: object,
+    layout: string
   };
 
   static contextTypes = {
@@ -41,6 +42,25 @@ class Header extends React.Component {
     let newState = {};
     this.setState(newState);
   }
+
+  handleToggle = () => {
+    let { layout } = this.props;
+    if (window.innerWidth <= 768) {
+      //小屏幕
+      if (layout == 'hidden') {
+        layout = 'icon';
+      } else {
+        layout = 'hidden';
+      }
+    } else {
+      if (layout == 'full') {
+        layout = 'icon';
+      } else {
+        layout = 'full';
+      }
+    }
+    this.context.actions.layout(layout);
+  };
 
   handleTouchTap = (event) => {
     this.setState({
@@ -75,7 +95,7 @@ class Header extends React.Component {
     return (
       <Node id="header" tag="nav" className="navbar navbar-default">
         <div className="container-fluid">
-          <div className="nav menu-toggle">
+          <div className="nav menu-toggle" onClick={this.handleToggle}>
             <i className="fa fa-bars"/>
           </div>
           <ul className="nav navbar-nav navbar-right">
@@ -97,4 +117,4 @@ class Header extends React.Component {
   }
 }
 
-export default connect(({ user }) => ({ user }))(Header);
+export default connect(({ user, layout }) => ({ user, layout }))(Header);
