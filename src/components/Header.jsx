@@ -67,7 +67,7 @@ class Header extends React.Component {
   };
 
   render() {
-    const props = this.props;
+    const { user } = this.props;
     const { t } = this.context;
     return (
       <Node id="header" tag="nav" className="navbar navbar-default">
@@ -77,9 +77,14 @@ class Header extends React.Component {
           </div>
           <ul className="nav navbar-nav navbar-right">
             <LocaleNav/>
-            <NavDropdown eventKey={3} title={props.user.username} id="navUserDropdown">
-              <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}</MenuItem>
-              <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}</MenuItem>
+            <NavDropdown eventKey={3}
+                         title={<div><img src={user.avatar || 'static/img/avatar.png'}/>{user.username}</div>}
+                         id="userNav">
+              <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}<i
+                className="fa fa-refresh pull-right"/>
+              </MenuItem>
+              <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}<i
+                className="fa fa-sign-out pull-right"/></MenuItem>
             </NavDropdown>
           </ul>
         </div>
