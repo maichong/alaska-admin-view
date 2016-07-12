@@ -9,6 +9,7 @@ import React from 'react';
 import Node from './Node';
 import FieldGroup from './FieldGroup';
 import Relationship from './Relationship';
+import ContentHeader from './ContentHeader';
 
 import Modal from 'react-bootstrap/lib/Modal';
 import { bindActionCreators } from 'redux';
@@ -262,6 +263,10 @@ class Editor extends React.Component {
     });
   }
 
+  handleBack = () => {
+    this.context.router.goBack();
+  };
+
   remove = () => {
     this.setState({ showRemoveDialog: true });
   };
@@ -280,14 +285,16 @@ class Editor extends React.Component {
       return <div className="loading">Loading...</div>;
     }
     let canSave = (id === '_new' && model.abilities.create) || (id !== '_new' && model.abilities.update && !model.noedit);
-    let title = t(model.label || model.name, serviceId) + ' > ';
+    let title = <a onClick={this.handleBack}>{t(model.label || model.name, serviceId)}</a>;
+    let subTitle = '';
     if (id == '_new') {
-      title += t('Create');
+      subTitle = t('Create');
     } else if (model.title) {
-      title += t(data[model.title], serviceId);
+      subTitle = t(data[model.title], serviceId);
     } else {
-      title += id;
+      subTitle = id;
     }
+    title = <div>{title} > {subTitle}</div>;
     let groups = {
       default: {
         title: '',
@@ -443,13 +450,12 @@ class Editor extends React.Component {
 
     return (
       <Node id="editor">
-        <div className="content-header">
-          <h4>{title}</h4>
-          {
-            id === '_new' ? null : <div >ID : {id}</div>
-          }
-          <div className="content-header-buttons">{btnElements}</div>
-        </div>
+        <ContentHeader actions={btnElements}>
+          {title}
+        </ContentHeader>
+        {
+          id === '_new' ? null : <div >ID : {id}</div>
+        }
         {groupElements}
         {removeDialogElement}
         {relationships}

@@ -13,6 +13,7 @@ import * as actions from '../actions';
 import Node from './Node';
 import DataTable from './DataTable';
 import SearchField from './SearchField';
+import ContentHeader from './ContentHeader';
 
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
@@ -266,15 +267,13 @@ class List extends React.Component {
 
     return (
       <Node id="list">
-        <div className="content-header">
-          <h4>{t(title, service.id)} <i>{t('total records', { total: list.total })}</i></h4>
-          <div className="content-header-buttons">
-            {titleBtns}
-          </div>
-        </div>
+        <ContentHeader actions={titleBtns}>
+          {t(title, service.id)} &nbsp; 
+          <i>{t('total records', { total: list.total })}</i>
+        </ContentHeader>
         <div>{filterViews}</div>
         <div className="panel panel-default">
-          <div className="panel-body">
+          <div className="panel-body scroll">
             <DataTable model={model} data={data} sort={sort} onSort={this.handleSort}/>
           </div>
         </div>

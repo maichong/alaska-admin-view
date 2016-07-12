@@ -122,7 +122,22 @@
   }
 }
 
+#copyright {
+  height: 53px;
+  background: #000;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  text-align: center;
+  line-height: 53px;
+  color: #555;
+  width: 100%;
+}
+
 #app.icon {
+  #copyright {
+    font-size: 10px;
+  }
   #sidebar {
     width: 45px;
   }
@@ -149,6 +164,9 @@
 
   .sidebar-menu {
     overflow: visible;
+    li.activated:after {
+      display: none;
+    }
 
     .sidebar-menu {
       position: absolute;
@@ -170,9 +188,6 @@
         a {
           border: none;
         }
-      }
-      li.activated:after {
-        display: none;
       }
     }
   }

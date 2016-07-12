@@ -10,6 +10,7 @@ import Node from './Node';
 import LocaleNav from './LocaleNav';
 import NavDropdown from 'react-bootstrap/lib/NavDropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
+import _map from 'lodash/map';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -90,19 +91,25 @@ class Header extends React.Component {
   };
 
   render() {
-    const { user } = this.props;
+    const { user, layout } = this.props;
     const { t, views } = this.context;
+    const navs = _map(views.navs, (Nav, index) => <Nav key={index}/>);
+    let username = null;
+    if (layout == 'full') {
+      username = user.username;
+    }
+
     return (
       <Node id="header" tag="nav" className="navbar navbar-default">
         <div className="container-fluid">
           <div className="nav menu-toggle" onClick={this.handleToggle}>
             <i className="fa fa-bars"/>
           </div>
-          <ul className="nav navbar-nav navbar-right">
-            {views.navs}
+          <Node id="topNav" tag="ul" className="nav navbar-nav navbar-right">
+            {navs}
             <LocaleNav/>
             <NavDropdown eventKey={3}
-                         title={<div><img src={user.avatar || 'static/img/avatar.png'}/>{user.username}</div>}
+                         title={<div><img src={user.avatar || 'static/img/avatar.png'}/>{username}</div>}
                          id="userNav">
               <MenuItem eventKey={3.1} onClick={this.handleRefresh}>{t('Refresh')}<i
                 className="fa fa-refresh pull-right"/>
@@ -110,7 +117,7 @@ class Header extends React.Component {
               <MenuItem eventKey={3.2} onClick={this.handleLogout}>{t('Logout')}<i
                 className="fa fa-sign-out pull-right"/></MenuItem>
             </NavDropdown>
-          </ul>
+          </Node>
         </div>
       </Node>
     );
