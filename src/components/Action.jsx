@@ -20,7 +20,8 @@ export default class Action extends React.Component {
     selected: array,
     data: object,
     id: string,
-    onRefresh: func
+    onClick: func,
+    onRefresh: func,
   };
 
   static contextTypes = {
@@ -33,7 +34,7 @@ export default class Action extends React.Component {
   }
 
   render() {
-    let { model, action, selected, disabled, onClick, onRefresh } = this.props;
+    let { model, action, data, selected, disabled, onClick, onRefresh } = this.props;
     if (action.view) {
       let View = this.context.views[action.view];
       if (!View) {
@@ -43,7 +44,7 @@ export default class Action extends React.Component {
       return React.createElement(View, { model, action, selected, data, onRefresh });
     }
     if (!model.abilities[action.key]) return NULL;
-    if (action.needRecords && (!selected || selected.length < action.needRecords)) {
+    if (!data && action.needRecords && (!selected || selected.length < action.needRecords)) {
       disabled = true;
     }
     let title;

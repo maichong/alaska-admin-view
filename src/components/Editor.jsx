@@ -5,20 +5,22 @@
  */
 
 import React from 'react';
-
-import Node from './Node';
-import FieldGroup from './FieldGroup';
-import Relationship from './Relationship';
-import ContentHeader from './ContentHeader';
-
-import Modal from 'react-bootstrap/lib/Modal';
-import { bindActionCreators } from 'redux';
+import qs from 'qs';
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 import _forEach from 'lodash/forEach';
 import _every from 'lodash/every';
 import _get from 'lodash/get';
 import _map from 'lodash/map';
+
+import Modal from 'react-bootstrap/lib/Modal';
+import Node from './Node';
+import Action from './Action';
+import FieldGroup from './FieldGroup';
+import Relationship from './Relationship';
+import ContentHeader from './ContentHeader';
+import { PREFIX } from '../constants';
+import api from '../utils/api';
+
 
 function checkDepends(depends, data) {
   if (typeof depends === 'string') {
@@ -32,20 +34,24 @@ function checkDepends(depends, data) {
   return true;
 }
 
+const { object, func } = React.PropTypes;
+
 class Editor extends React.Component {
 
   static propTypes = {
-    details: React.PropTypes.object,
-    params: React.PropTypes.object,
-    actions: React.PropTypes.object,
+    details: object,
+    save: object,
+    params: object
   };
 
   static contextTypes = {
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-    t: React.PropTypes.func,
-    router: React.PropTypes.object,
-    toast: React.PropTypes.func,
+    actions: object,
+    views: object,
+    settings: object,
+    t: func,
+    router: object,
+    toast: func,
+    confirm: func,
   };
 
   constructor(props, context) {
@@ -57,7 +63,6 @@ class Editor extends React.Component {
       serviceId: props.params.service,
       modelName: props.params.model,
       id: props.params.id,
-      showRemoveDialog: false,
       errors: {}
     };
 
@@ -109,47 +114,13 @@ class Editor extends React.Component {
         }
       }
     }
-    if (nextProps.remove && nextProps.remove._r == this._r) {
-      this._r = Math.random();
-      let t = this.context.t;
-      this.loading = false;
-      if (nextProps.remove.error) {
-        //保存失败
-        toast('error', t('Remove failed'), nextProps.remove.error.message);
-      } else {
-        toast('success', t('Removed successfully'));
-        let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
-        this.context.router.replace(url);
-      }
-    }
-    if (nextProps.action && nextProps.action._r == this._r) {
-      this._r = Math.random();
-      let t = this.context.t;
-      this.loading = false;
-      if (nextProps.action.error) {
-        //保存失败
-        toast('error', t('Failed'), nextProps.action.error.message);
-      } else {
-        toast('success', t('Successfully'));
-        if (nextProps.action.res._id) {
-          if (this.state.id === '_new') {
-            let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/' + nextProps.action.res._id;
-            this.context.router.replace(url);
-          }
-        } else {
-          let url = '/list/' + this.state.serviceId + '/' + this.state.modelName;
-          this.context.router.replace(url);
-        }
-      }
-    }
     this.setState(newState, () => {
       this.init();
     });
   }
 
   init() {
-    let props = this.props;
-    let state = this.state;
+    const state = this.state;
     if (!state.model) return;
     let id = state.id;
     if (id === '_new') {
@@ -171,13 +142,19 @@ class Editor extends React.Component {
         data: this.props.details[key][id]
       });
     } else {
-      props.actions.details({
-        service: state.serviceId,
-        model: state.modelName,
-        key: state.model.key,
-        id
-      });
+      this.refresh();
     }
+  }
+
+  refresh() {
+    const state = this.state;
+    const id = state.id;
+    this.context.actions.details({
+      service: state.serviceId,
+      model: state.modelName,
+      key: state.model.key,
+      id
+    });
   }
 
   handleChange(key, value) {
@@ -188,26 +165,33 @@ class Editor extends React.Component {
     });
   }
 
-  handleClose = () => {
-    console.log('handleClose');
-    this.setState({ showRemoveDialog: false });
-  };
-
   handleCreate = () => {
     let url = '/edit/' + this.state.serviceId + '/' + this.state.modelName + '/_new';
     this.context.router.replace(url);
   };
 
-  handleRemove = () => {
-    this._r = Math.random();
-    this.props.actions.remove({
-      service: this.state.serviceId,
-      model: this.state.modelName,
-      id: this.state.id,
-      _r: this._r
-    });
+  handleRemove = async () => {
+    const { serviceId, modelName, id } = this.state;
+    const { t, toast, confirm } = this.context;
+    await confirm(t('Remove Record'), t('confirm remove record'), [{
+      title: t('Remove'),
+      style: 'danger'
+    }]);
     this.loading = true;
-    this.setState({ showRemoveDialog: false });
+    try {
+      await api.post(PREFIX + '/api/remove?' + qs.stringify({
+          service: serviceId,
+          model: modelName
+        }), { id });
+      toast('success', t('Successfully'));
+      this.loading = false;
+
+      let url = '/list/' + serviceId + '/' + modelName;
+      this.context.router.replace(url);
+    } catch (error) {
+      //console.error(error.stack);
+      toast('error', t('Failed'), error.message);
+    }
   };
 
   handleSave = () => {
@@ -235,7 +219,7 @@ class Editor extends React.Component {
     this._r = Math.random();
     this.loading = true;
 
-    this.props.actions.save({
+    this.context.actions.save({
       service: model.service.id,
       model: model.name,
       key: model.key,
@@ -244,31 +228,31 @@ class Editor extends React.Component {
     });
   };
 
-  handleAction(action) {
-    let {
-      data,
-      model,
-      id
-      } = this.state;
-    this._r = Math.random();
-    this.loading = true;
+  async handleAction(action) {
+    const { model, data, id } = this.state;
+    const { t, toast, confirm } = this.context;
 
-    this.props.actions.action({
-      service: model.service.id,
-      model: model.name,
-      key: model.key,
-      action,
-      _r: this._r,
-      data: Object.assign({}, data, { id: id == '_new' ? '' : id })
-    });
+    const config = model.actions[action];
+    if (config && config.confirm) {
+      await confirm('Confirm', t(config.confirm, model.service.id));
+    }
+
+    try {
+      let body = Object.assign({}, data, { id: id == '_new' ? '' : id });
+      await api.post(PREFIX + '/api/action?' + qs.stringify({
+          service: model.service.id,
+          model: model.name,
+          action
+        }), body);
+      toast('success', t('Successfully'));
+      this.refresh();
+    } catch (error) {
+      toast('error', t('Failed'), error.message);
+    }
   }
 
   handleBack = () => {
     this.context.router.goBack();
-  };
-
-  remove = () => {
-    this.setState({ showRemoveDialog: true });
   };
 
   render() {
@@ -374,44 +358,32 @@ class Editor extends React.Component {
       groupElements.push(groupEl);
     }
 
-    let btnElements = [];
+    let actionElements = [];
     let removeDialogElement = null;
 
     if (canSave && model.actions.save && model.actions.save.depends && !checkDepends(model.actions.save.depends, data)) {
       canSave = false;
     }
+
     if (canSave && model.actions.save !== false) {
-      btnElements.push(<button
+      actionElements.push(<button
         className="btn btn-primary"
         onClick={this.handleSave}
         key="save"
         disabled={this.loading}
-      >{t('Save')}</button>);
+      ><i className="fa fa-save"/></button>);
     }
     let canRemove = true;
     if (model.actions.remove && model.actions.remove.depends && !checkDepends(model.actions.remove.depends, data)) {
       canRemove = false;
     }
     if (canRemove && !model.noremove && id !== '_new' && model.abilities.remove && model.actions.remove !== false) {
-      btnElements.push(<button
+      actionElements.push(<button
         className="btn btn-danger"
-        onClick={this.remove}
+        onClick={this.handleRemove}
         key="remove"
         disabled={this.loading}
-      >{t('Remove')}</button>);
-      //确认删除
-      if (this.state.showRemoveDialog) {
-        removeDialogElement = (<Modal show={true}>
-          <div className="modal-header">{t('Remove Record')}</div>
-          <div className="modal-body">
-            {t('confirm remove record')}
-          </div>
-          <div className="modal-footer">
-            <button className="btn btn-danger" onClick={this.handleRemove}>{t('Remove')}</button>
-            <button className="btn" onClick={this.handleClose}>{t('Cancel')}</button>
-          </div>
-        </Modal>);
-      }
+      ><i className="fa fa-close"/></button>);
     }
 
     let canCreate = true;
@@ -419,26 +391,28 @@ class Editor extends React.Component {
       canCreate = false;
     }
     if (canCreate && !model.nocreate && id !== '_new' && model.abilities.create) {
-      btnElements.push(<button
+      actionElements.push(<button
         onClick={this.handleCreate}
-        className="btn btn-default"
+        className="btn btn-success"
         key="create"
         disabled={this.loading}
-      >{t('Create')}</button>);
+      ><i className="fa fa-plus"/></button>);
     }
 
     //扩展动作按钮
     _forEach(model.actions, (action, key)=> {
-      if (!action.sled || ['create', 'save', 'remove'].indexOf(key) > -1) return;
-      if (!model.abilities[key]) return;
+      if (['create', 'save', 'remove'].indexOf(key) > -1) return;
       if (action.depends && !checkDepends(action.depends, data)) return;
-      let className = 'btn btn-' + (action.style || 'default');
-      btnElements.push(<button
+      if (action.list && !action.editor) return;
+      actionElements.push(<Action
         onClick={() => this.handleAction(key)}
-        className={className}
         key={key}
         disabled={this.loading}
-      >{t(action.title, serviceId)}</button>);
+        model={model}
+        action={action}
+        data={data}
+        id={id}
+      />);
     });
 
     let relationships = null;
@@ -450,7 +424,7 @@ class Editor extends React.Component {
 
     return (
       <Node id="editor">
-        <ContentHeader actions={btnElements}>
+        <ContentHeader>
           {title}
         </ContentHeader>
         {
@@ -462,7 +436,7 @@ class Editor extends React.Component {
         <nav className="navbar navbar-fixed-bottom bottom-bar">
           <div className="container-fluid">
             <div className="navbar-form navbar-right">
-              {btnElements}
+              {actionElements}
             </div>
           </div>
         </nav>
@@ -471,6 +445,4 @@ class Editor extends React.Component {
   }
 }
 
-export default connect(({ details, save, remove, action }) => ({ details, save, remove, action }), dispatch => ({
-  actions: bindActionCreators(actions, dispatch)
-}))(Editor);
+export default connect(({ details, save }) => ({ details, save }))(Editor);

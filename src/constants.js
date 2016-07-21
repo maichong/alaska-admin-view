@@ -32,12 +32,4 @@ export const SAVE = 'SAVE';
 export const SAVE_COMPLETE = 'SAVE_COMPLETE';
 export const SAVE_ERROR = 'SAVE_ERROR';
 
-export const REMOVE = 'REMOVE';
-export const REMOVE_COMPLETE = 'REMOVE_COMPLETE';
-export const REMOVE_ERROR = 'REMOVE_ERROR';
-
-export const ACTION = 'ACTION';
-export const ACTION_COMPLETE = 'ACTION_COMPLETE';
-export const ACTION_ERROR = 'ACTION_ERROR';
-
 export const LAYOUT = 'LAYOUT';

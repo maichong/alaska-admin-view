@@ -51,12 +51,13 @@ class List extends React.Component {
       list: {},
       sort: query.sort || '',
       columnsItems: [],
-      columnsKeys: {},
+      columnsKeys: (query.columns || '').split('-').filter(a => a),
       filterItems: [],
       filterViews: [],
       filterViewsMap: {},
       selected: []
     };
+    console.log(this.state);
   }
 
   componentWillUnmount() {
@@ -109,19 +110,13 @@ class List extends React.Component {
       filters = {};
       filterViews = [];
       filterViewsMap = {};
-      columnsKeys = _reduce(model.defaultColumns, (res, path)=> {
-        res[path] = true;
-        return res;
-      }, {});
+      columnsKeys = _clone(model.defaultColumns);
       sort = '';
       search = '';
     }
 
-    if (!this.state.model) {
-      columnsKeys = _reduce(model.defaultColumns, (res, path)=> {
-        res[path] = true;
-        return res;
-      }, {});
+    if (!this.state.model && !columnsKeys.length) {
+      columnsKeys = _clone(model.defaultColumns);
     }
 
     //filters
@@ -175,7 +170,7 @@ class List extends React.Component {
 
   getColumnItems(model, columnsKeys) {
     return _reduce(model.fields, (res, field, index)=> {
-      let icon = columnsKeys[field.path] ? CHECK_ICON : null;
+      let icon = columnsKeys.indexOf(field.path) > -1 ? CHECK_ICON : null;
       if (field.hidden || !field.cell) return res;
       res.push(<MenuItem key={index} eventKey={field.path}
                          className="with-icon">{icon} {field.label}</MenuItem>);
@@ -270,7 +265,7 @@ class List extends React.Component {
 
   updateQuery() {
     let query = { t: Date.now() };
-    const { filters, sort, search } = this.state;
+    const { filters, sort, search, columnsKeys } = this.state;
     if (search) {
       query.search = search;
     }
@@ -280,6 +275,7 @@ class List extends React.Component {
     if (_size(filters)) {
       query.filters = filters;
     }
+    query.columns = columnsKeys.join('-');
     let pathname = this.props.location.pathname;
     let state = this.props.location.state;
     this.context.router.replace({ pathname, query, state });
@@ -287,15 +283,15 @@ class List extends React.Component {
 
   handleColumn = (eventKey) => {
     let columnsKeys = _clone(this.state.columnsKeys);
-    if (columnsKeys[eventKey]) {
-      delete columnsKeys[eventKey];
+    if (columnsKeys.indexOf(eventKey) > -1) {
+      columnsKeys = _omit(columnsKeys, eventKey);
     } else {
-      columnsKeys[eventKey] = true;
+      columnsKeys.push(eventKey);
     }
     this.setState({
       columnsKeys,
       columnsItems: this.getColumnItems(this.state.model, columnsKeys)
-    });
+    }, () => this.updateQuery());
   };
 
   handleSelect = (selected) => {
@@ -350,7 +346,7 @@ class List extends React.Component {
         <div className="panel panel-default noborder">
           <div className="scroll">
             <DataTable model={model} data={data} sort={sort} onSort={this.handleSort} onSelect={this.handleSelect}
-                       selected={selected} columns={Object.keys(columnsKeys)}/>
+                       selected={selected} columns={columnsKeys}/>
           </div>
         </div>
         <nav className="navbar navbar-fixed-bottom bottom-bar">

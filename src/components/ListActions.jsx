@@ -27,12 +27,35 @@ export default class ListActions extends React.Component {
   static contextTypes = {
     t: func,
     confirm: func,
+    actions: func,
     toast: func
   };
 
   shouldComponentUpdate(props) {
     return !shallowEqual(props, this.props);
   }
+
+  handleAction = async (action) => {
+    const { model, selected } = this.props;
+    const { t, toast, confirm } = this.context;
+
+    const config = model.actions[action];
+    if (config && config.confirm) {
+      await confirm('Confirm', t(config.confirm, model.service.id));
+    }
+
+    try {
+      await api.post(PREFIX + '/api/action?' + qs.stringify({
+          service: model.service.id,
+          model: model.name,
+          action
+        }), { records: _map(selected, record => record._id) });
+      toast('success', t('Successfully'));
+      this.props.onRefresh();
+    } catch (error) {
+      toast('error', t('Failed'), error.message);
+    }
+  };
 
   handleRemove = async () => {
     const { model, selected } = this.props;
@@ -54,7 +77,15 @@ export default class ListActions extends React.Component {
     const { model, selected, onRefresh } = this.props;
     const actions = _reduce(model.actions, (res, action, key) => {
       if (!action.list) return res;
-      res.push(<Action key={key} model={model} selected={selected} action={action} onRefresh={onRefresh}/>);
+      res.push(
+        <Action key={key}
+                model={model}
+                selected={selected}
+                action={action}
+                onRefresh={onRefresh}
+                onClick={()=>this.handleAction(key)}
+        />
+      );
       return res;
     }, []);
     if (!model.noremove && model.abilities.remove && model.actions.remove !== false) {

@@ -148,7 +148,7 @@ class App extends React.Component {
             title: config
           };
         }
-        config = _defaults({}, defaults[i], config);
+        config = _defaults({}, config, defaults[i]);
         return <button key={i} className={'btn btn-'+config.style} onClick={handles[i]}>{config.title}</button>
       });
 
