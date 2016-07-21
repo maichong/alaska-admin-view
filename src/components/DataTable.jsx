@@ -134,7 +134,7 @@ export default class DataTable extends React.Component {
     const service = model.service;
 
     let selectEl = onSelect ?
-      <th onClick={this.handleSelectAll}><input type="checkbox" checked={this.isAllSelected()}/></th> : null;
+      <th onClick={this.handleSelectAll} width="29"><input type="checkbox" checked={this.isAllSelected()}/></th> : null;
 
     return (
       <table className="data-table table table-bordered table-hover">

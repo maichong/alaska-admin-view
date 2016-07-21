@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-
+import qs from 'qs';
 import { connect } from 'react-redux';
 
 import Node from './Node';
@@ -13,6 +13,9 @@ import DataTable from './DataTable';
 import SearchField from './SearchField';
 import ContentHeader from './ContentHeader';
 import ListActions from './ListActions';
+
+import api from '../utils/api';
+import { PREFIX } from '../constants';
 
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
@@ -38,6 +41,8 @@ class List extends React.Component {
     views: object,
     settings: object,
     t: func,
+    confirm: func,
+    toast: func,
     router: object,
   };
 
@@ -298,6 +303,22 @@ class List extends React.Component {
     this.setState({ selected });
   };
 
+  handleRemove = async (record) => {
+    const { model } = this.state;
+    const { t, toast, confirm } = this.context;
+    await confirm(t('Remove Record'), t('confirm remove record'));
+    try {
+      await api.post(PREFIX + '/api/remove?' + qs.stringify({
+          service: model.service.id,
+          model: model.name
+        }), { id: record._id });
+      toast('success', t('Successfully'));
+      this.refresh();
+    } catch (error) {
+      toast('error', t('Failed'), error.message);
+    }
+  };
+
   render() {
     const {
       search,
@@ -350,8 +371,16 @@ class List extends React.Component {
         <div>{filterViews}</div>
         <div className="panel panel-default noborder">
           <div className="scroll">
-            <DataTable model={model} data={data} sort={sort} onSort={this.handleSort} onSelect={handleSelect}
-                       selected={selected} columns={columnsKeys}/>
+            <DataTable
+              model={model}
+              data={data}
+              sort={sort}
+              onSort={this.handleSort}
+              onSelect={handleSelect}
+              onRemove={this.handleRemove}
+              selected={selected}
+              columns={columnsKeys}
+            />
           </div>
         </div>
         <nav className="navbar navbar-fixed-bottom bottom-bar">

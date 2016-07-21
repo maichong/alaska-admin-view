@@ -57,9 +57,9 @@ export default class DataTableRow extends React.Component {
           })}
         </td>);
       })}
-      <td key="_a">
+      <td key="_a" className="actions">
         <i className="fa fa-edit" onClick={()=>onEdit(record)}/>
-        <IF test={onRemove}>
+        <IF test={onRemove} tag="span">
           <i className="fa fa-close text-danger" onClick={() => onRemove(record)}/>
         </IF>
       </td>
