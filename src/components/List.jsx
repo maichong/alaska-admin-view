@@ -24,6 +24,7 @@ import _omit from 'lodash/omit';
 import _without from 'lodash/without';
 import _size from 'lodash/size';
 import _reduce from 'lodash/reduce';
+import _find from 'lodash/find';
 
 const { object, func } = React.PropTypes;
 const CHECK_ICON = <i className="fa fa-check"/>;
@@ -40,7 +41,7 @@ class List extends React.Component {
     router: object,
   };
 
-  constructor(props, context) {
+  constructor(props) {
     super(props);
     let query = props.location.query || {};
     this.state = {
@@ -57,7 +58,6 @@ class List extends React.Component {
       filterViewsMap: {},
       selected: []
     };
-    console.log(this.state);
   }
 
   componentWillUnmount() {
@@ -336,6 +336,11 @@ class List extends React.Component {
     let searchInput = model.searchFields.length ?
       <SearchField placeholder={t('Search')} onChange={this.handleSearch} value={search}/> : null;
 
+    let handleSelect;
+    if (!model.noremove || _find(model.actions, a => a.list)) {
+      handleSelect = this.handleSelect;
+    }
+
     return (
       <Node id="list">
         <ContentHeader actions={titleBtns}>
@@ -345,7 +350,7 @@ class List extends React.Component {
         <div>{filterViews}</div>
         <div className="panel panel-default noborder">
           <div className="scroll">
-            <DataTable model={model} data={data} sort={sort} onSort={this.handleSort} onSelect={this.handleSelect}
+            <DataTable model={model} data={data} sort={sort} onSort={this.handleSort} onSelect={handleSelect}
                        selected={selected} columns={columnsKeys}/>
           </div>
         </div>

@@ -25,9 +25,9 @@ export default class ListActions extends React.Component {
   };
 
   static contextTypes = {
+    actions: object,
     t: func,
     confirm: func,
-    actions: func,
     toast: func
   };
 

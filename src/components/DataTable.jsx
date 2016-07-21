@@ -97,6 +97,25 @@ export default class DataTable extends React.Component {
     this.props.onSelect(records);
   };
 
+  handleSelectAll = () => {
+    let records = [];
+    if (!this.isAllSelected()) {
+      records = _clone(this.state.data);
+    }
+    this.props.onSelect(records);
+  };
+
+  isAllSelected() {
+    const { data, selected } = this.state;
+    if (!data || !data.length) {
+      return false;
+    }
+    for (let i in data) {
+      if (!selected[data[i]._id]) return false;
+    }
+    return true;
+  };
+
   handleEdit = (record) => {
     const { model } = this.props;
     const { router } = this.context;
@@ -114,7 +133,8 @@ export default class DataTable extends React.Component {
     }
     const service = model.service;
 
-    let selectEl = onSelect ? <th></th> : null;
+    let selectEl = onSelect ?
+      <th onClick={this.handleSelectAll}><input type="checkbox" checked={this.isAllSelected()}/></th> : null;
 
     return (
       <table className="data-table table table-bordered table-hover">
