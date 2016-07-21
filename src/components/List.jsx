@@ -6,35 +6,38 @@
 
 import React from 'react';
 
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 
 import Node from './Node';
 import DataTable from './DataTable';
 import SearchField from './SearchField';
 import ContentHeader from './ContentHeader';
+import ListActions from './ListActions';
 
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 
 import _forEach from 'lodash/forEach';
+import _clone from 'lodash/clone';
 import _assign from 'lodash/assign';
 import _omit from 'lodash/omit';
 import _without from 'lodash/without';
 import _size from 'lodash/size';
+import _reduce from 'lodash/reduce';
+
+const { object, func } = React.PropTypes;
+const CHECK_ICON = <i className="fa fa-check"/>;
 
 class List extends React.Component {
 
-  static propTypes = {
-    children: React.PropTypes.node
-  };
+  static propTypes = {};
 
   static contextTypes = {
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-    t: React.PropTypes.func,
-    router: React.PropTypes.object,
+    actions: object,
+    views: object,
+    settings: object,
+    t: func,
+    router: object,
   };
 
   constructor(props, context) {
@@ -47,9 +50,12 @@ class List extends React.Component {
       page: 0,
       list: {},
       sort: query.sort || '',
+      columnsItems: [],
+      columnsKeys: {},
       filterItems: [],
       filterViews: [],
       filterViewsMap: {},
+      selected: []
     };
   }
 
@@ -89,7 +95,6 @@ class List extends React.Component {
     if (!service) return;
     let model = service.models[modelName];
     if (!model) return;
-    const t = this.context.t;
     let title = props.title || this.props.title || model.label;
     let data = this.state.data;
     let sort = this.state.sort;
@@ -97,24 +102,34 @@ class List extends React.Component {
     let filters = this.state.filters;
     let filterViews = this.state.filterViews;
     let filterViewsMap = this.state.filterViewsMap;
-    let filterItems = [];
+    let columnsKeys = this.state.columnsKeys;
     if (this.state.model && this.state.model.name !== model.name) {
       //更新了model
       data = null;
       filters = {};
       filterViews = [];
       filterViewsMap = {};
+      columnsKeys = _reduce(model.defaultColumns, (res, path)=> {
+        res[path] = true;
+        return res;
+      }, {});
       sort = '';
       search = '';
     }
-    _forEach(model.fields, (field, index) => {
-      if (!field._label) {
-        field._label = field.label;
-        field.label = t(field.label, serviceId);
-      }
-      if (!field.filter) return;
-      filterItems.push(<MenuItem key={index} eventKey={field.path}>{field.label}</MenuItem>);
-    });
+
+    if (!this.state.model) {
+      columnsKeys = _reduce(model.defaultColumns, (res, path)=> {
+        res[path] = true;
+        return res;
+      }, {});
+    }
+
+    //filters
+    let filterItems = this.getFilterItems(model, filterViewsMap);
+
+    //columns
+    let columnsItems = this.getColumnItems(model, columnsKeys);
+
     if (!sort) {
       sort = model.defaultSort.split(' ')[0];
     }
@@ -128,17 +143,44 @@ class List extends React.Component {
       filterItems,
       filters,
       filterViews,
-      filterViewsMap
+      filterViewsMap,
+      columnsItems,
+      columnsKeys
     }, () => {
-      _forEach(filters, (value, key)=> {
-        if (!filterViewsMap[key]) {
-          this.handleFilter(key);
+      _forEach(filters, (value, path)=> {
+        if (!filterViewsMap[path]) {
+          this.handleFilter(path);
         }
       });
       if (!data) {
         this.refresh();
       }
     });
+  }
+
+  getFilterItems(model, filterViewsMap) {
+    const t = this.context.t;
+    return _reduce(model.fields, (res, field, index)=> {
+      if (!field._label) {
+        field._label = field.label;
+        field.label = t(field.label, model.service.id);
+      }
+      if (field.hidden || !field.filter) return res;
+      let icon = filterViewsMap[field.path] ? CHECK_ICON : null;
+      res.push(<MenuItem key={index} eventKey={field.path}
+                         className="with-icon">{icon} {field.label}</MenuItem>);
+      return res;
+    }, []);
+  };
+
+  getColumnItems(model, columnsKeys) {
+    return _reduce(model.fields, (res, field, index)=> {
+      let icon = columnsKeys[field.path] ? CHECK_ICON : null;
+      if (field.hidden || !field.cell) return res;
+      res.push(<MenuItem key={index} eventKey={field.path}
+                         className="with-icon">{icon} {field.label}</MenuItem>);
+      return res;
+    }, []);
   }
 
   handleSearch = (search) => {
@@ -148,9 +190,9 @@ class List extends React.Component {
     });
   };
 
-  refresh() {
+  refresh = () => {
     this.setState({ page: 0 }, () => this.loadMore());
-  }
+  };
 
   loadMore() {
     this._loading = true;
@@ -162,7 +204,7 @@ class List extends React.Component {
     let filters = state.filters;
     let search = state.search;
     let sort = state.sort;
-    props.actions.list({ service, model, page, filters, search, key: state.model.key, sort });
+    this.context.actions.list({ service, model, page, filters, search, key: state.model.key, sort });
     this.setState({ page });
   }
 
@@ -183,7 +225,7 @@ class List extends React.Component {
 
   handleFilter = (eventKey) => {
     const { filters, filterViews, filterViewsMap, model } = this.state;
-    if (filterViewsMap[eventKey]) return;
+    if (filterViewsMap[eventKey]) return this.removeFilter(eventKey);
     const field = model.fields[eventKey];
     const views = this.context.views;
     let FilterView = views[field.filter];
@@ -196,19 +238,35 @@ class List extends React.Component {
       });
     };
     const onClose = () => {
-      let filters = _omit(this.state.filters, field.path);
-      let filterViews = _without(this.state.filterViews, view);
-      let filterViewsMap = _omit(this.state.filterViewsMap, field.path);
-      this.setState({ filters, filterViews, filterViewsMap, data: null, page: 0 }, () => {
-        this.loadMore();
-        this.updateQuery();
-      });
+      this.removeFilter(field.path)
     };
     view = filterViewsMap[eventKey] =
       <FilterView key={eventKey} field={field} onChange={onChange} onClose={onClose} value={filters[eventKey]}/>;
     filterViews.push(view);
-    this.setState({ filterViews, filterViewsMap });
+    this.setState({ filterViews, filterViewsMap, filterItems: this.getFilterItems(model, filterViewsMap) });
   };
+
+  removeFilter(path) {
+    let filters = _omit(this.state.filters, path);
+    let filterViews = _reduce(this.state.filterViews, (res, view)=> {
+      if (view.key !== path) {
+        res.push(view);
+      }
+      return res;
+    }, []);
+    let filterViewsMap = _omit(this.state.filterViewsMap, path);
+    this.setState({
+      filters,
+      filterViews,
+      filterViewsMap,
+      filterItems: this.getFilterItems(this.state.model, filterViewsMap),
+      data: null,
+      page: 0
+    }, () => {
+      this.loadMore();
+      this.updateQuery();
+    });
+  }
 
   updateQuery() {
     let query = { t: Date.now() };
@@ -227,9 +285,25 @@ class List extends React.Component {
     this.context.router.replace({ pathname, query, state });
   }
 
+  handleColumn = (eventKey) => {
+    let columnsKeys = _clone(this.state.columnsKeys);
+    if (columnsKeys[eventKey]) {
+      delete columnsKeys[eventKey];
+    } else {
+      columnsKeys[eventKey] = true;
+    }
+    this.setState({
+      columnsKeys,
+      columnsItems: this.getColumnItems(this.state.model, columnsKeys)
+    });
+  };
+
+  handleSelect = (selected) => {
+    this.setState({ selected });
+  };
+
   render() {
-    let props = this.props;
-    let {
+    const {
       search,
       title,
       service,
@@ -238,29 +312,30 @@ class List extends React.Component {
       list,
       sort,
       filterItems,
-      filterViews
+      filterViews,
+      columnsItems,
+      columnsKeys,
+      selected
       } = this.state;
     if (!model) {
       return <div className="loading">Loading...</div>;
     }
-    let views = this.context.views;
-    let t = this.context.t;
+    const t = this.context.t;
     let titleBtns = [];
 
     if (filterItems.length) {
-      titleBtns.push(<DropdownButton id="listFilterDropdown" key="listFilterDropdown" title={t('Filter')}
+      titleBtns.push(<DropdownButton id="listFilterDropdown" key="listFilterDropdown"
+                                     title={<i className="fa fa-filter"/>}
                                      onSelect={this.handleFilter}>{filterItems}</DropdownButton>);
     }
 
-    if (!model.nocreate && model.abilities.create) {
-      //判断create权限,显示新建按钮
-      let href = '#/edit/' + service.id + '/' + model.name + '/_new';
-      titleBtns.push(<a
-        className="btn btn-success"
-        key="create"
-        href={href}
-      >{t('Create')}</a>);
-    }
+    titleBtns.push(<DropdownButton id="columnsDropdown" key="columnsDropdown"
+                                   title={<i className="fa fa-columns"/>}
+                                   onSelect={this.handleColumn}>{columnsItems}</DropdownButton>);
+
+    titleBtns.push(<button key="refresh" className="btn btn-primary" onClick={this.refresh}><i
+      className="fa fa-refresh"/>
+    </button>);
 
     let searchInput = model.searchFields.length ?
       <SearchField placeholder={t('Search')} onChange={this.handleSearch} value={search}/> : null;
@@ -268,22 +343,24 @@ class List extends React.Component {
     return (
       <Node id="list">
         <ContentHeader actions={titleBtns}>
-          {t(title, service.id)} &nbsp; 
+          {t(title, service.id)} &nbsp;
           <i>{t('total records', { total: list.total })}</i>
         </ContentHeader>
         <div>{filterViews}</div>
-        <div className="panel panel-default">
-          <div className="panel-body scroll">
-            <DataTable model={model} data={data} sort={sort} onSort={this.handleSort}/>
+        <div className="panel panel-default noborder">
+          <div className="scroll">
+            <DataTable model={model} data={data} sort={sort} onSort={this.handleSort} onSelect={this.handleSelect}
+                       selected={selected} columns={Object.keys(columnsKeys)}/>
           </div>
         </div>
         <nav className="navbar navbar-fixed-bottom bottom-bar">
           <div className="container-fluid">
-            <div className="navbar-form navbar-right">
+            <div className="navbar-form navbar-left">
               <div className="form-group">
                 {searchInput}
               </div>
             </div>
+            <ListActions model={model} selected={selected} onRefresh={this.refresh}/>
           </div>
         </nav>
       </Node>
@@ -291,6 +368,4 @@ class List extends React.Component {
   }
 }
 
-export default connect(({ lists }) => ({ lists }), dispatch => ({
-  actions: bindActionCreators(actions, dispatch)
-}))(List);
+export default connect(({ lists }) => ({ lists }))(List);

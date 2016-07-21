@@ -6,61 +6,76 @@
 
 import React from 'react';
 import { Link } from 'react-router';
+import { IF, ELSE } from 'jsx-plus';
 import shallowEqual from '../utils/shallow-equal';
 import Node from './Node';
+import DataTableRow from './DataTableRow';
+import _filter from 'lodash/filter';
+import _clone from 'lodash/clone';
+import _reduce from 'lodash/reduce';
+
+const { object, array, string, func } = React.PropTypes;
 
 export default class DataTable extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    model: React.PropTypes.object,
-    data: React.PropTypes.array,
-    sort: React.PropTypes.string,
-    onSort: React.PropTypes.func
+    model: object,
+    columns: array,
+    selected: array,
+    data: array,
+    sort: string,
+    onSort: func,
+    onSelect: func,
+    onRemove: func
   };
 
   static contextTypes = {
-    router: React.PropTypes.object,
-    settings: React.PropTypes.object,
-    views: React.PropTypes.object,
-    t: React.PropTypes.func,
+    router: object,
+    settings: object,
+    views: object,
+    t: func,
   };
 
   constructor(props, context) {
     super(props);
     this.state = {
-      data: props.data || []
+      data: props.data || [],
+      selected: {}
     };
   }
 
   componentDidMount() {
-    this.init(this.props, this.context);
+    this.init(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
-    let newState = {};
-    if (nextProps.data) {
-      newState.data = nextProps.data;
-      this.setState(newState, () => {
-        if (nextProps.model) {
-          this.init(this.props);
-        }
-      });
-    }
+    this.init(nextProps);
   }
 
   init(props) {
     let model = props.model || this.props.model;
     if (!model) return;
 
+    let state = {};
+    if (props.data) {
+      state.data = props.data;
+    }
+    if (props.selected) {
+      state.selected = _reduce(props.selected, (res, record) => {
+        res[record._id] = true;
+        return res;
+      }, {});
+    }
+
     let columns = [];
-    model.defaultColumns.forEach(key => {
+    (props.columns || model.defaultColumns).forEach(key => {
       model.fields[key] && columns.push({
         key,
         field: model.fields[key]
       });
     });
-    this.setState({ columns });
+    state.columns = columns;
+    this.setState(state);
   }
 
   shouldComponentUpdate(props, state) {
@@ -70,84 +85,79 @@ export default class DataTable extends React.Component {
     return !shallowEqual(state, this.state);
   }
 
-  render() {
-    const props = this.props;
-    const views = this.context.views;
-    const t = this.context.t;
-    const router = this.context.router;
-    const {
-      columns,
-      data
-      } = this.state;
-    const model = props.model;
-    const sort = props.sort;
-    const onSort = props.onSort;
+  handleSelect = (record, isSelected) => {
+    let selected = _clone(this.state.selected);
+    if (isSelected) {
+      selected[record._id] = true;
+    } else {
+      delete selected[record._id];
+    }
+    this.setState({ selected });
+    let records = _filter(this.state.data, record => selected[record._id]);
+    this.props.onSelect(records);
+  };
+
+  handleEdit = (record) => {
+    const { model } = this.props;
+    const { router } = this.context;
     const service = model.service;
+    let url = '/edit/' + service.id + '/' + model.name + '/' + record._id;
+    router.push(url);
+  };
+
+  render() {
+    const { model, sort, onSort, onSelect, onRemove } = this.props;
+    const { t } = this.context;
+    const { columns, data, selected } = this.state;
     if (!model || !columns) {
       return <div className="loading">Loading...</div>;
     }
+    const service = model.service;
 
-    let headerRowElement = (<tr>
-      {
-        columns.map(col => {
-          let sortIcon = null;
-          let handleClick;
-          if (!col.nosort && onSort) {
-            if (col.key === sort) {
-              sortIcon = <i className="fa fa-sort-asc"></i>;
-              handleClick = () => onSort('-' + col.key);
-            } else if ('-' + col.key === sort) {
-              sortIcon = <i className="fa fa-sort-desc"></i>;
-              handleClick = () => onSort(col.key);
-            } else {
-              handleClick = () => onSort('-' + col.key);
-            }
-          }
-          return <th
-            key={col.field.path}
-            tooltip={col.field.tooltip}
-            onClick={handleClick}
-          >{t(col.field.label, service.id)}{sortIcon}</th>;
-        })
-      }
-      <th></th>
-    </tr>);
-
-    let bodyElement = (<tbody>
-    {data.map((record, index) => {
-      let url = '/edit/' + service.id + '/' + model.name + '/' + record._id;
-      return <tr key={index} onDoubleClick={() => {router.push(url);console.log(url);}}>
-        {columns.map(col => {
-          let key = col.key;
-          let CellViewClass = views[col.field.cell];
-          if (!CellViewClass) {
-            console.warn('Missing : ' + col.field.cell);
-            return <td style={{background:'#fcc'}} key={key}>{record[key]}</td>;
-          }
-          return (<td key={key}>
-            {React.createElement(CellViewClass, {
-              value: record[key],
-              model,
-              key,
-              field: col.field
-            })}
-          </td>);
-        })}
-        <td key="_a">
-          <Link to={url}>
-            <i className="fa fa-edit"/>
-          </Link>
-        </td>
-      </tr>
-    })}
-    </tbody>);
+    let selectEl = onSelect ? <th></th> : null;
 
     return (
-      <table className="data-table table table-striped table-bordered table-hover">
+      <table className="data-table table table-bordered table-hover">
         <thead>
-        {headerRowElement}
+        <tr>
+          {selectEl}
+          {
+            columns.map(col => {
+              let sortIcon = null;
+              let handleClick;
+              if (!col.nosort && onSort) {
+                if (col.key === sort) {
+                  sortIcon = <i className="fa fa-sort-asc"/>;
+                  handleClick = () => onSort('-' + col.key);
+                } else if ('-' + col.key === sort) {
+                  sortIcon = <i className="fa fa-sort-desc"/>;
+                  handleClick = () => onSort(col.key);
+                } else {
+                  handleClick = () => onSort('-' + col.key);
+                }
+              }
+              return <th
+                key={col.field.path}
+                tooltip={col.field.tooltip}
+                onClick={handleClick}
+              >{t(col.field.label, service.id)}{sortIcon}</th>;
+            })
+          }
+          <th></th>
+        </tr>
         </thead>
-        {bodyElement}
+        <tbody>
+        {data.map((record, index) => <DataTableRow
+          key={index}
+          record={record}
+          columns={columns}
+          model={model}
+          onEdit={this.handleEdit}
+          onSelect={onSelect?this.handleSelect:null}
+          onRemove={onRemove}
+          selected={selected[record._id]}
+        />)}
+        </tbody>
       </table>
     );
   }

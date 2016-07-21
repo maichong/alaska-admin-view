@@ -85,6 +85,11 @@ export function settings(state = {}, action) {
       if (service && service.models) {
         for (let j in service.models) {
           let model = service.models[j];
+          for (let key in model.actions) {
+            if (model.actions[key]) {
+              model.actions[key].key = key;
+            }
+          }
           if (model && model.fields) {
             model.service = service;
             model.abilities = {};
@@ -126,7 +131,7 @@ export function lists(state = {}, action) {
       [key]: data
     });
   }
-  if (key && state[key] && (action.type === SAVE_COMPLETE || action.type === REMOVE_COMPLETE)) {
+  if (key && state[key] && action.type === SAVE_COMPLETE) {
     return _omit(state, key);
   }
   return state;
@@ -168,22 +173,6 @@ export function save(state = {}, action) {
       error: ''
     });
   } else if (action.type == SAVE_ERROR) {
-    return _assign({}, action.meta, {
-      res: action.payload,
-      error: action.payload
-    });
-  }
-  return state;
-}
-
-export function remove(state = {}, action) {
-  if (action.type == REMOVE_COMPLETE) {
-    //保存后清空搜索缓存
-    return _assign({}, action.meta, {
-      res: action.payload,
-      error: ''
-    });
-  } else if (action.type == REMOVE_ERROR) {
     return _assign({}, action.meta, {
       res: action.payload,
       error: action.payload

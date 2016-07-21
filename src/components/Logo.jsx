@@ -17,13 +17,15 @@ export default class Logo extends React.Component {
   };
 
   render() {
-    const { settings } =this.context;
+    const { settings } = this.context;
     let logo = settings.logo || 'static/img/logo.png';
     let icon = settings.icon || 'static/img/icon.png';
     return (
       <Node id="logo">
-        <img className="logo" src={logo}/>
-        <img className="icon" src={icon}/>
+        <a href="#">
+          <img className="logo" src={logo}/>
+          <img className="icon" src={icon}/>
+        </a>
       </Node>
     );
   }

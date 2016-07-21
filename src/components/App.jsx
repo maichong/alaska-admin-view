@@ -7,20 +7,24 @@
 import React from 'react';
 
 import IntlMessageFormat from 'intl-messageformat';
-import { Router, Route, useRouterHistory } from 'react-router';
+import { Router, Route, IndexRoute, useRouterHistory } from 'react-router';
 import createHashHistory from 'history/lib/createHashHistory';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import qs from 'qs';
 import $ from 'jquery';
+import _map from 'lodash/map';
+import _defaults from 'lodash/defaults';
 
 import Node from './Node';
 import Login from './Login';
 import Locked from './Locked';
 import Manage from './Manage';
+import Dashboard from './Dashboard';
 import Editor from './Editor';
 import List from './List';
+import Modal from 'react-bootstrap/lib/Modal';
 
 const ReactToastr = require('react-toastr');
 const { ToastContainer } = ReactToastr;
@@ -32,24 +36,32 @@ const history = createAppHistory({
   stringifyQuery: qs.stringify
 });
 
+const { node, object, func } = React.PropTypes;
+
 class App extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    views: React.PropTypes.object.isRequired
+    views: object.isRequired
   };
 
   static childContextTypes = {
-    actions: React.PropTypes.object,
-    views: React.PropTypes.object,
-    settings: React.PropTypes.object,
-    t: React.PropTypes.func,
-    toast: React.PropTypes.func,
+    actions: object,
+    views: object,
+    settings: object,
+    t: func,
+    alert: func,
+    confirm: func,
+    toast: func,
   };
 
   constructor(props, context) {
     super(props);
-    this.state = {};
+    this.state = {
+      modalTitle: '',
+      modalBody: '',
+      modalOpen: false,
+      modalActions: []
+    };
     this._messageCache = {};
   }
 
@@ -59,6 +71,8 @@ class App extends React.Component {
       actions: this.props.actions,
       settings: this.props.settings,
       t: this.t,
+      alert: this.alert,
+      confirm: this.confirm,
       toast: this.toast
     };
   }
@@ -88,6 +102,63 @@ class App extends React.Component {
         this.props.actions.layout('full');
       }
     }
+  };
+
+  handleCloseModal = () => {
+    this.setState({
+      modalOpen: false
+    });
+  };
+
+  alert = (title, body) => {
+    return new Promise((resolve, reject) => {
+      this.setState({
+        modalTitle: title,
+        modalBody: body,
+        modalActions: <button className={'btn btn-success'}
+                              onClick={() => {
+                              this.handleCloseModal();
+                              resolve();
+                              }}>{this.t('Confirm')}</button>,
+        modalOpen: true
+      });
+    });
+  };
+
+  confirm = (title, body, buttons = []) => {
+    return new Promise((resolve, reject) => {
+      let defaults = [{
+        title: this.t('Confirm'),
+        style: 'success'
+      }, {
+        title: this.t('Cancel'),
+        style: 'default'
+      }];
+      let handles = [() => {
+        this.handleCloseModal();
+        resolve();
+      }, () => {
+        this.handleCloseModal();
+        reject();
+      }];
+      let modalActions = _map([0, 1], i => {
+        let config = buttons[i];
+        if (typeof config === 'string') {
+          config = {
+            title: config
+          };
+        }
+        config = _defaults({}, defaults[i], config);
+        return <button key={i} className={'btn btn-'+config.style} onClick={handles[i]}>{config.title}</button>
+      });
+
+      this.setState({
+        modalTitle: title,
+        modalBody: body,
+        modalActions,
+        modalOpen: true
+      });
+    });
   };
 
   toast = (method, title, body, options) => {
@@ -160,15 +231,16 @@ class App extends React.Component {
   };
 
   render() {
-    let props = this.props;
-    let state = this.state;
-    let views = props.views;
+    const props = this.props;
+    const state = this.state;
+    const views = props.views;
     let el;
 
     //有权限
     if (props.access) {
       el = <Router history={history}>
         <Route component={Manage} path="/">
+          <IndexRoute component={Dashboard}/>
           <Route component={List} path="list/:service/:model"/>
           <Route component={Editor} path="edit/:service/:model/:id"/>
           {
@@ -198,6 +270,11 @@ class App extends React.Component {
         ref="container"
         toastMessageFactory={ToastMessageFactory}
         className="toast-top-right"/>
+      <Modal show={state.modalOpen}>
+        <div className="modal-header">{state.modalTitle}</div>
+        <div className="modal-body">{state.modalBody}</div>
+        <div className="modal-footer">{state.modalActions}</div>
+      </Modal>
     </Node>);
   }
 }
