@@ -106,7 +106,6 @@ export default class Login extends React.Component {
                   placeholder={t('Password')}
                   onChange={this.handlePassword}
                   value={state.password}
-                  onEnterKeyDown={this.handleLogin}
                   onKeyPress={this.handleKeyPress}
                 />
               </div>

@@ -5,6 +5,8 @@
  */
 
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
+import Tooltip from 'react-bootstrap/lib/Tooltip';
 import shallowEqual from '../utils/shallow-equal';
 import _map from 'lodash/map';
 
@@ -35,6 +37,7 @@ export default class Action extends React.Component {
 
   render() {
     let { model, action, data, selected, disabled, onClick, onRefresh } = this.props;
+    const { t } = this.context;
     if (action.view) {
       let View = this.context.views[action.view];
       if (!View) {
@@ -49,9 +52,9 @@ export default class Action extends React.Component {
     }
     let title;
     if (action.title) {
-      title = this.context.t(action.title, model.service.id);
+      title = t(action.title, model.service.id);
     }
-    return (
+    let el = (
       <button
         onClick={onClick}
         className={'btn btn-' + (action.style || 'default')}
@@ -59,5 +62,12 @@ export default class Action extends React.Component {
         disabled={disabled}
       >{action.icon ? <i className={'fa fa-'+action.icon}/> : null} {title}</button>
     );
+    if (action.tooltip) {
+      return <OverlayTrigger
+        placement="top"
+        overlay={<Tooltip id="tooltip">{t(action.tooltip)}</Tooltip>}
+      >{el}</OverlayTrigger>;
+    }
+    return el;
   }
 }

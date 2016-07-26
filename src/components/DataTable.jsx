@@ -110,8 +110,8 @@ export default class DataTable extends React.Component {
     if (!data || !data.length) {
       return false;
     }
-    for (let i in data) {
-      if (!selected[data[i]._id]) return false;
+    for (let record of data) {
+      if (!selected[record._id]) return false;
     }
     return true;
   };

@@ -5,27 +5,42 @@
  */
 
 import React from 'react';
+import Node from './Node';
+
+const { node, bool, string } = React.PropTypes;
 
 export default class FieldGroup extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node
+    children: node,
+    form: bool,
+    panel: bool,
+    className: string,
+    style: string,
   };
 
   render() {
     let props = this.props
     let el = props.children;
     if (props.form !== false) {
-      el = <form className="form-horizontal">
+      el = <form className="field-group-form form-horizontal">
         {el}
       </form>;
     }
     if (props.panel !== false) {
       let heading = props.title ? <div className="panel-heading">{props.title}</div> : null;
-      el = <div className="panel panel-default">
+      let cls = 'field-group-panel panel panel-' + (props.style || 'default');
+      if (props.className) {
+        cls += ' ' + props.className;
+      }
+      el = <div className={cls}>
         {heading}
         <div className="panel-body">{el}</div>
       </div>;
+    }
+
+    if (props.wrapper) {
+      return <Node wrapper={props.wrapper}>{el}</Node>;
     }
     return el;
   }

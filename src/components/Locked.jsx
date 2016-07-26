@@ -7,10 +7,12 @@
 import React from 'react';
 import Node from './Node';
 
+const { func } = React.PropTypes;
+
 export default class Locked extends React.Component {
 
   static contextTypes = {
-    t: React.PropTypes.func
+    t: func
   };
 
   render() {

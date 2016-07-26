@@ -7,10 +7,12 @@
 import React from 'react';
 import Node from './Node';
 
+const { node } = React.PropTypes;
+
 export default class Dashboard extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node
+    children: node
   };
 
   render() {

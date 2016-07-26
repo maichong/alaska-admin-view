@@ -306,7 +306,7 @@ class List extends React.Component {
   handleRemove = async (record) => {
     const { model } = this.state;
     const { t, toast, confirm } = this.context;
-    await confirm(t('Remove Record'), t('confirm remove record'));
+    await confirm(t('Remove record'), t('confirm remove record'));
     try {
       await api.post(PREFIX + '/api/remove?' + qs.stringify({
           service: model.service.id,

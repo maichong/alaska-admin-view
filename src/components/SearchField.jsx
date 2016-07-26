@@ -6,11 +6,13 @@
 
 import React from 'react';
 
+const { string, func } = React.PropTypes;
+
 export default class SearchField extends React.Component {
 
   static propTypes = {
-    value: React.PropTypes.string,
-    onChange: React.PropTypes.func,
+    value: string,
+    onChange: func,
   };
 
   constructor(props) {
@@ -41,6 +43,6 @@ export default class SearchField extends React.Component {
 
   render() {
     return <input className="form-control" type="text" value={this.state.value} onChange={this.handleChange}
-                        placeholder={this.props.placeholder}/>;
+                  placeholder={this.props.placeholder}/>;
   }
 }

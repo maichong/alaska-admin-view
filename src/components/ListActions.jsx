@@ -7,6 +7,8 @@
 import React from 'react';
 import qs from 'qs';
 import shallowEqual from '../utils/shallow-equal';
+import OverlayTrigger from 'react-bootstrap/lib/OverlayTrigger';
+import Tooltip from 'react-bootstrap/lib/Tooltip';
 import Node from './Node';
 import Action from './Action';
 import _reduce from 'lodash/reduce';
@@ -60,7 +62,7 @@ export default class ListActions extends React.Component {
   handleRemove = async () => {
     const { model, selected } = this.props;
     const { t, toast, confirm } = this.context;
-    await confirm(t('Remove Selected Records'), t('confirm remove selected records'));
+    await confirm(t('Remove selected records'), t('confirm remove selected records'));
     try {
       await api.post(PREFIX + '/api/remove?' + qs.stringify({
           service: model.service.id,
@@ -75,6 +77,7 @@ export default class ListActions extends React.Component {
 
   render() {
     const { model, selected, onRefresh } = this.props;
+    const { t } = this.context;
     const actions = _reduce(model.actions, (res, action, key) => {
       if (!action.list) return res;
       res.push(
@@ -91,7 +94,7 @@ export default class ListActions extends React.Component {
     if (!model.noremove && model.abilities.remove && model.actions.remove !== false) {
       actions.push(<Action
         key="remove"
-        action={{key:'remove',icon:'close',needRecords:1,style:'danger'}}
+        action={{key:'remove',icon:'close',needRecords:1,style:'danger',tooltip:'Remove selected records'}}
         selected={selected}
         model={model}
         onClick={this.handleRemove}
@@ -101,8 +104,10 @@ export default class ListActions extends React.Component {
 
     if (!model.nocreate && model.abilities.create && model.actions.create !== false) {
       let href = '#/edit/' + model.service.id + '/' + model.name + '/_new';
-      actions.push(<a key="create" className="btn btn-success" href={href}><i
-        className="fa fa-plus"/></a>);
+      actions.push(<OverlayTrigger placement="top"
+                                   overlay={<Tooltip id="tooltip">{t('Create record')}</Tooltip>}><a
+        key="create" className="btn btn-success" href={href}><i
+        className="fa fa-plus"/></a></OverlayTrigger>);
     }
 
     return (

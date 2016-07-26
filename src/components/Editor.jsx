@@ -173,7 +173,7 @@ class Editor extends React.Component {
   handleRemove = async () => {
     const { serviceId, modelName, id } = this.state;
     const { t, toast, confirm } = this.context;
-    await confirm(t('Remove Record'), t('confirm remove record'), [{
+    await confirm(t('Remove record'), t('confirm remove record'), [{
       title: t('Remove'),
       style: 'danger'
     }]);
@@ -353,8 +353,7 @@ class Editor extends React.Component {
       if (!group.fields.length) {
         continue;
       }
-      let groupEl = <FieldGroup key={groupKey} title={group.title} panel={group.panel}
-                                bsStyle={group.style}>{group.fields}</FieldGroup>;
+      let groupEl = <FieldGroup key={groupKey} {...group}>{group.fields}</FieldGroup>;
       groupElements.push(groupEl);
     }
 

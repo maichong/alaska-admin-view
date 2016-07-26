@@ -7,17 +7,19 @@
 import React from 'react';
 import _reduce from 'lodash/reduce';
 
+const { node, string, object } = React.PropTypes;
+
 export default class Node extends React.Component {
 
   static propTypes = {
-    children: React.PropTypes.node,
-    tag: React.PropTypes.string,
-    id: React.PropTypes.string,
-    wrapper: React.PropTypes.string,
+    children: node,
+    tag: string,
+    id: string,
+    wrapper: string,
   };
 
   static contextTypes = {
-    views: React.PropTypes.object
+    views: object
   };
 
   render() {

@@ -9,11 +9,9 @@ import React from 'react';
 import NavDropdown from 'react-bootstrap/lib/NavDropdown';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 
-export default class LocaleNav extends React.Component {
+const { object, func } = React.PropTypes;
 
-  static propTypes = {
-    children: React.PropTypes.node
-  };
+export default class LocaleNav extends React.Component {
 
   constructor(props) {
     super(props);
@@ -21,8 +19,8 @@ export default class LocaleNav extends React.Component {
   }
 
   static contextTypes = {
-    settings: React.PropTypes.object,
-    t: React.PropTypes.func,
+    settings: object,
+    t: func,
   };
 
   render() {

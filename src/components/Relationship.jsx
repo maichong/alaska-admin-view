@@ -6,34 +6,39 @@
 
 import React from 'react';
 import DataTable from './DataTable';
+import qs from 'qs';
 
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as actions from '../actions';
+
+import Node from './Node';
+
+const { object, string, func } = React.PropTypes;
 
 class Relationship extends React.Component {
 
   static propTypes = {
-    actions: React.PropTypes.object,
-    filters: React.PropTypes.object,
-    lists: React.PropTypes.object,
-    service: React.PropTypes.string,
-    model: React.PropTypes.string,
-    path: React.PropTypes.string,
-    from: React.PropTypes.string,
-    title: React.PropTypes.string,
+    actions: object,
+    filters: object,
+    lists: object,
+    service: string,
+    model: string,
+    path: string,
+    from: string,
+    title: string,
   };
 
   static contextTypes = {
-    settings: React.PropTypes.object,
-    t: React.PropTypes.func,
+    actions: object,
+    settings: object,
+    t: func,
   };
 
   constructor(props) {
     super(props);
     this.state = {
       data: null,
-      model: null
+      model: null,
+      filters: {}
     };
   }
 
@@ -76,27 +81,30 @@ class Relationship extends React.Component {
       model: modelName,
       key: model.key
     };
-    args.filters = Object.assign({}, this.props.filters, {
+    let filters = args.filters = Object.assign({}, this.props.filters, {
       [this.props.path]: this.props.from
     });
-    this.setState({ model }, () => {
+    this.setState({ model, filters }, () => {
       if (!this.state.data) {
-        this.props.actions.list(args);
+        this.context.actions.list(args);
       }
     });
   }
 
   render() {
-    let { model, data } = this.state;
+    let { model, data, filters } = this.state;
     if (!model || !data) {
       return <div></div>;
     }
     const t = this.context.t;
     let title = this.props.title ? t(this.props.title, model.service.id) : t('Relationship') + `: ${t(model.label, model.service.id)}`;
+    let filtersString = qs.stringify({ filters });
     return (
       <div className="panel panel-default">
         <div className="panel-heading">
-          <h3 className="panel-title">{title}</h3>
+          <h3 className="panel-title">{title} <a className="relationship-more"
+                                                 href={`#/list/${model.service.id}/${model.name}?${filtersString}`}>{t('More')}</a>
+          </h3>
         </div>
         <DataTable model={model} data={data}/>
       </div>
@@ -104,6 +112,4 @@ class Relationship extends React.Component {
   }
 }
 
-export default connect(({ lists }) => ({ lists }), dispatch => ({
-  actions: bindActionCreators(actions, dispatch)
-}))(Relationship);
+export default connect(({ lists }) => ({ lists }))(Relationship);
