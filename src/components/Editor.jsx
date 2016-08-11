@@ -27,7 +27,7 @@ function checkDepends(depends, data) {
     if (!data[depends]) {
       return false;
     }
-  } else if (!_every(depends, (value, k) => data[k] === value)) {
+  } else if (!_every(depends, (value, k) => data[k] == value)) {
     //没有全部匹配
     return false;
   }

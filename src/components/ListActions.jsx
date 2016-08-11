@@ -104,7 +104,7 @@ export default class ListActions extends React.Component {
 
     if (!model.nocreate && model.abilities.create && model.actions.create !== false) {
       let href = '#/edit/' + model.service.id + '/' + model.name + '/_new';
-      actions.push(<OverlayTrigger placement="top"
+      actions.push(<OverlayTrigger key="create" placement="top"
                                    overlay={<Tooltip id="tooltip">{t('Create record')}</Tooltip>}><a
         key="create" className="btn btn-success" href={href}><i
         className="fa fa-plus"/></a></OverlayTrigger>);

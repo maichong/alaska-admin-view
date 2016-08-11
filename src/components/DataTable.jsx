@@ -158,7 +158,6 @@ export default class DataTable extends React.Component {
               }
               return <th
                 key={col.field.path}
-                tooltip={col.field.tooltip}
                 onClick={handleClick}
               >{t(col.field.label, service.id)}{sortIcon}</th>;
             })
