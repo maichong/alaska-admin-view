@@ -10,7 +10,7 @@ import Tooltip from 'react-bootstrap/lib/Tooltip';
 import shallowEqual from '../utils/shallow-equal';
 import _map from 'lodash/map';
 
-const { object, array, func, string } = React.PropTypes;
+const { bool, object, array, func, string } = React.PropTypes;
 
 const NULL = <div></div>;
 
@@ -20,6 +20,7 @@ export default class Action extends React.Component {
     model: object,
     action: object,
     selected: array,
+    disabled: bool,
     data: object,
     id: string,
     onClick: func,
@@ -47,7 +48,7 @@ export default class Action extends React.Component {
       return React.createElement(View, { model, action, selected, data, onRefresh });
     }
     if (!model.abilities[action.key]) return NULL;
-    if (!data && action.needRecords && (!selected || selected.length < action.needRecords)) {
+    if (!disabled && !data && action.needRecords && (!selected || selected.length < action.needRecords)) {
       disabled = true;
     }
     let title;

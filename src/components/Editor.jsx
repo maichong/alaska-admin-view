@@ -8,11 +8,9 @@ import React from 'react';
 import qs from 'qs';
 import { connect } from 'react-redux';
 import _forEach from 'lodash/forEach';
-import _every from 'lodash/every';
 import _get from 'lodash/get';
 import _map from 'lodash/map';
 
-import Modal from 'react-bootstrap/lib/Modal';
 import Node from './Node';
 import Action from './Action';
 import FieldGroup from './FieldGroup';
@@ -20,19 +18,7 @@ import Relationship from './Relationship';
 import ContentHeader from './ContentHeader';
 import { PREFIX } from '../constants';
 import api from '../utils/api';
-
-
-function checkDepends(depends, data) {
-  if (typeof depends === 'string') {
-    if (!data[depends]) {
-      return false;
-    }
-  } else if (!_every(depends, (value, k) => data[k] == value)) {
-    //没有全部匹配
-    return false;
-  }
-  return true;
-}
+import checkDepends from '../utils/check-depends';
 
 const { object, func } = React.PropTypes;
 
@@ -238,14 +224,27 @@ class Editor extends React.Component {
     }
 
     try {
-      let body = Object.assign({}, data, { id: id == '_new' ? '' : id });
-      await api.post(PREFIX + '/api/action?' + qs.stringify({
-          service: model.service.id,
-          model: model.name,
-          action
-        }), body);
+      if (config.pre && config.pre.substr(0, 3) === 'js:') {
+        if (!eval(config.pre.substr(3))) {
+          return;
+        }
+      }
+
+      if (config.script && config.script.substr(0, 3) === 'js:') {
+        eval(config.script.substr(3));
+      } else {
+        let body = Object.assign({}, data, { id: id == '_new' ? '' : id });
+        await api.post(PREFIX + '/api/action?' + qs.stringify({
+            service: model.service.id,
+            model: model.name,
+            action
+          }), body);
+      }
       toast('success', t('Successfully'));
       this.refresh();
+      if (config.post && config.post.substr(0, 3) === 'js:') {
+        eval(config.post.substr(3));
+      }
     } catch (error) {
       toast('error', t('Failed'), error.message);
     }
@@ -403,10 +402,14 @@ class Editor extends React.Component {
       if (['create', 'save', 'remove'].indexOf(key) > -1) return;
       if (action.depends && !checkDepends(action.depends, data)) return;
       if (action.list && !action.editor) return;
+      let disabled = this.loading;
+      if (!disabled && action.disabled) {
+        disabled = checkDepends(action.disabled, data);
+      }
       actionElements.push(<Action
         onClick={() => this.handleAction(key)}
         key={key}
-        disabled={this.loading}
+        disabled={disabled}
         model={model}
         action={action}
         data={data}
@@ -416,13 +419,20 @@ class Editor extends React.Component {
 
     let relationships = null;
     if (id != '_new' && model.relationships) {
-      relationships = _map(model.relationships, (r, index) => <Relationship key={index} from={id} path={r.path}
-                                                                            service={r.service} model={r.ref}
-                                                                            filters={r.filters} title={r.title}/>);
+      relationships = _map(model.relationships,
+        (r, index) => <Relationship
+          key={index}
+          from={id}
+          path={r.path}
+          service={r.service}
+          model={r.ref}
+          filters={r.filters}
+          title={r.title}
+        />);
     }
 
     return (
-      <Node id="editor">
+      <Node id="editor" props={this.props} state={this.state}>
         <ContentHeader>
           {title}
         </ContentHeader>

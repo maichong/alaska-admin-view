@@ -6,6 +6,7 @@
 
 import React from 'react';
 import _reduce from 'lodash/reduce';
+import _assign from 'lodash/assign';
 
 const { node, string, object } = React.PropTypes;
 
@@ -16,6 +17,8 @@ export default class Node extends React.Component {
     tag: string,
     id: string,
     wrapper: string,
+    props: object,
+    state: object,
   };
 
   static contextTypes = {
@@ -23,16 +26,11 @@ export default class Node extends React.Component {
   };
 
   render() {
-    let { tag, id, children, wrapper, ...others } = this.props;
+    let { tag, id, children, wrapper, props, state, ...others } = this.props;
     wrapper = wrapper || id;
-    if (wrapper) {
-      const wrappers = this.context.views.wrappers;
-      if (wrappers[wrapper] && wrappers[wrapper].length) {
-        children = _reduce(wrappers[wrapper], (el, Wrapper) => React.createElement(Wrapper, {}, el), children);
-      }
-    }
+
     tag = tag || 'div';
-    return React.createElement(
+    children = React.createElement(
       tag,
       {
         id,
@@ -40,5 +38,12 @@ export default class Node extends React.Component {
       },
       children
     );
+    if (wrapper) {
+      const wrappers = this.context.views.wrappers;
+      if (wrappers[wrapper] && wrappers[wrapper].length) {
+        children = _reduce(wrappers[wrapper], (el, Wrapper) => React.createElement(Wrapper, _assign({}, props, { state }), el), children);
+      }
+    }
+    return children;
   }
 }

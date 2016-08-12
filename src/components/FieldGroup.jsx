@@ -17,6 +17,7 @@ export default class FieldGroup extends React.Component {
     panel: bool,
     className: string,
     style: string,
+    wrapper: string,
   };
 
   render() {
@@ -40,7 +41,7 @@ export default class FieldGroup extends React.Component {
     }
 
     if (props.wrapper) {
-      return <Node wrapper={props.wrapper}>{el}</Node>;
+      return <Node wrapper={props.wrapper} props={this.props}>{el}</Node>;
     }
     return el;
   }

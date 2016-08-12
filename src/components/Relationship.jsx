@@ -5,12 +5,9 @@
  */
 
 import React from 'react';
-import DataTable from './DataTable';
-import qs from 'qs';
-
 import { connect } from 'react-redux';
-
-import Node from './Node';
+import qs from 'qs';
+import DataTable from './DataTable';
 
 const { object, string, func } = React.PropTypes;
 
