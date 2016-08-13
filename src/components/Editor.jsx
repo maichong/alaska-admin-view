@@ -220,7 +220,7 @@ class Editor extends React.Component {
 
     const config = model.actions[action];
     if (config && config.confirm) {
-      await confirm('Confirm', t(config.confirm, model.service.id));
+      await confirm(t('Confirm'), t(config.confirm, model.service.id));
     }
 
     try {

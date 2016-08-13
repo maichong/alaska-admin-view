@@ -47,13 +47,26 @@ export default class ListActions extends React.Component {
     }
 
     try {
-      await api.post(PREFIX + '/api/action?' + qs.stringify({
-          service: model.service.id,
-          model: model.name,
-          action
-        }), { records: _map(selected, record => record._id) });
+      if (config.pre && config.pre.substr(0, 3) === 'js:') {
+        if (!eval(config.pre.substr(3))) {
+          return;
+        }
+      }
+
+      if (config.script && config.script.substr(0, 3) === 'js:') {
+        eval(config.script.substr(3));
+      } else {
+        await api.post(PREFIX + '/api/action?' + qs.stringify({
+            service: model.service.id,
+            model: model.name,
+            action
+          }), { records: _map(selected, record => record._id) });
+      }
       toast('success', t('Successfully'));
       this.props.onRefresh();
+      if (config.post && config.post.substr(0, 3) === 'js:') {
+        eval(config.post.substr(3));
+      }
     } catch (error) {
       toast('error', t('Failed'), error.message);
     }

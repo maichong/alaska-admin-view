@@ -362,6 +362,10 @@ class List extends React.Component {
       handleSelect = this.handleSelect;
     }
 
+    let handleRemove;
+    if (!model.noremove && model.abilities.remove) {
+      handleRemove = this.handleRemove;
+    }
     return (
       <Node id="list">
         <ContentHeader actions={titleBtns}>
@@ -377,7 +381,7 @@ class List extends React.Component {
               sort={sort}
               onSort={this.handleSort}
               onSelect={handleSelect}
-              onRemove={this.handleRemove}
+              onRemove={handleRemove}
               selected={selected}
               columns={columnsKeys}
             />
