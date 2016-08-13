@@ -177,8 +177,16 @@ export function save(state = {}, action) {
   return state;
 }
 
-export function layout(state = 'full', action) {
+export function layout(state, action) {
+  if (!state) {
+    if (window.localStorage) {
+      state = window.localStorage.getItem('layout') || 'full';
+    }
+  }
   if (action.type == LAYOUT) {
+    if (window.localStorage) {
+      window.localStorage.setItem('layout', action.payload);
+    }
     return action.payload;
   }
   return state;

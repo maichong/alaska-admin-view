@@ -425,7 +425,7 @@ class Editor extends React.Component {
           from={id}
           path={r.path}
           service={r.service}
-          model={r.ref}
+          model={r.model}
           filters={r.filters}
           title={r.title}
         />);

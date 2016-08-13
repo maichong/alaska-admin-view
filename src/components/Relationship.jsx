@@ -97,13 +97,13 @@ class Relationship extends React.Component {
     let title = this.props.title ? t(this.props.title, model.service.id) : t('Relationship') + `: ${t(model.label, model.service.id)}`;
     let filtersString = qs.stringify({ filters });
     return (
-      <div className="panel panel-default">
+      <div className="panel panel-default relationship-panel">
         <div className="panel-heading">
           <h3 className="panel-title">{title} <a className="relationship-more"
                                                  href={`#/list/${model.service.id}/${model.name}?${filtersString}`}>{t('More')}</a>
           </h3>
         </div>
-        <DataTable model={model} data={data}/>
+        <div className="inner"><DataTable model={model} data={data}/></div>
       </div>
     );
   }

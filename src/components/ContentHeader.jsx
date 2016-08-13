@@ -31,7 +31,7 @@ export default class ContentHeader extends React.Component {
   render() {
     const { children, actions } = this.props;
     let el = null;
-    if (window.innerWidth > 768 || actions.length < 2) {
+    if (window.innerWidth > 768 || !actions || actions.length < 2) {
       el = <Node wrapper="contentHeaderActions" className="content-header-actions">{actions}</Node>
     } else {
       el = <i className="fa fa-bars"/>;
