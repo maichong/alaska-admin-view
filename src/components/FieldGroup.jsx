@@ -24,9 +24,9 @@ export default class FieldGroup extends React.Component {
     let props = this.props
     let el = props.children;
     if (props.form !== false) {
-      el = <form className="field-group-form form-horizontal">
+      el = <div className="field-group-form form-horizontal">
         {el}
-      </form>;
+      </div>;
     }
     if (props.panel !== false) {
       let heading = props.title ? <div className="panel-heading">{props.title}</div> : null;

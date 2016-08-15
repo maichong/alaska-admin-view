@@ -10,6 +10,7 @@ exports.App = require('./components/App').default;
 exports.store = require('./store').default;
 exports.api = require('./utils/api').default;
 exports.shallowEqual = require('./utils/shallow-equal').default;
+exports.checkDepends = require('./utils/check-depends').default;
 exports.actions = require('./actions');
 
 const constants = require('./constants');

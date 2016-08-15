@@ -13,6 +13,7 @@ import _every from 'lodash/every';
  * @returns {boolean}
  */
 export default function checkDepends(depends, data) {
+  if (!depends) return true;
   if (typeof depends === 'string') {
     if (depends[0] === '!') {
       //反向

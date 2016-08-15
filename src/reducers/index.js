@@ -76,11 +76,13 @@ export function access(state = false, action) {
 export function settings(state = {}, action) {
   if ((action.type == LOGIN_COMPLETE || action.type == REFRESH_INFO_COMPLETE)) {
     let settings = action.payload.settings || {};
+    let models = settings.models = {};
     for (let i in settings.services) {
       let service = settings.services[i];
       if (service && service.models) {
         for (let j in service.models) {
           let model = service.models[j];
+          models[model.path] = model;
           for (let key in model.actions) {
             if (model.actions[key]) {
               model.actions[key].key = key;
