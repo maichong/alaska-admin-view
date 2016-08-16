@@ -263,7 +263,7 @@ class Editor extends React.Component {
       serviceId,
       modelName
       } = this.state;
-    const { views, t } = this.context;
+    const { views, t, settings } = this.context;
     if (!data) {
       return <div className="loading">Loading...</div>;
     }
@@ -300,6 +300,7 @@ class Editor extends React.Component {
     for (let key in model.fields) {
       let cfg = model.fields[key];
       if (cfg.hidden) continue;
+      if (cfg.super && !settings.superMode) continue;
       if (!cfg.view) continue;
       if (cfg.depends && !checkDepends(cfg.depends, data)) continue;
       let ViewClass = views[cfg.view];
@@ -352,6 +353,7 @@ class Editor extends React.Component {
       if (!group.fields.length) {
         continue;
       }
+      if (group.super && !settings.superMode) continue;
       let groupEl = <FieldGroup key={groupKey} {...group}>{group.fields}</FieldGroup>;
       groupElements.push(groupEl);
     }
@@ -400,6 +402,7 @@ class Editor extends React.Component {
     //扩展动作按钮
     _forEach(model.actions, (action, key)=> {
       if (['create', 'save', 'remove'].indexOf(key) > -1) return;
+      if (action.super && !settings.superMode) return;
       if (action.depends && !checkDepends(action.depends, data)) return;
       if (action.list && !action.editor) return;
       let disabled = this.loading;
@@ -420,15 +423,18 @@ class Editor extends React.Component {
     let relationships = null;
     if (id != '_new' && model.relationships) {
       relationships = _map(model.relationships,
-        (r, index) => <Relationship
-          key={index}
-          from={id}
-          path={r.path}
-          service={r.service}
-          model={r.model}
-          filters={r.filters}
-          title={r.title}
-        />);
+        (r, index) => {
+          if (r.super && !settings.superMode) return;
+          return <Relationship
+            key={index}
+            from={id}
+            path={r.path}
+            service={r.service}
+            model={r.model}
+            filters={r.filters}
+            title={r.title}
+          />
+        });
     }
 
     return (

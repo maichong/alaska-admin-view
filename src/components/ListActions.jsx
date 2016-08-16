@@ -28,6 +28,7 @@ export default class ListActions extends React.Component {
 
   static contextTypes = {
     actions: object,
+    settings: object,
     t: func,
     confirm: func,
     toast: func
@@ -90,9 +91,10 @@ export default class ListActions extends React.Component {
 
   render() {
     const { model, selected, onRefresh } = this.props;
-    const { t } = this.context;
+    const { t, settings } = this.context;
     const actions = _reduce(model.actions, (res, action, key) => {
       if (!action.list) return res;
+      if (action.super && !settings.superMode) return res;
       res.push(
         <Action key={key}
                 model={model}

@@ -55,6 +55,7 @@ export default class DataTable extends React.Component {
   init(props) {
     let model = props.model || this.props.model;
     if (!model) return;
+    const { settings } = this.context;
 
     let state = {};
     if (props.data) {
@@ -69,10 +70,14 @@ export default class DataTable extends React.Component {
 
     let columns = [];
     (props.columns || model.defaultColumns).forEach(key => {
-      model.fields[key] && columns.push({
-        key,
-        field: model.fields[key]
-      });
+      let field = model.fields[key];
+      if (field) {
+        if (field.super && !settings.superMode) return;
+        columns.push({
+          key,
+          field
+        });
+      }
     });
     state.columns = columns;
     this.setState(state);

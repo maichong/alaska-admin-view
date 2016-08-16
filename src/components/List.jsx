@@ -159,13 +159,14 @@ class List extends React.Component {
   }
 
   getFilterItems(model, filterViewsMap) {
-    const t = this.context.t;
+    const { t, settings } = this.context;
     return _reduce(model.fields, (res, field, index)=> {
       if (!field._label) {
         field._label = field.label;
         field.label = t(field.label, model.service.id);
       }
       if (field.hidden || !field.filter) return res;
+      if (field.super && !settings.superMode) return res;
       let icon = filterViewsMap[field.path] ? CHECK_ICON : null;
       res.push(<MenuItem key={index} eventKey={field.path}
                          className="with-icon">{icon} {field.label}</MenuItem>);
@@ -174,9 +175,11 @@ class List extends React.Component {
   };
 
   getColumnItems(model, columnsKeys) {
+    const { settings } = this.context;
     return _reduce(model.fields, (res, field, index)=> {
       let icon = columnsKeys.indexOf(field.path) > -1 ? CHECK_ICON : null;
       if (field.hidden || !field.cell) return res;
+      if (field.super && !settings.superMode) return res;
       res.push(<MenuItem key={index} eventKey={field.path}
                          className="with-icon">{icon} {field.label}</MenuItem>);
       return res;
