@@ -85,8 +85,14 @@ class List extends React.Component {
       if (lists[model.key]) {
         newState.list = lists[model.key];
         newState.data = lists[model.key].results;
+      } else {
+        newState.list = {};
+        newState.data = null;
       }
       this.setState(newState, () => {
+        if (!newState.data) {
+          this.refresh();
+        }
       });
       this._loading = false;
     }

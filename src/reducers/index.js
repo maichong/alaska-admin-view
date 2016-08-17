@@ -18,7 +18,8 @@ import {
   DETAILS_COMPLETE,
   SAVE_COMPLETE,
   SAVE_ERROR,
-  LAYOUT
+  LAYOUT,
+  REFRESH
 } from '../constants';
 
 export function login(state = {}, action) {
@@ -118,6 +119,9 @@ export function settings(state = {}, action) {
 }
 
 export function lists(state = {}, action) {
+  if (action.type === REFRESH) {
+    return {};
+  }
   let key = action.meta ? action.meta.key : '';
   if (key && action.type === LIST_COMPLETE) {
     let res = action.payload;
@@ -136,6 +140,9 @@ export function lists(state = {}, action) {
 }
 
 function detailsFromList(state = {}, action) {
+  if (action.type === REFRESH) {
+    return {};
+  }
   let results = action.payload.results;
   let tmp = {};
   for (let i in results) {
@@ -146,6 +153,9 @@ function detailsFromList(state = {}, action) {
 }
 
 export function details(state = {}, action) {
+  if (action.type === REFRESH) {
+    return {};
+  }
   let key = action.meta ? action.meta.key : '';
   if (key && action.type === LIST_COMPLETE) {
     return _assign({}, state, {

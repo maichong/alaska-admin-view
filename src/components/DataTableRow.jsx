@@ -26,10 +26,6 @@ export default class DataTableRow extends React.Component {
     views: object
   };
 
-  shouldComponentUpdate(props) {
-    return !shallowEqual(props, this.props);
-  }
-
   handleChange = () => {
     this.props.onSelect(this.props.record, !this.props.selected);
   };

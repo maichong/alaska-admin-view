@@ -19,23 +19,19 @@ import {
   DETAILS,
   SAVE,
   REMOVE,
-  ACTION,
+  REFRESH,
   LAYOUT
 } from '../constants';
 
-const loading = {};
-
-//export const load = createAsyncAction(REFRESH_INFO, async (arg, dispatch)=> {
-//  try {
-//    let res = await api(PREFIX + '/info');
-//    console.log(res);
-//  } catch (error) {
-//    console.error(error.stack);
-//    throw error;
-//  }
-//});
+let loading = {};
 
 export const refreshInfo = createApiAction(REFRESH_INFO, PREFIX + '/api/login/info');
+
+export const refresh = () => dispatch => {
+  loading = {};
+  dispatch(refreshInfo());
+  dispatch({ type: REFRESH });
+};
 
 export const logout = createApiAction(LOGOUT, PREFIX + '/api/login/logout');
 

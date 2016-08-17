@@ -216,7 +216,7 @@ class Editor extends React.Component {
 
   async handleAction(action) {
     const { model, data, id } = this.state;
-    const { t, toast, confirm } = this.context;
+    const { t, toast, confirm, actions } = this.context;
 
     const config = model.actions[action];
     if (config && config.confirm) {
@@ -241,7 +241,11 @@ class Editor extends React.Component {
           }), body);
       }
       toast('success', t('Successfully'));
-      this.refresh();
+      if (config.post === 'refresh') {
+        actions.refresh();
+      } else {
+        this.refresh();
+      }
       if (config.post && config.post.substr(0, 3) === 'js:') {
         eval(config.post.substr(3));
       }

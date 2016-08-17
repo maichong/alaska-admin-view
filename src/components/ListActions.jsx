@@ -40,7 +40,7 @@ export default class ListActions extends React.Component {
 
   handleAction = async (action) => {
     const { model, selected } = this.props;
-    const { t, toast, confirm } = this.context;
+    const { t, toast, confirm, actions } = this.context;
 
     const config = model.actions[action];
     if (config && config.confirm) {
@@ -64,7 +64,11 @@ export default class ListActions extends React.Component {
           }), { records: _map(selected, record => record._id) });
       }
       toast('success', t('Successfully'));
-      this.props.onRefresh();
+      if (config.post == 'refresh') {
+        actions.refresh();
+      } else {
+        this.props.onRefresh();
+      }
       if (config.post && config.post.substr(0, 3) === 'js:') {
         eval(config.post.substr(3));
       }

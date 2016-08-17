@@ -77,7 +77,7 @@ class Header extends React.Component {
   };
 
   handleRefresh = () => {
-    this.context.actions.refreshInfo();
+    this.context.actions.refresh();
     this.setState({
       open: false
     });
