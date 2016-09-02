@@ -28,6 +28,7 @@ import _without from 'lodash/without';
 import _size from 'lodash/size';
 import _reduce from 'lodash/reduce';
 import _find from 'lodash/find';
+import _pull from 'lodash/pull';
 
 const { object, func } = React.PropTypes;
 const CHECK_ICON = <i className="fa fa-check"/>;
@@ -296,9 +297,9 @@ class List extends React.Component {
   }
 
   handleColumn = (eventKey) => {
-    let columnsKeys = _clone(this.state.columnsKeys);
+    let columnsKeys = this.state.columnsKeys.slice();
     if (columnsKeys.indexOf(eventKey) > -1) {
-      columnsKeys = _omit(columnsKeys, eventKey);
+      _pull(columnsKeys, eventKey);
     } else {
       columnsKeys.push(eventKey);
     }
@@ -329,6 +330,7 @@ class List extends React.Component {
   };
 
   render() {
+    const { location } = this.props;
     const {
       search,
       title,
@@ -349,19 +351,24 @@ class List extends React.Component {
     const t = this.context.t;
     let titleBtns = [];
 
-    if (filterItems.length) {
+    if (!location.query.nofilter && filterItems.length) {
       titleBtns.push(<DropdownButton id="listFilterDropdown" key="listFilterDropdown"
                                      title={<i className="fa fa-filter"/>}
                                      onSelect={this.handleFilter}>{filterItems}</DropdownButton>);
     }
 
-    titleBtns.push(<DropdownButton id="columnsDropdown" key="columnsDropdown"
-                                   title={<i className="fa fa-columns"/>}
-                                   onSelect={this.handleColumn}>{columnsItems}</DropdownButton>);
+    if(!location.query.nocolumns){
+      titleBtns.push(<DropdownButton id="columnsDropdown" key="columnsDropdown"
+                                     title={<i className="fa fa-columns"/>}
+                                     onSelect={this.handleColumn}>{columnsItems}</DropdownButton>);
+    }
 
-    titleBtns.push(<button key="refresh" className="btn btn-primary" onClick={this.refresh}><i
-      className="fa fa-refresh"/>
-    </button>);
+
+    if(!location.query.norefresh){
+      titleBtns.push(<button key="refresh" className="btn btn-primary" onClick={this.refresh}><i
+        className="fa fa-refresh"/>
+      </button>);
+    }
 
     let searchInput = model.searchFields.length ?
       <SearchField placeholder={t('Search')} onChange={this.handleSearch} value={search}/> : null;
