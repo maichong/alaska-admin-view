@@ -23,6 +23,13 @@ export default function checkDepends(depends, data) {
     return !!data[depends];
   }
   return _every(depends, (v, k) => {
+    if (Array.isArray(v)) {
+      if (k[0] === '!') {
+        k = k.substr(1);
+        return v.indexOf(data[k]) === -1;
+      }
+      return v.indexOf(data[k]) > -1;
+    }
     if (k[0] === '!') {
       k = k.substr(1);
       return data[k] != v;
